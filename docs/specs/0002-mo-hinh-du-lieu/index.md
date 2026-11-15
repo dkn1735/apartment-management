@@ -238,13 +238,13 @@ Tính năng này không thêm endpoint. Các API xác thực dùng schema này �
 
 Một lớp `SchemaMigrationTest` (Testcontainers, `postgres:18.7`, `@ActiveProfiles({"dev", "seed"})`). Để các test không làm bẩn dữ liệu của nhau:
 - Mỗi kịch bản ghi dữ liệu chạy trong `@Transactional` (tự rollback).
-- Lỗi được kiểm tra theo SQLSTATE, không theo lớp exception: 23514 cho CHECK, 23503 cho RESTRICT, 2200H cho tràn sequence.
+- Lỗi được kiểm tra theo SQLSTATE, không theo lớp exception: 23514 cho CHECK, 23001 cho RESTRICT (`restrict_violation`; 23503 chỉ xuất hiện với `NO ACTION`), 2200H cho tràn sequence.
 - Không đổi sequence thật (`setval` không rollback được).
 
 Các kịch bản:
 - Happy path: database trống khởi động xong có đúng 42 bảng trong schema `public` (không tính `flyway_schema_history`, đọc từ `information_schema.tables`) và không cột nào kiểu `timestamp without time zone`, verifies **AC-1**, **AC-2**, **AC-3**.
 - Mã tự sinh: chèn một `nguoi_dung_he_thong` không ghi mã nhận mã khớp `^ND[0-9]{8}$`. Kiểm tra tràn trên một sequence tạm tạo trong test với cùng khai báo (`MAXVALUE 99999999 NO CYCLE`, `START 99999999`): `nextval` lần hai trả 2200H. Thêm một truy vấn `pg_sequences` xác nhận mọi `seq_*` có `max_value = 99999999`, verifies **AC-4**.
-- Dữ liệu sai: mỗi trường hợp trả 23514. Các trường hợp là email `An@x.vn`, số `+84900000009`, CCCD 9 chữ số, hash không tiền tố và kỳ `11/2026` trên `thong_bao_phi` (căn hộ `A-0101` và kế toán seed làm cha). `DELETE` người dùng 0900000007 (có dòng `cu_dan`) trả 23503, verifies **AC-5**.
+- Dữ liệu sai: mỗi trường hợp trả 23514. Các trường hợp là email `An@x.vn`, số `+84900000009`, CCCD 9 chữ số, hash không tiền tố và kỳ `11/2026` trên `thong_bao_phi` (căn hộ `A-0101` và kế toán seed làm cha). `DELETE` người dùng 0900000007 (có dòng `cu_dan`) trả 23001, verifies **AC-5**.
 - Seed: tài khoản có số `09000000%` đúng 8; mỗi bảng vai trò ít nhất 1 dòng; 0900000006 có cả `cu_dan` và `thanh_vien_ban_quan_tri`; 0900000008 là `Tạm khóa`; có 3 hồ sơ cư trú `Hợp lệ`; `PasswordEncoderFactories.createDelegatingPasswordEncoder().matches("ChungCu@2026", hash)` đúng với mọi tài khoản, verifies **AC-6**.
 - Chạy lại: đọc `db/seed/R__seed_01_xac_thuc.sql` bằng `EncodedResource` UTF-8, chạy bằng `ScriptUtils.executeSqlScript`, rồi so số dòng của mọi bảng trong `public` trước và sau: không đổi, verifies **AC-8**.
 - Collation: tạo bảng tạm có cột `ho_ten ... COLLATE "vi-VN-x-icu"`, chèn `Đào, Bình, Ánh, Dương, Anh`, `ORDER BY ho_ten` ra `Anh, Ánh, Bình, Dương, Đào`. Thêm một truy vấn `information_schema.columns` xác nhận `nguoi_dung_he_thong.ho_ten` có `collation_name = 'vi-VN-x-icu'`, verifies **AC-9**.
