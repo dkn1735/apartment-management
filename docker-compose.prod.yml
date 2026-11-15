@@ -19,7 +19,8 @@ services:
   backend:
     build: ./backend
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      # seed: tài khoản mẫu cho bản demo trên máy cá nhân (mật khẩu công khai trong repo)
+      SPRING_PROFILES_ACTIVE: prod,seed
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-chungcu}
       DB_USERNAME: ${POSTGRES_USER:-chungcu}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
