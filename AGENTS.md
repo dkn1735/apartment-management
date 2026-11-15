@@ -21,6 +21,8 @@ cd backend && mvnw.cmd spring-boot:run        # backend :8080, Swagger ở /swag
 cd backend && mvnw.cmd verify                 # build + test (cần Docker), ghi docs/api/openapi.json
 cd frontend && pnpm install && pnpm dev       # frontend :3000, gọi /api qua rewrites
 cd frontend && pnpm gen:api && pnpm typecheck && pnpm build   # sinh kiểu API rồi kiểm tra
+cd frontend && pnpm lint && pnpm format:check   # sửa nhanh: pnpm lint:fix, pnpm format
+cd backend && mvnw.cmd spring-javaformat:apply  # tự format Java khi validate báo lỗi
 docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba phần
 ```
 
@@ -40,10 +42,13 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 
 ## Tooling
 
-Đã chọn; `/develop quy chuẩn code & công cụ` cài đặt.
+Đã cài. Cấu hình ở `frontend/eslint.config.mjs`, `frontend/.prettierrc.json`, `lefthook.yml`, `.github/workflows/ci.yml` và plugin trong `backend/pom.xml`.
 - Backend: Spring Java Format (`spring-javaformat-maven-plugin`, thụt lề tab), `validate` chặn build, `apply` để tự format.
 - Frontend: ESLint flat config (`eslint-config-next`, `jsx-a11y`) + Prettier (`eslint-config-prettier`); script `lint`, `format`, `format:check`.
 - Pre-commit: Lefthook ở gốc repo, chạy ESLint, Prettier, `tsc` cho frontend và Spring Java Format validate cho backend. Không chạy test.
+- Lefthook là devDependency của `frontend`; hook được cài khi chạy `pnpm install` trong `frontend/` (script `prepare`). CI tắt hook bằng `LEFTHOOK=0`.
+- `pnpm typecheck` chạy `next typegen` trước `tsc`, vì kiểu route như `LayoutProps` do Next.js sinh ra và không có trên checkout mới.
+- Giữ ESLint 9 cho tới khi `eslint-plugin-react`, `eslint-plugin-import` và `eslint-plugin-jsx-a11y` hỗ trợ ESLint 10.
 - CI: GitHub Actions khi push và PR: `mvnw verify`, lint, typecheck, build frontend, sinh lại `openapi.json` rồi `git diff --exit-code`.
 
 ## Git
