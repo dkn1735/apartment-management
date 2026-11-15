@@ -28,3 +28,10 @@ Commit cả hai file kèm thay đổi API.
 ## Chạy bản demo
 
 `docker compose -f docker-compose.prod.yml up --build`, mở http://localhost:3000. Cần `.env` ở gốc có `POSTGRES_PASSWORD` và `JWT_SECRET`.
+
+## Kiểm tra code
+
+- Frontend: `pnpm lint`, `pnpm format:check`, `pnpm typecheck` (sửa nhanh: `pnpm lint:fix`, `pnpm format`)
+- Backend: `mvnw.cmd verify` đã gồm kiểm tra định dạng; sửa nhanh bằng `mvnw.cmd spring-javaformat:apply`
+- Trước mỗi commit, Lefthook tự chạy các kiểm tra trên. Hook được cài khi bạn chạy `pnpm install` trong `frontend/`.
+- CI (`.github/workflows/ci.yml`) chạy lại tất cả khi push lên `main` và khi mở PR, kể cả kiểm tra `openapi.json` và `schema.d.ts` có bị quên cập nhật không.
