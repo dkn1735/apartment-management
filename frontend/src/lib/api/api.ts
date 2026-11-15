@@ -12,13 +12,7 @@ export class ApiError extends Error {
   readonly errors: FieldError[];
   readonly requestId: string | undefined;
 
-  constructor(init: {
-    status: number;
-    errorCode: string;
-    message: string;
-    errors?: FieldError[];
-    requestId?: string;
-  }) {
+  constructor(init: { status: number; errorCode: string; message: string; errors?: FieldError[]; requestId?: string }) {
     super(init.message);
     this.name = "ApiError";
     this.status = init.status;
