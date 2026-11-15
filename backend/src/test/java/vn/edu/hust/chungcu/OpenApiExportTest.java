@@ -19,7 +19,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Xuất đặc tả OpenAPI ra {@code docs/api/openapi.json} để frontend sinh kiểu
- * ({@code pnpm gen:api}). Chạy bằng {@code mvnw.cmd verify}; commit file kèm thay đổi API.
+ * ({@code pnpm gen:api}). Chạy bằng {@code mvnw.cmd verify}; commit file kèm thay đổi
+ * API.
  */
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(properties = "app.security.jwt-secret=test-only-secret-not-for-real-use")

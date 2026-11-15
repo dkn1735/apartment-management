@@ -4,8 +4,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 
 /**
- * Lỗi nghiệp vụ có chủ đích. Service ném lỗi này, {@link GlobalExceptionHandler}
- * đổi thành response lỗi theo vỏ bọc chung.
+ * Lỗi nghiệp vụ có chủ đích. Service ném lỗi này, {@link GlobalExceptionHandler} đổi
+ * thành response lỗi theo vỏ bọc chung.
  */
 public class ApiException extends RuntimeException {
 

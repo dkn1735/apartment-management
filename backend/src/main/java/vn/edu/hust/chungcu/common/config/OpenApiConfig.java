@@ -30,7 +30,8 @@ public class OpenApiConfig {
 
 	@Bean
 	OpenAPI chungCuOpenApi() {
-		// Server tương đối: frontend gọi qua cùng tên miền, và file xuất ra không phụ thuộc máy
+		// Server tương đối: frontend gọi qua cùng tên miền, và file xuất ra không phụ
+		// thuộc máy
 		return new OpenAPI().info(new Info().title("Hệ thống Quản lý Chung cư API").version("v1"))
 			.servers(List.of(new Server().url("/")));
 	}
@@ -52,8 +53,9 @@ public class OpenApiConfig {
 				.forEach(path -> path.readOperations()
 					.forEach(operation -> operation.getResponses()
 						.addApiResponse("default", new ApiResponse().description("Lỗi theo vỏ bọc chung")
-							.content(new Content().addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
-									new MediaType().schema(new Schema<>().$ref("#/components/schemas/" + ERROR_SCHEMA)))))));
+							.content(new Content()
+								.addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE, new MediaType()
+									.schema(new Schema<>().$ref("#/components/schemas/" + ERROR_SCHEMA)))))));
 		};
 	}
 
