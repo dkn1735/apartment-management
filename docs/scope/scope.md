@@ -14,7 +14,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
 | 1 | Stack & kiến trúc | Foundation | done |
-| 2 | Quy chuẩn code & công cụ | Foundation | planned |
+| 2 | Quy chuẩn code & công cụ | Foundation | done |
 | 3 | Mô hình dữ liệu | Foundation | planned |
 | 4 | Design system & nền tảng giao diện | Foundation | planned |
 | 5 | Đăng nhập & trang hồ sơ | Slice 1 | planned |
@@ -36,10 +36,11 @@ spec [0001](../specs/0001-stack-kien-truc/index.md) · code in `backend/`, `fron
 - [x] Decide the stack (spec): `/architect stack & kiến trúc`
 - [x] Scaffold from the decision: `/develop stack & kiến trúc`
 
-### 2. Quy chuẩn code & công cụ
+### 2. Quy chuẩn code & công cụ · done
 Ghi lại quy ước code và chọn công cụ lint, format, kiểm tra trước khi commit, dựa trên bộ khung thật sau khi scaffold.
 **Done when:** `AGENTS.md` ở thư mục gốc mô tả đúng stack thật, và lint, format, pre-commit chạy sạch cho cả backend lẫn frontend.
-- [ ] Capture conventions + tooling choices: `/audit`
+code in `AGENTS.md`, `lefthook.yml`, `.github/workflows/ci.yml`, `frontend/eslint.config.mjs`, `backend/pom.xml`
+- [x] Capture conventions + tooling choices: `/audit`
 
 ### 3. Mô hình dữ liệu · needs a decision
 Đưa schema có sẵn (38 bảng) vào migration, và bổ sung những gì phân hệ xác thực cần mà schema chưa có: nơi lưu refresh token và mã đặt lại mật khẩu, bộ đếm đăng nhập sai, cách biểu diễn vai trò Admin và Bảo vệ (API có nhắc nhưng chưa có bảng). Mô hình dữ liệu là thứ tốn kém nhất nếu phải làm lại, nên chốt sớm.
