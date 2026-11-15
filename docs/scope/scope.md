@@ -50,7 +50,7 @@ spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main
 - [ ] Build it: `/develop mô hình dữ liệu`
   - [x] Đường mỏng định danh: V1, profile `seed`, seed tài khoản, khung test (AC-3, AC-4, AC-5, AC-6, AC-7)
   - [x] Không gian và cư trú: V2, seed tòa nhà và hồ sơ cư trú, test chạy lại seed (AC-2, AC-5, AC-6, AC-8)
-  - [ ] Các nhóm còn lại: V3 đến V9 (AC-1, AC-2, AC-5)
+  - [x] Các nhóm còn lại: V3 đến V9 (AC-1, AC-2, AC-5)
   - [ ] Khóa lại: test toàn schema, collation, README (AC-1, AC-2, AC-9)
 - [ ] Verify it: `/check verify mô hình dữ liệu`
 - [ ] Test it: `/test mô hình dữ liệu`

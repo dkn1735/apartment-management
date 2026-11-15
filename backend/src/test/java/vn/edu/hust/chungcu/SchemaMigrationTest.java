@@ -101,7 +101,25 @@ class SchemaMigrationTest {
 				Arguments.of("CCCD 9 chữ số",
 						"""
 								INSERT INTO cu_dan (ma_nguoi_dung, so_cccd)
-								SELECT ma_nguoi_dung, '001026000' FROM nguoi_dung_he_thong WHERE so_dien_thoai = '0900000001'"""));
+								SELECT ma_nguoi_dung, '001026000' FROM nguoi_dung_he_thong WHERE so_dien_thoai = '0900000001'"""),
+				Arguments.of("kỳ không đúng dạng YYYY-MM", """
+						INSERT INTO thong_bao_phi (ma_can_ho, ma_ke_toan, ky_tinh_phi, han_thanh_toan)
+						SELECT 'A-0101', k.ma_nv, '11/2026', DATE '2026-12-10'
+						FROM ke_toan k JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = k.ma_nguoi_dung
+						WHERE n.so_dien_thoai = '0900000004'"""));
+	}
+
+	// AC-5: đối chứng cho ca kỳ sai, để chắc lỗi trên là do CHECK kỳ chứ không do dữ liệu
+	// cha
+	@Test
+	@Transactional
+	void kyDungDangDuocChapNhan() {
+		int soDong = this.jdbc.update("""
+				INSERT INTO thong_bao_phi (ma_can_ho, ma_ke_toan, ky_tinh_phi, han_thanh_toan)
+				SELECT 'A-0101', k.ma_nv, '2026-11', DATE '2026-12-10'
+				FROM ke_toan k JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = k.ma_nguoi_dung
+				WHERE n.so_dien_thoai = '0900000004'""");
+		assertThat(soDong).isEqualTo(1);
 	}
 
 	// AC-5
