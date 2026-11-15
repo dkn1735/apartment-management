@@ -201,6 +201,79 @@ class SchemaMigrationTest {
 		flyway.migrate();
 	}
 
+	// AC-1, AC-3
+	@Test
+	void flywayTaoDuBonMuoiHaiBang() {
+		List<String> bang = tenCacBang();
+		assertThat(bang).hasSize(42)
+			.contains("quan_tri_vien", "nhan_vien_bao_ve", "phien_dang_nhap", "yeu_cau_dat_lai_mat_khau");
+	}
+
+	// AC-3
+	@Test
+	void nguoiDungCoCacCotChoXacThuc() {
+		List<String> cot = this.jdbc.queryForList("""
+				SELECT column_name FROM information_schema.columns
+				WHERE table_schema = 'public' AND table_name = 'nguoi_dung_he_thong'""", String.class);
+		assertThat(cot).contains("so_lan_dang_nhap_sai", "khoa_tam_den", "dang_nhap_cuoi_luc", "doi_mat_khau_luc",
+				"tao_luc", "cap_nhat_luc", "phien_ban");
+	}
+
+	// AC-2
+	@Test
+	void khongCotThoiDiemNaoThieuMuiGio() {
+		List<String> cot = this.jdbc.queryForList("""
+				SELECT table_name || '.' || column_name FROM information_schema.columns
+				WHERE table_schema = 'public' AND data_type = 'timestamp without time zone'
+				AND table_name <> 'flyway_schema_history'""", String.class);
+		assertThat(cot).isEmpty();
+	}
+
+	// AC-2, AC-4: 36 bảng có tiền tố, mỗi bảng một sequence
+	@Test
+	void moiBangCoTienToCoMotSequence() {
+		assertThat(
+				count("SELECT count(*) FROM pg_sequences WHERE schemaname = 'public' AND sequencename LIKE 'seq\\_%'"))
+			.isEqualTo(36);
+	}
+
+	// AC-2: mục sửa 7, mọi cột khóa ngoại có index bắt đầu bằng nó
+	@Test
+	void moiCotKhoaNgoaiDeuCoIndex() {
+		List<String> thieuIndex = this.jdbc.queryForList("""
+				SELECT c.conrelid::regclass || '.' || a.attname
+				FROM pg_constraint c
+				JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+				WHERE c.contype = 'f' AND c.connamespace = 'public'::regnamespace
+				AND NOT EXISTS (
+					SELECT 1 FROM pg_index i WHERE i.indrelid = c.conrelid AND i.indkey[0] = c.conkey[1])""",
+				String.class);
+		assertThat(thieuIndex).isEmpty();
+	}
+
+	// AC-2
+	@Test
+	void cacCotTenVaTieuDeDungCollationTiengViet() {
+		List<String> cot = this.jdbc.queryForList("""
+				SELECT table_name || '.' || column_name FROM information_schema.columns
+				WHERE table_schema = 'public' AND collation_name = 'vi-VN-x-icu'""", String.class);
+		assertThat(cot).containsExactlyInAnyOrder("nguoi_dung_he_thong.ho_ten", "toa_nha.ten_toa_nha",
+				"khu_vuc_dung_chung.ten_khu_vuc", "bieu_phi_dich_vu.ten_bieu_phi", "chi_tiet_khoan_phi.ten_khoan_muc",
+				"tien_ich_noi_khu.ten_tien_ich", "thiet_bi_ky_thuat.ten_thiet_bi", "mau_checklist.ten_checklist",
+				"hang_muc_checklist.ten_hang_muc_kiem_tra", "ke_hoach_bao_tri.ten_ke_hoach", "tep_dinh_kem.ten_tep",
+				"phieu_yeu_cau_ho_tro.tieu_de", "thong_bao_van_hanh.tieu_de", "dot_khao_sat.tieu_de");
+	}
+
+	// AC-9
+	@Test
+	@Transactional
+	void sapXepTenTiengVietDungThuTu() {
+		this.jdbc.execute("CREATE TEMP TABLE thu_sap_xep (ho_ten VARCHAR(100) COLLATE \"vi-VN-x-icu\") ON COMMIT DROP");
+		this.jdbc.update("INSERT INTO thu_sap_xep (ho_ten) VALUES ('Đào'), ('Bình'), ('Ánh'), ('Dương'), ('Anh')");
+		assertThat(this.jdbc.queryForList("SELECT ho_ten FROM thu_sap_xep ORDER BY ho_ten", String.class))
+			.containsExactly("Anh", "Ánh", "Bình", "Dương", "Đào");
+	}
+
 	private Map<String, Integer> soDongMoiBang() {
 		Map<String, Integer> soDong = new TreeMap<>();
 		for (String bang : tenCacBang()) {
