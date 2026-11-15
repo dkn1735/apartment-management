@@ -3,8 +3,12 @@ package vn.edu.hust.chungcu;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
 import org.flywaydb.core.Flyway;
@@ -15,7 +19,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.EncodedResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -132,6 +140,36 @@ class SchemaMigrationTest {
 		assertThat(hashes).hasSize(8).allMatch((hash) -> encoder.matches("ChungCu@2026", hash));
 	}
 
+	// AC-6
+	@Test
+	void seedCoToaNhaVaHoSoCuTruChoMoiCuDan() {
+		assertThat(count("SELECT count(*) FROM toa_nha")).isEqualTo(1);
+		assertThat(count("SELECT count(*) FROM tang WHERE ma_toa_nha = 'A'")).isEqualTo(3);
+		assertThat(count("SELECT count(*) FROM can_ho")).isEqualTo(3);
+		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(3);
+		assertThat(count("""
+				SELECT count(*) FROM cu_dan c
+				WHERE NOT EXISTS (
+					SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_cu_dan = c.ma_cu_dan AND h.trang_thai_ho_so = 'Hợp lệ')"""))
+			.isZero();
+	}
+
+	// AC-8
+	@Test
+	@Transactional
+	void chayLaiSeedKhongDoiSoDong() throws SQLException {
+		Map<String, Integer> truoc = soDongMoiBang();
+		Connection connection = DataSourceUtils.getConnection(this.dataSource);
+		try {
+			ScriptUtils.executeSqlScript(connection, new EncodedResource(
+					new ClassPathResource("db/seed/R__seed_01_xac_thuc.sql"), StandardCharsets.UTF_8));
+		}
+		finally {
+			DataSourceUtils.releaseConnection(connection, this.dataSource);
+		}
+		assertThat(soDongMoiBang()).isEqualTo(truoc);
+	}
+
 	// AC-7
 	@Test
 	void boProfileSeedTrenDatabaseDaSeedVanMigrateDuoc() {
@@ -143,6 +181,22 @@ class SchemaMigrationTest {
 			.load();
 		flyway.validate();
 		flyway.migrate();
+	}
+
+	private Map<String, Integer> soDongMoiBang() {
+		Map<String, Integer> soDong = new TreeMap<>();
+		for (String bang : tenCacBang()) {
+			soDong.put(bang, count("SELECT count(*) FROM " + bang));
+		}
+		return soDong;
+	}
+
+	private List<String> tenCacBang() {
+		return this.jdbc.queryForList(
+				"""
+						SELECT table_name FROM information_schema.tables
+						WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name <> 'flyway_schema_history'""",
+				String.class);
 	}
 
 	private int count(String sql) {

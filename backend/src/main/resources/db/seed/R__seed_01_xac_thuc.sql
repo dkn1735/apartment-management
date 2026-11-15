@@ -47,3 +47,37 @@ FROM (VALUES ('0900000006', '001026000006'), ('0900000007', '001026000007'), ('0
     AS v (so_dien_thoai, so_cccd)
 JOIN nguoi_dung_he_thong n ON n.so_dien_thoai = v.so_dien_thoai
 ON CONFLICT (ma_nguoi_dung) DO NOTHING;
+
+-- Không gian: 1 tòa, 3 tầng, 3 căn hộ (mã do người dùng đặt)
+INSERT INTO toa_nha (ma_toa_nha, ten_toa_nha, so_tang, dia_chi_khu_vuc)
+VALUES ('A', 'Tòa A', 3, 'Khu đô thị mẫu, Hà Nội')
+ON CONFLICT (ma_toa_nha) DO NOTHING;
+
+INSERT INTO tang (ma_tang, ma_toa_nha, so_tang)
+VALUES ('A-01', 'A', 1), ('A-02', 'A', 2), ('A-03', 'A', 3)
+ON CONFLICT (ma_tang) DO NOTHING;
+
+INSERT INTO can_ho (ma_can_ho, ma_tang, dien_tich, trang_thai_su_dung, bi_tam_dung_tien_ich)
+VALUES
+    ('A-0101', 'A-01', 75.50, 'Đang sử dụng', FALSE),
+    ('A-0201', 'A-02', 75.50, 'Đang sử dụng', FALSE),
+    ('A-0301', 'A-03', 75.50, 'Đang sử dụng', FALSE)
+ON CONFLICT (ma_can_ho) DO NOTHING;
+
+-- Hồ sơ cư trú: không có khóa tự nhiên, nên dùng NOT EXISTS theo (căn hộ, cư dân)
+INSERT INTO ho_so_cu_tru (ma_can_ho, ma_cu_dan, ma_nvbql_xac_minh, vai_tro_cu_tru, tinh_trang_cu_tru,
+    ngay_bat_dau, ngay_ket_thuc, trang_thai_ho_so)
+SELECT v.ma_can_ho, c.ma_cu_dan, b.ma_nv, v.vai_tro_cu_tru, 'Thường trú', DATE '2026-01-01', NULL, 'Hợp lệ'
+FROM (VALUES
+        ('0900000006', 'A-0101', 'Chủ căn hộ'),
+        ('0900000007', 'A-0201', 'Chủ căn hộ'),
+        ('0900000008', 'A-0301', 'Khách thuê'))
+    AS v (so_dien_thoai, ma_can_ho, vai_tro_cu_tru)
+JOIN nguoi_dung_he_thong n ON n.so_dien_thoai = v.so_dien_thoai
+JOIN cu_dan c ON c.ma_nguoi_dung = n.ma_nguoi_dung
+CROSS JOIN (
+    SELECT q.ma_nv FROM nhan_vien_bql q
+    JOIN nguoi_dung_he_thong nq ON nq.ma_nguoi_dung = q.ma_nguoi_dung
+    WHERE nq.so_dien_thoai = '0900000002') AS b
+WHERE NOT EXISTS (
+    SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_can_ho = v.ma_can_ho AND h.ma_cu_dan = c.ma_cu_dan);
