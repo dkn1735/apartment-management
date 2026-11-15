@@ -1,3 +1,5 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+  # hook được đăng ký qua script prepare, không cần postinstall của lefthook
+  lefthook: false

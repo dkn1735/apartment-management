@@ -1,0 +1,24 @@
+# Kiểm tra trước mỗi commit (AGENTS.md, mục Tooling). Chỉ kiểm tra, không tự sửa file.
+# Hook được đăng ký khi chạy `pnpm install` trong frontend (script prepare).
+# Sửa nhanh: `pnpm format` và `pnpm lint:fix` trong frontend, `mvnw.cmd spring-javaformat:apply` trong backend.
+pre-commit:
+  parallel: true
+  jobs:
+    - name: frontend eslint
+      root: "frontend/"
+      glob: "*.{js,jsx,mjs,ts,tsx}"
+      run: pnpm exec eslint --no-warn-ignored {staged_files}
+
+    - name: frontend prettier
+      root: "frontend/"
+      run: pnpm exec prettier --check --ignore-unknown {staged_files}
+
+    - name: frontend typecheck
+      root: "frontend/"
+      glob: "*.{ts,tsx}"
+      run: pnpm typecheck
+
+    - name: backend spring-javaformat
+      root: "backend/"
+      glob: "*.java"
+      run: sh mvnw -B -q spring-javaformat:validate
