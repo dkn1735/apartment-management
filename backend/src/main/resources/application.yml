@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: chungcu
+  config:
+    # backend/.env (không commit) cho chạy local; biến môi trường thật vẫn được ưu tiên
+    import: optional:file:.env[.properties]
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  autoconfigure:
+    # Không dùng tài khoản trong bộ nhớ của Spring; tài khoản nằm trong DB (spec Đăng nhập)
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    locations: classpath:db/migration
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  timezone: ${APP_TIMEZONE:Asia/Ho_Chi_Minh}
+  security:
+    # Không có giá trị mặc định: thiếu JWT_SECRET thì backend dừng lúc khởi động
+    jwt-secret: ${JWT_SECRET:}

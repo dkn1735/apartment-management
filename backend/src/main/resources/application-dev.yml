@@ -1,0 +1,12 @@
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+logging:
+  pattern:
+    # Gắn requestId vào mỗi dòng log để nối lỗi trên giao diện với log
+    level: "%5p [%X{requestId:-}]"
+  level:
+    vn.edu.hust.chungcu: DEBUG

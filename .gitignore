@@ -1,0 +1,12 @@
+# Bí mật
+.env
+backend/.env
+frontend/.env.local
+!**/.env.example
+
+# Hệ điều hành và IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml

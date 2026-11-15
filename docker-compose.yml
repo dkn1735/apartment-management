@@ -1,0 +1,21 @@
+# Dev: chỉ bật PostgreSQL. Backend chạy bằng mvnw.cmd spring-boot:run, frontend bằng pnpm dev.
+services:
+  db:
+    image: postgres:18.7
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chungcu}
+      POSTGRES_USER: ${POSTGRES_USER:-chungcu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD trong .env}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      # PostgreSQL 18 lưu dữ liệu dưới /var/lib/postgresql (không còn /var/lib/postgresql/data)
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:
