@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.edu.hust.chungcu.common.error.ErrorCodes;
 import vn.edu.hust.chungcu.common.error.ErrorResponseFactory;
@@ -29,6 +31,12 @@ public final class CsrfHeaderFilter extends OncePerRequestFilter {
 
 	private static final Set<String> GHI = Set.of("POST", "PUT", "PATCH", "DELETE");
 
+	/**
+	 * So khớp như Spring MVC (đoạn đường đã giải mã), không dùng {@code getRequestURI()}
+	 * thô: {@code /%61pi/...} vẫn tới handler {@code /api/...} nên cũng phải bị kiểm.
+	 */
+	private static final RequestMatcher API = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
+
 	private final ErrorResponseFactory errors;
 
 	public CsrfHeaderFilter(ErrorResponseFactory errors) {
@@ -46,8 +54,7 @@ public final class CsrfHeaderFilter extends OncePerRequestFilter {
 	}
 
 	private static boolean canKiem(HttpServletRequest request) {
-		String path = request.getRequestURI().substring(request.getContextPath().length());
-		return GHI.contains(request.getMethod()) && path.startsWith("/api/");
+		return GHI.contains(request.getMethod()) && API.matches(request);
 	}
 
 }

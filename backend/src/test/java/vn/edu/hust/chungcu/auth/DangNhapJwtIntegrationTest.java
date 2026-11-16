@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.servlet.http.Cookie;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -202,6 +203,18 @@ class DangNhapJwtIntegrationTest {
 				.content("{\"taiKhoan\":\"0900000007\",\"matKhau\":\"ChungCu@2026\"}"))
 			.andExpect(status().isForbidden())
 			.andExpect(jsonPath("$.errorCode").value("CSRF_REJECTED"));
+	}
+
+	// AC-10: đường dẫn mã hóa phần trăm (/%61pi = /api) vẫn tới handler nên vẫn phải bị
+	// kiểm
+	@Test
+	void duongDanMaHoaPhanTramVanBiKiemChongCsrf() throws Exception {
+		this.mockMvc
+			.perform(post(URI.create("/%61pi/v1/auth/login")).contentType(MediaType.APPLICATION_JSON)
+				.content("{\"taiKhoan\":\"0900000007\",\"matKhau\":\"ChungCu@2026\"}"))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.errorCode").value("CSRF_REJECTED"))
+			.andExpect(result -> assertThat(AuthApi.setCookies(result)).isEmpty());
 	}
 
 	// AC-10: GET và OPTIONS không bị kiểm
