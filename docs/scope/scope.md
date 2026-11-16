@@ -58,13 +58,13 @@ spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main
 ### 4. Design system & nền tảng giao diện · in-progress
 Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng, thông báo lỗi) bằng tiếng Việt, để mọi màn hình sau trông thống nhất và dùng được bằng bàn phím.
 **Done when:** `design.md` mô tả chữ, màu, khoảng cách, component; các component nền xử lý focus, bàn phím, trạng thái lỗi và trạng thái đang tải.
-spec [0003](../specs/0003-design-system-giao-dien/index.md)
+spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend/design.md`, `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/lib/`, `frontend/src/app/dev/`
 - [x] Design it (spec): `/architect design system & nền tảng giao diện`
-- [ ] Build it: `/develop design system & nền tảng giao diện`
+- [x] Build it: `/develop design system & nền tảng giao diện`
   - [x] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
   - [x] Form và phản hồi đủ bộ: các loại ô, toast, hộp thoại xác nhận, trang lỗi (AC-3, AC-4, AC-5, AC-6, AC-8, AC-13)
   - [x] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
-  - [ ] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
+  - [x] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
 - [ ] Verify it: `/check verify design system & nền tảng giao diện`
 - [ ] Test it: `/test design system & nền tảng giao diện`
 

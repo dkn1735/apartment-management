@@ -47,13 +47,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
-  return (
-    <td
-      data-slot="table-cell"
-      className={cn("h-10 px-3 py-2 align-top [overflow-wrap:anywhere] break-words", className)}
-      {...props}
-    />
-  );
+  return <td data-slot="table-cell" className={cn("h-10 px-3 py-2 align-top break-words", className)} {...props} />;
 }
 
 export { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow };

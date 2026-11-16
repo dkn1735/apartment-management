@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ButtonDemo } from "./_demo/button-demo";
 import { DemoForm } from "./_demo/demo-form";
 import { DialogDemo } from "./_demo/dialog-demo";
@@ -33,7 +34,8 @@ export default function DevUiPage() {
         <h1 className="mt-1 type-page-title">Bộ component giao diện</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Mọi component nền ở mọi trạng thái. Dùng phím Tab để xem vòng focus, rê chuột để xem trạng thái rê. Quy tắc
-          dùng ở <code>frontend/design.md</code>.
+          dùng ở <code>frontend/design.md</code>. Khung app có thanh bên xem ở{" "}
+          <Link href="/dev/ui/shell">trang AppShell mẫu</Link>.
         </p>
       </header>
       <div className="grid gap-10 lg:grid-cols-[200px_minmax(0,1fr)]">

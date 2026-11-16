@@ -23,7 +23,7 @@ export function KeyValueList({ items, variant = "striped", className }: KeyValue
           )}
         >
           <dt className="shrink-0 text-foreground">{item.label}</dt>
-          <dd className="min-w-0 font-medium [overflow-wrap:anywhere] break-words sm:text-right">{item.value}</dd>
+          <dd className="min-w-0 font-medium [overflow-wrap:anywhere] sm:text-right">{item.value}</dd>
         </div>
       ))}
     </dl>
