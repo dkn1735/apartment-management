@@ -1,16 +1,21 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Clock, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as z from "zod";
 import { FormAlert } from "@/components/form/form-alert";
 import { FormField } from "@/components/form/form-field";
 import { SubmitButton } from "@/components/form/submit-button";
 import { useApiForm } from "@/components/form/use-api-form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { api, client } from "@/lib/api/api";
+import { ERROR_MESSAGES } from "@/lib/api/error-messages";
+import { BO_QUA_CHUYEN_TRANG } from "@/lib/api/query-client";
 import { safeNext } from "@/lib/auth/safe-next";
+import { PasswordInput } from "./password-input";
 
 const schema = z.object({
   taiKhoan: z.string().trim().min(1, "Vui lòng nhập số điện thoại hoặc email"),
@@ -19,7 +24,13 @@ const schema = z.object({
 
 type Values = z.output<typeof schema>;
 
-/** Form đăng nhập (spec 0004, AC-12). Đọc `next` từ URL nên phải nằm trong Suspense. */
+/** Lý do bị đưa về trang đăng nhập (`?ly-do=`); giá trị khác thì bỏ qua. */
+const LY_DO = {
+  "het-phien": { tone: "info", icon: Clock, text: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại." },
+  khoa: { tone: "warning", icon: Lock, text: ERROR_MESSAGES.AUTH_ACCOUNT_LOCKED },
+} as const;
+
+/** Form đăng nhập (spec 0004, AC-12). Đọc `next` và `ly-do` từ URL nên phải nằm trong Suspense. */
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,38 +39,57 @@ export function LoginForm() {
   const mutation = useMutation({
     mutationFn: (values: Values) => api(client.POST("/api/v1/auth/login", { body: values })),
     // Lỗi của chính form đăng nhập không kích hoạt chuyển trang toàn cục (AC-15)
-    meta: { boQuaChuyenTrang: true },
+    meta: { [BO_QUA_CHUYEN_TRANG]: true },
   });
 
+  const lyDoParam = searchParams.get("ly-do");
+  const lyDo = lyDoParam === "het-phien" || lyDoParam === "khoa" ? LY_DO[lyDoParam] : null;
+
   const onSubmit = form.submitWith(async (values) => {
-    await mutation.mutateAsync(values);
+    try {
+      await mutation.mutateAsync(values);
+    } catch (error) {
+      // Giữ ô tài khoản, xóa ô mật khẩu để gõ lại
+      form.setValue("matKhau", "");
+      throw error;
+    }
     // Bỏ dữ liệu của tài khoản trước (nếu có) trước khi vào trang của tài khoản mới
     queryClient.clear();
     router.replace(safeNext(searchParams.get("next")));
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate aria-label="Đăng nhập" className="flex flex-col gap-5">
-      <FormAlert error={form.formError} focusKey={form.formErrorKey} />
-      <FieldGroup>
-        <FormField
-          control={form.control}
-          name="taiKhoan"
-          label="Số điện thoại hoặc email"
-          required
-          render={(field) => <Input autoComplete="username" autoCapitalize="none" spellCheck={false} {...field} />}
-        />
-        <FormField
-          control={form.control}
-          name="matKhau"
-          label="Mật khẩu"
-          required
-          render={(field) => <Input type="password" autoComplete="current-password" {...field} />}
-        />
-      </FieldGroup>
-      <SubmitButton form={form} size="lg" className="w-full">
-        Đăng nhập
-      </SubmitButton>
-    </form>
+    <div className="flex flex-col gap-5">
+      <div role="status" className="empty:hidden">
+        {lyDo && (
+          <Alert tone={lyDo.tone}>
+            <lyDo.icon aria-hidden="true" />
+            <AlertDescription>{lyDo.text}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+      <form onSubmit={onSubmit} noValidate aria-label="Đăng nhập" className="flex flex-col gap-5">
+        <FormAlert error={form.formError} focusKey={form.formErrorKey} />
+        <FieldGroup>
+          <FormField
+            control={form.control}
+            name="taiKhoan"
+            label="Số điện thoại hoặc email"
+            required
+            render={(field) => <Input autoComplete="username" autoCapitalize="none" spellCheck={false} {...field} />}
+          />
+          <FormField
+            control={form.control}
+            name="matKhau"
+            label="Mật khẩu"
+            required
+            render={(field) => <PasswordInput autoComplete="current-password" {...field} />}
+          />
+        </FieldGroup>
+        <SubmitButton form={form} size="lg" className="w-full">
+          Đăng nhập
+        </SubmitButton>
+      </form>
+    </div>
   );
 }

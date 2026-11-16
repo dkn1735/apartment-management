@@ -59,6 +59,9 @@ class DangNhapJwtIntegrationTest {
 	@Autowired
 	JwtDecoder jwtDecoder;
 
+	@Autowired
+	org.springframework.context.ApplicationContext context;
+
 	AuthApi auth;
 
 	@BeforeEach
@@ -207,6 +210,13 @@ class DangNhapJwtIntegrationTest {
 		this.mockMvc.perform(this.auth.profile(this.auth.accessToken(CU_DAN))).andExpect(status().isOk());
 		this.mockMvc.perform(options("/api/v1/auth/login"))
 			.andExpect(result -> assertThat(result.getResponse().getStatus()).isNotEqualTo(403));
+	}
+
+	// AC-10: filter không là bean, nên Spring Boot không đăng ký thêm nó thành servlet
+	// filter chạy lần hai ngoài chuỗi bảo mật
+	@Test
+	void csrfHeaderFilterKhongLaBean() {
+		assertThat(this.context.getBeansOfType(vn.edu.hust.chungcu.common.security.CsrfHeaderFilter.class)).isEmpty();
 	}
 
 	private void expectUnauthenticated(

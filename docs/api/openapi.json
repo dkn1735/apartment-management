@@ -7,6 +7,9 @@
   "servers" : [ {
     "url" : "/"
   } ],
+  "security" : [ {
+    "csrfHeader" : [ ]
+  } ],
   "paths" : {
     "/api/v1/auth/login" : {
       "post" : {
@@ -366,6 +369,14 @@
             "type" : "string"
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "csrfHeader" : {
+        "type" : "apiKey",
+        "description" : "Nhập XMLHttpRequest. Bắt buộc với POST, PUT, PATCH, DELETE.",
+        "name" : "X-Requested-With",
+        "in" : "header"
       }
     }
   }
