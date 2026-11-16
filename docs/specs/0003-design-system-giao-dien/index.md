@@ -1,7 +1,7 @@
 # 0003. Design system và nền tảng giao diện
 
 **Date**: 2026-11-16
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

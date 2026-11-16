@@ -1,1 +1,199 @@
+/* Token của design system (spec 0003). Quy tắc dùng ở frontend/design.md. */
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Chỉ có giao diện sáng: lớp dark: trong code shadcn chỉ bật khi có lớp .dark, không theo hệ điều hành */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-surface-dark: var(--surface-dark);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+
+  --radius-sm: 4px;
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+
+  --shadow-overlay: var(--shadow-overlay);
+}
+
+:root {
+  --background: #f5f2ed;
+  --foreground: #1f1a17;
+  --card: #fffdfa;
+  --card-foreground: #1f1a17;
+  --popover: #fffdfa;
+  --popover-foreground: #1f1a17;
+  --muted: #ece7e0;
+  --muted-foreground: #655c55;
+  --border: #e3ddd5;
+  --input: #8c8279;
+  --primary: #b23a1a;
+  --primary-hover: #93300f;
+  --primary-foreground: #ffffff;
+  --primary-soft: #f6e3dc;
+  --secondary: #ece7e0;
+  --secondary-foreground: #1f1a17;
+  --accent: #e3dcd3;
+  --accent-foreground: #1f1a17;
+  --destructive: #b0123b;
+  --destructive-hover: #8e0e30;
+  --destructive-foreground: #ffffff;
+  --destructive-soft: #fce7ec;
+  --success: #1b6b37;
+  --success-soft: #ddf3e2;
+  --warning: #8a4a00;
+  --warning-soft: #fcead3;
+  --info: #1d5592;
+  --info-soft: #e3ecf7;
+  --highlight: #bff2cc;
+  --highlight-foreground: #14532d;
+  --surface-dark: #1f1a17;
+  --on-dark: #faf7f2;
+  --on-dark-muted: #bdb3a9;
+  --ring: #b23a1a;
+  --overlay: rgb(31 26 23 / 0.5);
+
+  --radius: 6px;
+  --shadow-overlay: 0 8px 24px rgb(31 26 23 / 0.12);
+}
+
+/* Trên mảng tối (HeroBand, mục menu đang chọn) vòng focus đổi sang màu chữ sáng */
+.on-dark {
+  --ring: var(--on-dark);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Vòng focus chung: viền 2px màu --ring, cách 2px (AC-4) */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Link trong nội dung luôn gạch chân (AC-18) */
+  a {
+    color: var(--primary);
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+    transition: color 150ms ease-out;
+  }
+
+  a:hover {
+    color: var(--primary-hover);
+  }
+}
+
+/* Thang chữ (spec 0003, mục Chữ). Be Vietnam Pro không có tnum nên không dùng tabular-nums; cột số căn phải. Dùng tên type-* để không đụng lớp màu text-* khi gộp class. */
+@utility type-stat {
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 200;
+  @media (width < 40rem) {
+    font-size: 32px;
+  }
+}
+
+@utility type-page-title {
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 500;
+  @media (width < 40rem) {
+    font-size: 24px;
+  }
+}
+
+@utility type-section-title {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+@utility type-card-title {
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+@utility type-body {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@utility type-ui {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@utility type-eyebrow {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+@utility type-caption {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Giảm chuyển động: tắt hẳn mọi transition và animation (AC-17) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

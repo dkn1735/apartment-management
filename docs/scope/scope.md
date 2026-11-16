@@ -61,7 +61,7 @@ Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng
 spec [0003](../specs/0003-design-system-giao-dien/index.md)
 - [x] Design it (spec): `/architect design system & nền tảng giao diện`
 - [ ] Build it: `/develop design system & nền tảng giao diện`
-  - [ ] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
+  - [x] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
   - [ ] Form và phản hồi đủ bộ: các loại ô, toast, hộp thoại xác nhận, trang lỗi (AC-3, AC-4, AC-5, AC-6, AC-8, AC-13)
   - [ ] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
   - [ ] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
