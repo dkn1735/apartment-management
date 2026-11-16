@@ -19,6 +19,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<!-- springdoc không do Boot quản lý; khóa bản dựng trên Boot 4.1.2 -->
 		<springdoc.version>3.2.0</springdoc.version>
+		<spring-javaformat.version>0.0.48</spring-javaformat.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -121,6 +122,22 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<!-- Định dạng code kiểu Spring (thụt lề tab). validate chặn build khi sai định dạng;
+				     chạy mvnw.cmd spring-javaformat:apply để tự sửa. -->
+				<groupId>io.spring.javaformat</groupId>
+				<artifactId>spring-javaformat-maven-plugin</artifactId>
+				<version>${spring-javaformat.version}</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<inherited>true</inherited>
+						<goals>
+							<goal>validate</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

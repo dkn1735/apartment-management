@@ -23,6 +23,11 @@ spring:
           time_zone: UTC
   flyway:
     locations: classpath:db/migration
+    # Chuỗi ${ trong SQL không phải biến Flyway
+    placeholder-replacement: false
+    # Thay hẳn mặc định của Flyway, nên phải giữ *:future. repeatable:missing cho phép
+    # bỏ profile seed trên database đã seed mà validate không báo thiếu migration.
+    ignore-migration-patterns: "*:future,repeatable:missing"
   threads:
     virtual:
       enabled: true

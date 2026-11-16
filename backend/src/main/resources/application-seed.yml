@@ -1,0 +1,5 @@
+# Bật bằng SPRING_PROFILES_ACTIVE=dev,seed (dev) hoặc prod,seed (bản demo). Spec 0002.
+# Mật khẩu seed công khai trong repo: không bật profile này trên máy chủ mở ra Internet.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed

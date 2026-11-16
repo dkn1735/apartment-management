@@ -11,10 +11,10 @@ import vn.edu.hust.chungcu.common.error.ErrorCodes;
 import vn.edu.hust.chungcu.common.error.ErrorResponseFactory;
 
 /**
- * Bảo mật TẠM THỜI của bộ khung (spec 0001, mục Nền tảng khác), dùng tới khi spec
- * Đăng nhập (tính năng 5) chốt cách cấp và kiểm tra token, cookie và CSRF.
- * Cho qua health, Swagger (chỉ khi bật ở dev) và {@code /api/v1/auth/**};
- * mọi đường còn lại trả 401 {@code UNAUTHENTICATED} theo vỏ bọc lỗi.
+ * Bảo mật TẠM THỜI của bộ khung (spec 0001, mục Nền tảng khác), dùng tới khi spec Đăng
+ * nhập (tính năng 5) chốt cách cấp và kiểm tra token, cookie và CSRF. Cho qua health,
+ * Swagger (chỉ khi bật ở dev) và {@code /api/v1/auth/**}; mọi đường còn lại trả 401
+ * {@code UNAUTHENTICATED} theo vỏ bọc lỗi.
  */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
@@ -23,7 +23,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http, ErrorResponseFactory errors,
 			@Value("${springdoc.api-docs.enabled:true}") boolean apiDocsEnabled) throws Exception {
 		http
-			// CSRF tạm tắt vì chưa có phiên; spec Đăng nhập chốt cách chống CSRF khi dùng cookie
+			// CSRF tạm tắt vì chưa có phiên; spec Đăng nhập chốt cách chống CSRF khi dùng
+			// cookie
 			.csrf(csrf -> csrf.disable())
 			.httpBasic(basic -> basic.disable())
 			.formLogin(form -> form.disable())

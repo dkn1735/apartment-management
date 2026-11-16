@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Gắn mã {@code X-Request-Id} cho mỗi request: nhận mã từ client nếu hợp lệ
- * (tối đa 64 ký tự, chỉ chữ, số và {@code -}), ngược lại tự sinh. Mã được đưa vào
- * MDC (key {@code requestId}), trả lại trong header và trong response lỗi.
- * Chạy trước Spring Security để cả lỗi 401 và 403 cũng có mã.
+ * Gắn mã {@code X-Request-Id} cho mỗi request: nhận mã từ client nếu hợp lệ (tối đa 64 ký
+ * tự, chỉ chữ, số và {@code -}), ngược lại tự sinh. Mã được đưa vào MDC (key
+ * {@code requestId}), trả lại trong header và trong response lỗi. Chạy trước Spring
+ * Security để cả lỗi 401 và 403 cũng có mã.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

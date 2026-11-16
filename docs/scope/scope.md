@@ -14,8 +14,8 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
 | 1 | Stack & kiến trúc | Foundation | done |
-| 2 | Quy chuẩn code & công cụ | Foundation | planned |
-| 3 | Mô hình dữ liệu | Foundation | planned |
+| 2 | Quy chuẩn code & công cụ | Foundation | done |
+| 3 | Mô hình dữ liệu | Foundation | done |
 | 4 | Design system & nền tảng giao diện | Foundation | planned |
 | 5 | Đăng nhập & trang hồ sơ | Slice 1 | planned |
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | planned |
@@ -36,15 +36,24 @@ spec [0001](../specs/0001-stack-kien-truc/index.md) · code in `backend/`, `fron
 - [x] Decide the stack (spec): `/architect stack & kiến trúc`
 - [x] Scaffold from the decision: `/develop stack & kiến trúc`
 
-### 2. Quy chuẩn code & công cụ
+### 2. Quy chuẩn code & công cụ · done
 Ghi lại quy ước code và chọn công cụ lint, format, kiểm tra trước khi commit, dựa trên bộ khung thật sau khi scaffold.
 **Done when:** `AGENTS.md` ở thư mục gốc mô tả đúng stack thật, và lint, format, pre-commit chạy sạch cho cả backend lẫn frontend.
-- [ ] Capture conventions + tooling choices: `/audit`
+code in `AGENTS.md`, `lefthook.yml`, `.github/workflows/ci.yml`, `frontend/eslint.config.mjs`, `backend/pom.xml`
+- [x] Capture conventions + tooling choices: `/audit`
 
-### 3. Mô hình dữ liệu · needs a decision
+### 3. Mô hình dữ liệu · done
 Đưa schema có sẵn (38 bảng) vào migration, và bổ sung những gì phân hệ xác thực cần mà schema chưa có: nơi lưu refresh token và mã đặt lại mật khẩu, bộ đếm đăng nhập sai, cách biểu diễn vai trò Admin và Bảo vệ (API có nhắc nhưng chưa có bảng). Mô hình dữ liệu là thứ tốn kém nhất nếu phải làm lại, nên chốt sớm.
 **Done when:** migration tạo đủ schema trên database trống, các bổ sung cho xác thực có mặt, và có dữ liệu mẫu (seed) cho ít nhất một tài khoản mỗi vai trò.
-- [ ] Design it (spec): `/architect mô hình dữ liệu`
+spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main/resources/db/`, `backend/src/test/java/vn/edu/hust/chungcu/SchemaMigrationTest.java`
+- [x] Design it (spec): `/architect mô hình dữ liệu`
+- [x] Build it: `/develop mô hình dữ liệu`
+  - [x] Đường mỏng định danh: V1, profile `seed`, seed tài khoản, khung test (AC-3, AC-4, AC-5, AC-6, AC-7)
+  - [x] Không gian và cư trú: V2, seed tòa nhà và hồ sơ cư trú, test chạy lại seed (AC-2, AC-5, AC-6, AC-8)
+  - [x] Các nhóm còn lại: V3 đến V9 (AC-1, AC-2, AC-5)
+  - [x] Khóa lại: test toàn schema, collation, README (AC-1, AC-2, AC-9)
+- [x] Verify it: `/check verify mô hình dữ liệu`
+- [x] Test it: `/test mô hình dữ liệu`
 
 ### 4. Design system & nền tảng giao diện · needs a decision
 Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng, thông báo lỗi) bằng tiếng Việt, để mọi màn hình sau trông thống nhất và dùng được bằng bàn phím.

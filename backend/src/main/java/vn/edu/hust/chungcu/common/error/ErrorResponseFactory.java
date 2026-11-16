@@ -14,8 +14,8 @@ import tools.jackson.databind.json.JsonMapper;
 import vn.edu.hust.chungcu.common.web.RequestIdFilter;
 
 /**
- * Dựng response lỗi theo vỏ bọc chung, dùng chung cho exception handler,
- * bộ xử lý lỗi của Spring Security và trang lỗi {@code /error}.
+ * Dựng response lỗi theo vỏ bọc chung, dùng chung cho exception handler, bộ xử lý lỗi của
+ * Spring Security và trang lỗi {@code /error}.
  */
 @Component
 public class ErrorResponseFactory {
@@ -42,7 +42,10 @@ public class ErrorResponseFactory {
 			.body(build(request, status, errorCode, message, errors));
 	}
 
-	/** Ghi thẳng ra response, cho các chỗ nằm ngoài Spring MVC (filter của Spring Security). */
+	/**
+	 * Ghi thẳng ra response, cho các chỗ nằm ngoài Spring MVC (filter của Spring
+	 * Security).
+	 */
 	public void write(HttpServletRequest request, HttpServletResponse response, HttpStatus status, String errorCode,
 			String message) throws IOException {
 		response.setStatus(status.value());

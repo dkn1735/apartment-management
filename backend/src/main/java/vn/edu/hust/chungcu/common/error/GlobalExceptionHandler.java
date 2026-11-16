@@ -24,8 +24,8 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
- * Nơi duy nhất đổi exception thành response lỗi theo vỏ bọc chung (spec 0001).
- * Không trả stack trace hay câu SQL ra ngoài.
+ * Nơi duy nhất đổi exception thành response lỗi theo vỏ bọc chung (spec 0001). Không trả
+ * stack trace hay câu SQL ra ngoài.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,7 +45,8 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(BindException.class)
 	ResponseEntity<ErrorResponse> handleBind(BindException ex, HttpServletRequest request) {
-		// MethodArgumentNotValidException (@Valid trên @RequestBody) là lớp con của BindException
+		// MethodArgumentNotValidException (@Valid trên @RequestBody) là lớp con của
+		// BindException
 		List<ErrorResponse.FieldError> fields = ex.getBindingResult()
 			.getFieldErrors()
 			.stream()
@@ -91,15 +92,13 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-	ResponseEntity<ErrorResponse> handleMethod(HttpRequestMethodNotSupportedException ex,
-			HttpServletRequest request) {
+	ResponseEntity<ErrorResponse> handleMethod(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
 		return errors.entity(request, HttpStatus.METHOD_NOT_ALLOWED, ErrorCodes.METHOD_NOT_ALLOWED,
 				"Phương thức HTTP không được hỗ trợ", List.of());
 	}
 
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-	ResponseEntity<ErrorResponse> handleMediaType(HttpMediaTypeNotSupportedException ex,
-			HttpServletRequest request) {
+	ResponseEntity<ErrorResponse> handleMediaType(HttpMediaTypeNotSupportedException ex, HttpServletRequest request) {
 		return errors.entity(request, HttpStatus.UNSUPPORTED_MEDIA_TYPE, ErrorCodes.UNSUPPORTED_MEDIA_TYPE,
 				"Kiểu nội dung không được hỗ trợ", List.of());
 	}
@@ -130,11 +129,10 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
-	ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex,
-			HttpServletRequest request) {
+	ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
 		log.warn("Database từ chối thao tác: {}", ex.getMostSpecificCause().getMessage());
-		return errors.entity(request, HttpStatus.CONFLICT, ErrorCodes.CONFLICT,
-				"Dữ liệu xung đột với dữ liệu đã có", List.of());
+		return errors.entity(request, HttpStatus.CONFLICT, ErrorCodes.CONFLICT, "Dữ liệu xung đột với dữ liệu đã có",
+				List.of());
 	}
 
 	@ExceptionHandler(MaxUploadSizeExceededException.class)
