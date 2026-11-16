@@ -12,5 +12,7 @@ public record HoSoResponse(@Schema(requiredMode = Schema.RequiredMode.REQUIRED) 
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) String soDienThoai,
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) String email,
 		@Schema(requiredMode = Schema.RequiredMode.REQUIRED, example = "Hoạt động") String trangThaiTaiKhoan,
-		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<VaiTro> vaiTro) {
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) List<VaiTro> vaiTro,
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) PhamVi phamVi,
+		@Schema(requiredMode = Schema.RequiredMode.REQUIRED) ChiTietVaiTro chiTietVaiTro) {
 }

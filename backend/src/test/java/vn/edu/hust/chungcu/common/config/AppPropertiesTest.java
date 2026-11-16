@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
-import vn.edu.hust.chungcu.auth.controller.AuthCookies;
+import vn.edu.hust.chungcu.auth.service.AuthCookies;
 
 /**
  * Backend không khởi động khi {@code JWT_SECRET} sai; cờ {@code Secure} theo cấu hình

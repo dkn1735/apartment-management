@@ -75,6 +75,15 @@ export interface components {
             /** Format: date-time */
             timestamp?: string;
         };
+        ChiTietVaiTro: {
+            quanTriVien?: components["schemas"]["VaiTroQuanTriVien"];
+            banQuanLy?: components["schemas"]["VaiTroBanQuanLy"];
+            banQuanTri?: components["schemas"]["VaiTroBanQuanTri"];
+            keToan?: components["schemas"]["VaiTroKeToan"];
+            kyThuat?: components["schemas"]["VaiTroKyThuat"];
+            baoVe?: components["schemas"]["VaiTroBaoVe"];
+            cuDan?: components["schemas"]["VaiTroCuDan"];
+        };
         HoSoResponse: {
             maNguoiDung: string;
             hoTen: string;
@@ -83,6 +92,40 @@ export interface components {
             /** @example Hoạt động */
             trangThaiTaiKhoan: string;
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            phamVi: components["schemas"]["PhamVi"];
+            chiTietVaiTro: components["schemas"]["ChiTietVaiTro"];
+        };
+        PhamVi: {
+            maToaNha: string[];
+            maCanHo: string[];
+        };
+        VaiTroBanQuanLy: {
+            maNv: string;
+            chucVu: string;
+            boPhan: string;
+        };
+        VaiTroBanQuanTri: {
+            maThanhVien: string;
+            nhiemKy: string;
+            vaiTro: string;
+        };
+        VaiTroBaoVe: {
+            maNv: string;
+            viTriTruc: string;
+        };
+        VaiTroCuDan: {
+            maCuDan: string;
+        };
+        VaiTroKeToan: {
+            maNv: string;
+            phamViPhuTrach: string;
+        };
+        VaiTroKyThuat: {
+            maNv: string;
+            chuyenMonKyThuat: string;
+        };
+        VaiTroQuanTriVien: {
+            maQuanTriVien: string;
         };
         ErrorResponse: {
             success?: boolean;

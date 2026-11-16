@@ -1,4 +1,4 @@
-package vn.edu.hust.chungcu.auth.controller;
+package vn.edu.hust.chungcu.auth.service;
 
 import java.time.Duration;
 import org.springframework.http.HttpHeaders;

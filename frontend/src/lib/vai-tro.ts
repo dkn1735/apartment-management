@@ -1,5 +1,7 @@
 import type { components } from "@/lib/api/schema";
 
+export type ChiTietVaiTro = components["schemas"]["ChiTietVaiTro"];
+
 /** Mã vai trò cố định của backend (spec 0004, mục Mã vai trò). */
 export type VaiTro = components["schemas"]["HoSoResponse"]["vaiTro"][number];
 
@@ -13,3 +15,52 @@ export const NHAN_VAI_TRO: Readonly<Record<VaiTro, string>> = {
   BAO_VE: "Bảo vệ",
   CU_DAN: "Cư dân",
 };
+
+export type DongChiTiet = { label: string; value: string };
+
+/** Các dòng chi tiết riêng của một vai trò (spec 0004, mục Giao diện); không có chi tiết thì rỗng. */
+export function chiTietCua(vaiTro: VaiTro, chiTiet: ChiTietVaiTro): DongChiTiet[] {
+  switch (vaiTro) {
+    case "QUAN_TRI_VIEN":
+      return chiTiet.quanTriVien ? [{ label: "Mã quản trị viên", value: chiTiet.quanTriVien.maQuanTriVien }] : [];
+    case "BAN_QUAN_LY":
+      return chiTiet.banQuanLy
+        ? [
+            { label: "Mã nhân viên", value: chiTiet.banQuanLy.maNv },
+            { label: "Chức vụ", value: chiTiet.banQuanLy.chucVu },
+            { label: "Bộ phận", value: chiTiet.banQuanLy.boPhan },
+          ]
+        : [];
+    case "BAN_QUAN_TRI":
+      return chiTiet.banQuanTri
+        ? [
+            { label: "Mã thành viên", value: chiTiet.banQuanTri.maThanhVien },
+            { label: "Nhiệm kỳ", value: chiTiet.banQuanTri.nhiemKy },
+            { label: "Vai trò trong ban quản trị", value: chiTiet.banQuanTri.vaiTro },
+          ]
+        : [];
+    case "KE_TOAN":
+      return chiTiet.keToan
+        ? [
+            { label: "Mã nhân viên", value: chiTiet.keToan.maNv },
+            { label: "Phạm vi phụ trách", value: chiTiet.keToan.phamViPhuTrach },
+          ]
+        : [];
+    case "KY_THUAT":
+      return chiTiet.kyThuat
+        ? [
+            { label: "Mã nhân viên", value: chiTiet.kyThuat.maNv },
+            { label: "Chuyên môn", value: chiTiet.kyThuat.chuyenMonKyThuat },
+          ]
+        : [];
+    case "BAO_VE":
+      return chiTiet.baoVe
+        ? [
+            { label: "Mã nhân viên", value: chiTiet.baoVe.maNv },
+            { label: "Vị trí trực", value: chiTiet.baoVe.viTriTruc },
+          ]
+        : [];
+    case "CU_DAN":
+      return chiTiet.cuDan ? [{ label: "Mã cư dân", value: chiTiet.cuDan.maCuDan }] : [];
+  }
+}
