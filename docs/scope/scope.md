@@ -80,9 +80,9 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main
   - [x] Làm dày đăng nhập: chuẩn hóa tài khoản, sai thông tin, tài khoản khóa, ghi phiên, nâng hash, log (AC-2, AC-3, AC-4, AC-5, AC-6, AC-16)
   - [x] Làm dày hồ sơ: phạm vi, chi tiết vai trò, khóa giữa chừng, trang `/ho-so` đủ phần (AC-8, AC-9, AC-14)
   - [x] Giao diện đăng nhập đủ và khóa lại: xử lý 401 toàn cục, thông báo lý do, a11y, README (AC-12, AC-13, AC-15)
-- [ ] Verify it: `/check verify đăng nhập & trang hồ sơ`
-- [ ] Test it: `/test đăng nhập & trang hồ sơ`
-- [ ] Review it (fresh model): `/check review đăng nhập & trang hồ sơ`
+- [x] Verify it: `/check verify đăng nhập & trang hồ sơ`
+- [x] Test it: `/test đăng nhập & trang hồ sơ`
+- [x] Review it (fresh model): `/check review đăng nhập & trang hồ sơ`
 - [ ] Document it: `/document đăng nhập & trang hồ sơ`
 
 ## Slice 2: Làm mới phiên & đăng xuất
