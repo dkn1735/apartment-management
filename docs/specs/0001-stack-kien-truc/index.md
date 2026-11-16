@@ -221,15 +221,15 @@ Backend kiểm tra các biến bắt buộc lúc khởi động và dừng với
 
 ## Follow-up
 
-- [ ] Dựng bộ khung rỗng theo bảng stack (backend, frontend, compose, `.env.example`, `.gitattributes`) sao cho khởi động và build thành công trên Windows: `/develop stack & kiến trúc`
-- [ ] Ghi quy ước code và công cụ (lint, format, kiểm tra trước commit, CI, git) sau khi có bộ khung: `/audit` (tính năng 2)
-- [ ] Chuyển schema 38 bảng sang migration snake_case, chốt tiền tố mã cho từng bảng và cách seed: `/architect mô hình dữ liệu` (tính năng 3)
+- [x] Dựng bộ khung rỗng theo bảng stack (backend, frontend, compose, `.env.example`, `.gitattributes`) sao cho khởi động và build thành công trên Windows: `/develop stack & kiến trúc`
+- [x] Ghi quy ước code và công cụ (lint, format, kiểm tra trước commit, CI, git) sau khi có bộ khung: `/audit` (tính năng 2)
+- [x] Chuyển schema 38 bảng sang migration snake_case, chốt tiền tố mã cho từng bảng và cách seed: `/architect mô hình dữ liệu` (tính năng 3)
 - [ ] Chốt thời hạn token, cách lưu token phía trình duyệt (cookie `HttpOnly`), chống CSRF và cách bảo vệ route ở Next.js: `/architect đăng nhập & trang hồ sơ` (tính năng 5)
 - [ ] File đặc tả API có vài chỗ lệch do sinh từ mẫu (đăng nhập trả `code: 201`, body của refresh token là tài khoản và mật khẩu, mọi `data` ví dụ giống nhau). Spec này lấy dạng vỏ bọc làm chuẩn; nội dung `data` thật của từng API chốt ở spec của tính năng đó. Bạn có thể cập nhật file xlsx cho khớp trước khi nộp.
 - [ ] Cân nhắc thêm Spring Modulith (kiểm tra ranh giới phân hệ bằng một test) khi có từ 3 phân hệ trở lên
 - [ ] Chiến lược test chi tiết (mức độ phủ, test nào chạy trước commit): `/audit` và `/test` quyết định, dùng Testcontainers đã chốt ở đây
 - [ ] Khi tới UC06 (tệp đính kèm): chỉnh giới hạn body của proxy Next.js (`proxyClientMaxBodySize`), `spring.servlet.multipart.max-file-size` 20MB và ánh xạ lỗi 413
-- [ ] Spec Mô hình dữ liệu: chọn collation để sắp xếp tiếng Việt đúng (ví dụ collation ICU) và extension `unaccent` nếu cần tìm kiếm không dấu
+- [x] Spec Mô hình dữ liệu: chọn collation để sắp xếp tiếng Việt đúng (ví dụ collation ICU) và extension `unaccent` nếu cần tìm kiếm không dấu
 - [ ] Nếu muốn bỏ việc đóng cứng địa chỉ backend vào image frontend: cân nhắc thêm một reverse proxy nhỏ (Caddy) trước cả hai ở bản demo
 
 ## Rationale
