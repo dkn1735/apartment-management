@@ -3,17 +3,26 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DemoForm } from "@/app/dev/ui/_demo/demo-form";
 import { RAW_MESSAGE } from "@/app/dev/ui/_demo/demo-api";
+import { Toaster } from "@/components/ui/sonner";
 import { expectNoA11yViolations } from "@/test/axe";
 
 function setup(onSuccess = vi.fn()) {
   const user = userEvent.setup();
-  const view = render(<DemoForm delayMs={30} onSuccess={onSuccess} />);
+  const view = render(
+    <>
+      <DemoForm delayMs={30} onSuccess={onSuccess} />
+      <Toaster />
+    </>,
+  );
   return { user, onSuccess, ...view };
 }
 
 async function fillValid(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText(/Họ và tên/), "Nguyễn Văn An");
   await user.type(screen.getByLabelText(/Số điện thoại/), "0912345678");
+  await user.click(screen.getByRole("combobox", { name: /Loại căn hộ/ }));
+  await user.click(await screen.findByRole("option", { name: "2 phòng ngủ" }));
+  await user.click(screen.getByRole("checkbox", { name: /Tôi xác nhận/ }));
 }
 
 const submit = () => screen.getByRole("button", { name: /Lưu/ });
@@ -42,7 +51,7 @@ describe("form với lỗi API", () => {
     expect(submit()).toHaveAttribute("aria-disabled", "true");
     expect(submit()).not.toBeDisabled();
     await user.click(submit());
-    await screen.findByText("Đã lưu");
+    expect(await screen.findByText("Đã lưu")).toBeInTheDocument();
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
@@ -56,6 +65,27 @@ describe("form với lỗi API", () => {
     await user.type(phone, "0912345678");
     await waitFor(() => expect(phone).toHaveAttribute("aria-invalid", "false"));
     expect(screen.queryByText(/Số điện thoại gồm 10 chữ số/)).not.toBeInTheDocument();
+  });
+
+  it("Select để trống rồi gửi thì focus vào trigger của Select", async () => {
+    const { user } = setup();
+    await user.type(screen.getByLabelText(/Họ và tên/), "An");
+    await user.type(screen.getByLabelText(/Số điện thoại/), "0912345678");
+    await user.click(submit());
+    const trigger = screen.getByRole("combobox", { name: /Loại căn hộ/ });
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(trigger).toHaveAttribute("aria-invalid", "true");
+    expect(trigger).toHaveAccessibleDescription("Vui lòng chọn loại căn hộ.");
+  });
+
+  it("Checkbox và Switch có nhãn, lỗi gắn với ô", async () => {
+    const { user, container } = setup();
+    const checkbox = screen.getByRole("checkbox", { name: /Tôi xác nhận.*\(bắt buộc\)/ });
+    expect(screen.getByRole("switch", { name: "Nhận thông báo qua email" })).toBeChecked();
+    await user.click(submit());
+    await waitFor(() => expect(checkbox).toHaveAttribute("aria-invalid", "true"));
+    expect(checkbox).toHaveAccessibleDescription("Vui lòng xác nhận thông tin là đúng.");
+    await expectNoA11yViolations(container);
   });
 
   it("gửi còn lỗi phía trình duyệt thì focus về ô lỗi đầu tiên", async () => {

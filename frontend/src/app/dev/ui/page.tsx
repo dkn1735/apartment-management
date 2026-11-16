@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { ButtonDemo } from "./_demo/button-demo";
 import { DemoForm } from "./_demo/demo-form";
+import { DialogDemo } from "./_demo/dialog-demo";
+import { DisplayDemo } from "./_demo/display-demo";
+import { FeedbackDemo } from "./_demo/feedback-demo";
 import { DemoGroup, DemoSection } from "./_demo/demo-section";
 import { PaletteDemo } from "./_demo/palette-demo";
 import { TypographyDemo } from "./_demo/typography-demo";
@@ -12,6 +15,9 @@ const SECTIONS = [
   { id: "mau", title: "Màu" },
   { id: "nut", title: "Nút" },
   { id: "form", title: "Form" },
+  { id: "hien-thi", title: "Thẻ và chip" },
+  { id: "phan-hoi", title: "Phản hồi" },
+  { id: "hop-thoai", title: "Hộp thoại" },
 ];
 
 /** Trang trưng bày design system, chỉ có khi chạy `pnpm dev` (spec 0003, mục Trang /dev/ui). */
@@ -56,6 +62,15 @@ export default function DevUiPage() {
             <DemoGroup label="Form mẫu">
               <DemoForm />
             </DemoGroup>
+          </DemoSection>
+          <DemoSection id="hien-thi" title="Thẻ và chip">
+            <DisplayDemo />
+          </DemoSection>
+          <DemoSection id="phan-hoi" title="Phản hồi" description="Toast, trạng thái rỗng, trạng thái lỗi.">
+            <FeedbackDemo />
+          </DemoSection>
+          <DemoSection id="hop-thoai" title="Hộp thoại">
+            <DialogDemo />
           </DemoSection>
         </div>
       </div>
