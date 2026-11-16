@@ -60,3 +60,15 @@ jobs:
         run: pnpm gen:api && git diff --exit-code -- src/lib/api/schema.d.ts
       - run: pnpm typecheck
       - run: pnpm build
+
+  docker:
+    name: Docker images (bản demo)
+    runs-on: ubuntu-latest
+    env:
+      # Compose đọc các biến :? ngay cả khi chỉ build; giá trị giả, không image nào chạy
+      POSTGRES_PASSWORD: ci-build-only
+      JWT_SECRET: ci-build-only-not-a-real-secret
+    steps:
+      - uses: actions/checkout@v7
+      # Build image trong ngữ cảnh không có .git, bắt lỗi như prepare: lefthook install
+      - run: docker compose -f docker-compose.prod.yml build
