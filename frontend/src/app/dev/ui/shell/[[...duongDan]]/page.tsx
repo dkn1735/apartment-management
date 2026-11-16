@@ -10,12 +10,17 @@ import { SectionHeader } from "@/components/layout/section-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatNgay, formatSo, formatTien } from "@/lib/format";
+import { notFoundInProduction } from "../../../dev-only";
 import { DEMO_NAV, demoTitle } from "../demo-nav";
 
-export const metadata: Metadata = { title: "Khung app mẫu" };
+export function generateMetadata(): Metadata {
+  notFoundInProduction();
+  return { title: "Khung app mẫu" };
+}
 
 /** Trang trưng bày AppShell với menu mẫu hai nhóm (spec 0003, Trang /dev/ui). */
 export default async function ShellDemoPage({ params }: PageProps<"/dev/ui/shell/[[...duongDan]]">) {
+  notFoundInProduction();
   const { duongDan } = await params;
   const title = demoTitle(duongDan?.[0]);
 

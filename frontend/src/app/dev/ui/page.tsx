@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFoundInProduction } from "../dev-only";
 import { ButtonDemo } from "./_demo/button-demo";
 import { DemoForm } from "./_demo/demo-form";
 import { DialogDemo } from "./_demo/dialog-demo";
@@ -12,7 +13,10 @@ import { DemoGroup, DemoSection } from "./_demo/demo-section";
 import { PaletteDemo } from "./_demo/palette-demo";
 import { TypographyDemo } from "./_demo/typography-demo";
 
-export const metadata: Metadata = { title: "Bộ component giao diện" };
+export function generateMetadata(): Metadata {
+  notFoundInProduction();
+  return { title: "Bộ component giao diện" };
+}
 
 const SECTIONS = [
   { id: "chu", title: "Chữ" },
@@ -28,6 +32,7 @@ const SECTIONS = [
 
 /** Trang trưng bày design system, chỉ có khi chạy `pnpm dev` (spec 0003, mục Trang /dev/ui). */
 export default function DevUiPage() {
+  notFoundInProduction();
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-6">
       <header className="mb-8">
