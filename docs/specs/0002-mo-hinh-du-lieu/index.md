@@ -287,7 +287,7 @@ Cách làm Tracer Bullet áp vào một tính năng chỉ có tầng dữ liệu
 - [x] Sửa hai câu trong spec 0001, mục *Quy ước database*. (1) Ở phần sinh mã khóa chính: chặn tràn bằng `MAXVALUE 99999999` của sequence, CHECK định dạng chỉ là lớp phụ. (2) Ở phần seed: "seed chỉ chạy ở profile `dev`" thành "seed chạy khi bật profile `seed` (dev và bản demo), xem spec 0002".
 - [ ] Tạo tài khoản Admin đầu tiên khi database không có seed (ví dụ từ biến môi trường lúc khởi động): tính năng 11. Tới lúc đó, database không seed không có ai đăng nhập được; bản demo không bị ảnh hưởng vì có seed.
 - [ ] Cập nhật `sql/database_schema_quan_ly_chung_cu.sql` và file xlsx cho khớp schema mới trước khi nộp (tên, bảng mới, các mục sửa).
-- [ ] Ghi quy tắc "chữ viết tắt trong tên field Java viết như một từ" vào `AGENTS.md` `## Rules`: `/sync` sau khi tính năng này xong.
+- [x] Ghi quy tắc "chữ viết tắt trong tên field Java viết như một từ" vào `AGENTS.md` `## Rules`: `/sync` sau khi tính năng này xong.
 - [ ] Tính năng 8: chỉnh `nhat_ky_he_thong` (cho `ma_nguoi_dung` rỗng khi đăng nhập sai với tài khoản không tồn tại, thêm IP, `request_id`, chi tiết dạng JSONB).
 - [ ] Tính năng 6: dọn dòng `phien_dang_nhap` đã hết hạn hoặc thu hồi (giữ bao lâu, chạy lúc nào); xem lại danh sách `ly_do_thu_hoi`.
 - [ ] UC02: `ho_so_cu_tru.ma_nvbql_xac_minh` đang `NOT NULL` trong khi có trạng thái `'Chờ xác minh'` (hồ sơ chờ thì chưa có người xác minh); spec UC02 quyết có cho rỗng không.
