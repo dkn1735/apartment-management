@@ -83,7 +83,7 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main
 - [x] Verify it: `/check verify đăng nhập & trang hồ sơ`
 - [x] Test it: `/test đăng nhập & trang hồ sơ`
 - [x] Review it (fresh model): `/check review đăng nhập & trang hồ sơ`
-- [ ] Document it: `/document đăng nhập & trang hồ sơ`
+- [x] Document it: `/document đăng nhập & trang hồ sơ`
 
 ## Slice 2: Làm mới phiên & đăng xuất
 
