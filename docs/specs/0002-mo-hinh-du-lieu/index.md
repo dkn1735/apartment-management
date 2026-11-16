@@ -1,7 +1,7 @@
 # 0002. Mô hình dữ liệu: chuyển schema 38 bảng sang Flyway và bổ sung cho xác thực
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
