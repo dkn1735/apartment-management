@@ -16,7 +16,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 1 | Stack & kiến trúc | Foundation | done |
 | 2 | Quy chuẩn code & công cụ | Foundation | done |
 | 3 | Mô hình dữ liệu | Foundation | done |
-| 4 | Design system & nền tảng giao diện | Foundation | in-progress |
+| 4 | Design system & nền tảng giao diện | Foundation | done |
 | 5 | Đăng nhập & trang hồ sơ | Slice 1 | planned |
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | planned |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | planned |
@@ -55,7 +55,7 @@ spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main
 - [x] Verify it: `/check verify mô hình dữ liệu`
 - [x] Test it: `/test mô hình dữ liệu`
 
-### 4. Design system & nền tảng giao diện · in-progress
+### 4. Design system & nền tảng giao diện · done
 Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng, thông báo lỗi) bằng tiếng Việt, để mọi màn hình sau trông thống nhất và dùng được bằng bàn phím.
 **Done when:** `design.md` mô tả chữ, màu, khoảng cách, component; các component nền xử lý focus, bàn phím, trạng thái lỗi và trạng thái đang tải.
 spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend/design.md`, `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/lib/`, `frontend/src/app/dev/`
@@ -66,7 +66,7 @@ spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend
   - [x] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
   - [x] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
 - [x] Verify it: `/check verify design system & nền tảng giao diện`
-- [ ] Test it: `/test design system & nền tảng giao diện`
+- [x] Test it: `/test design system & nền tảng giao diện`
 
 ## Slice 1: Đăng nhập & trang hồ sơ
 

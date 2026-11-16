@@ -65,6 +65,25 @@ describe("toast (AC-8)", () => {
     );
   });
 
+  it("toast lỗi với lỗi không phải ApiError dùng câu chung và không có mã tra cứu (AC-7)", async () => {
+    render(<Toaster />);
+    act(() => {
+      notifyError(new TypeError("Failed to fetch: secret-host"));
+    });
+    expect(await screen.findByText("Hệ thống đang gặp sự cố, vui lòng thử lại sau.")).toBeInTheDocument();
+    expect(screen.queryByText(/Mã tra cứu/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/secret-host/)).not.toBeInTheDocument();
+  });
+
+  it("toast lỗi 4xx có requestId vẫn không hiện mã tra cứu (AC-7)", async () => {
+    render(<Toaster />);
+    act(() => {
+      notifyError(new ApiError({ status: 403, errorCode: "FORBIDDEN", message: "raw", requestId: "r-4" }));
+    });
+    expect(await screen.findByText("Bạn không có quyền thực hiện thao tác này.")).toBeInTheDocument();
+    expect(screen.queryByText("r-4")).not.toBeInTheDocument();
+  });
+
   it("vùng toast có nhãn tiếng Việt", () => {
     render(<Toaster />);
     expect(screen.getByRole("region", { name: /Thông báo/ })).toBeInTheDocument();

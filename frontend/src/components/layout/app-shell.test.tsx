@@ -30,6 +30,15 @@ describe("activeHref (AC-12)", () => {
     expect(activeHref("/", HREFS)).toBe("/");
     expect(activeHref("/khac", HREFS)).toBeUndefined();
   });
+
+  it("href có dấu / ở cuối vẫn khớp như không có", () => {
+    expect(activeHref("/can-ho", ["/", "/can-ho/"])).toBe("/can-ho/");
+    expect(activeHref("/can-ho/5", ["/", "/can-ho/"])).toBe("/can-ho/");
+  });
+
+  it("danh sách rỗng thì không có mục nào được chọn", () => {
+    expect(activeHref("/can-ho", [])).toBeUndefined();
+  });
 });
 
 describe("AppShell (AC-4, AC-12)", () => {
