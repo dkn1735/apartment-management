@@ -10,12 +10,3 @@ Thumbs.db
 .idea/
 .vscode/
 *.iml
-
-# Công cụ AI: skill cài từ registry và tài liệu trung gian do AI sinh
-.claude/skills/
-.agents/skills/
-.claude/settings.local.json
-skills-lock.json
-test-preferences.json
-docs/.agent-cache/
-docs/reviews/
