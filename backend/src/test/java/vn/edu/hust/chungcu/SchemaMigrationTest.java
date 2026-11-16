@@ -84,6 +84,36 @@ class SchemaMigrationTest {
 		assertThat(maxValues).isNotEmpty().allMatch((max) -> max == 99999999L);
 	}
 
+	// AC-4: mã tòa nhà, tầng, căn hộ do người dùng đặt, DB không tự sinh
+	@Test
+	void toaNhaTangCanHoKhongCoMaTuSinh() {
+		List<String> coMacDinh = this.jdbc.queryForList(
+				"""
+						SELECT table_name FROM information_schema.columns
+						WHERE table_schema = 'public' AND column_default IS NOT NULL
+						AND (table_name, column_name) IN (('toa_nha', 'ma_toa_nha'), ('tang', 'ma_tang'), ('can_ho', 'ma_can_ho'))""",
+				String.class);
+		assertThat(coMacDinh).isEmpty();
+	}
+
+	// AC-4
+	@Test
+	@Transactional
+	void maToaNhaGiuNguyenNhuNguoiDungNhap() {
+		String ma = this.jdbc.queryForObject("""
+				INSERT INTO toa_nha (ma_toa_nha, ten_toa_nha, so_tang, dia_chi_khu_vuc)
+				VALUES ('B', 'Tòa B', 1, 'Khu thử') RETURNING ma_toa_nha""", String.class);
+		assertThat(ma).isEqualTo("B");
+	}
+
+	// AC-4
+	@Test
+	@Transactional
+	void toaNhaThieuMaBiTuChoi() {
+		assertSqlState("23502", () -> this.jdbc.update("""
+				INSERT INTO toa_nha (ten_toa_nha, so_tang, dia_chi_khu_vuc) VALUES ('Tòa C', 1, 'Khu thử')"""));
+	}
+
 	// AC-5
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("duLieuSai")
@@ -271,6 +301,22 @@ class SchemaMigrationTest {
 		this.jdbc.execute("CREATE TEMP TABLE thu_sap_xep (ho_ten VARCHAR(100) COLLATE \"vi-VN-x-icu\") ON COMMIT DROP");
 		this.jdbc.update("INSERT INTO thu_sap_xep (ho_ten) VALUES ('Đào'), ('Bình'), ('Ánh'), ('Dương'), ('Anh')");
 		assertThat(this.jdbc.queryForList("SELECT ho_ten FROM thu_sap_xep ORDER BY ho_ten", String.class))
+			.containsExactly("Anh", "Ánh", "Bình", "Dương", "Đào");
+	}
+
+	// AC-9: trên chính cột ho_ten, ORDER BY không cần ghi COLLATE
+	@Test
+	@Transactional
+	void sapXepHoTenNguoiDungTheoTiengViet() {
+		this.jdbc
+			.update("""
+					INSERT INTO nguoi_dung_he_thong (ho_ten, so_dien_thoai, email, mat_khau_hash) VALUES
+					('Đào', '0922000001', 'z1@chungcu.test', '{noop}x'), ('Bình', '0922000002', 'z2@chungcu.test', '{noop}x'),
+					('Ánh', '0922000003', 'z3@chungcu.test', '{noop}x'), ('Dương', '0922000004', 'z4@chungcu.test', '{noop}x'),
+					('Anh', '0922000005', 'z5@chungcu.test', '{noop}x')""");
+		assertThat(this.jdbc.queryForList(
+				"SELECT ho_ten FROM nguoi_dung_he_thong WHERE so_dien_thoai LIKE '0922%' ORDER BY ho_ten",
+				String.class))
 			.containsExactly("Anh", "Ánh", "Bình", "Dương", "Đào");
 	}
 
