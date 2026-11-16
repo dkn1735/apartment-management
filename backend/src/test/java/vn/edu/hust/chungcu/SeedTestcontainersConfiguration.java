@@ -11,7 +11,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  * database trống (AC-7), bất kể thứ tự chạy test.
  */
 @TestConfiguration(proxyBeanMethods = false)
-class SeedTestcontainersConfiguration {
+public class SeedTestcontainersConfiguration {
 
 	private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
 			TestcontainersConfiguration.POSTGRES_IMAGE);

@@ -6,28 +6,30 @@ afterEach(() => {
   cleanup();
 });
 
-// Polyfill cho Radix trên jsdom
-class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+// Polyfill cho Radix trên jsdom; test chạy môi trường node (proxy) thì bỏ qua
+if (typeof window !== "undefined") {
+  class ResizeObserverStub {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver;
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+  Element.prototype.setPointerCapture ??= () => {};
+  Element.prototype.scrollIntoView ??= () => {};
+  window.matchMedia ??= (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
 }
-globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver;
-Element.prototype.hasPointerCapture ??= () => false;
-Element.prototype.releasePointerCapture ??= () => {};
-Element.prototype.setPointerCapture ??= () => {};
-Element.prototype.scrollIntoView ??= () => {};
-window.matchMedia ??= (query: string) =>
-  ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }) as MediaQueryList;
 
 // next/navigation: test điều khiển qua src/test/next-navigation.ts
 vi.mock("next/navigation", async () => {

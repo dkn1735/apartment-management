@@ -17,7 +17,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 2 | Quy chuẩn code & công cụ | Foundation | done |
 | 3 | Mô hình dữ liệu | Foundation | done |
 | 4 | Design system & nền tảng giao diện | Foundation | done |
-| 5 | Đăng nhập & trang hồ sơ | Slice 1 | planned |
+| 5 | Đăng nhập & trang hồ sơ | Slice 1 | in-progress |
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | planned |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | planned |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | planned |
@@ -70,10 +70,20 @@ spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend
 
 ## Slice 1: Đăng nhập & trang hồ sơ
 
-### 5. Đăng nhập & trang hồ sơ · needs a decision · GA
+### 5. Đăng nhập & trang hồ sơ · in-progress · GA
 Đường chạy mỏng nhất xuyên mọi tầng (cũng chính là walking skeleton): người dùng đăng nhập bằng số điện thoại hoặc email và mật khẩu, nhận access token và refresh token, vào trang hồ sơ được bảo vệ (API-AUTH-01, API-AUTH-03). Spec này là spec gốc của phân hệ: chốt cách cấp và kiểm tra token, cách lưu token phía trình duyệt, cách băm mật khẩu. Các lát sau dựa vào nó.
 **Done when:** tài khoản seed đăng nhập được trên màn hình NextJS và thấy hồ sơ của mình (họ tên, vai trò, phạm vi tòa nhà hoặc căn hộ); sai mật khẩu hoặc tài khoản `Tạm khóa` bị từ chối với thông báo rõ ràng; vào trang được bảo vệ khi chưa đăng nhập thì bị chuyển về trang đăng nhập.
-- [ ] Design it (spec): `/architect đăng nhập & trang hồ sơ`
+spec [0004](../specs/0004-dang-nhap-ho-so/index.md)
+- [x] Design it (spec): `/architect đăng nhập & trang hồ sơ`
+- [ ] Build it: `/develop đăng nhập & trang hồ sơ`
+  - [x] Đường mỏng: đăng nhập bằng số điện thoại tới trang hồ sơ, JWT trong cookie, chống CSRF, `proxy.ts` (AC-1, AC-7, AC-10, AC-11, AC-13)
+  - [ ] Làm dày đăng nhập: chuẩn hóa tài khoản, sai thông tin, tài khoản khóa, ghi phiên, nâng hash, log (AC-2, AC-3, AC-4, AC-5, AC-6, AC-16)
+  - [ ] Làm dày hồ sơ: phạm vi, chi tiết vai trò, khóa giữa chừng, trang `/ho-so` đủ phần (AC-8, AC-9, AC-14)
+  - [ ] Giao diện đăng nhập đủ và khóa lại: xử lý 401 toàn cục, thông báo lý do, a11y, README (AC-12, AC-13, AC-15)
+- [ ] Verify it: `/check verify đăng nhập & trang hồ sơ`
+- [ ] Test it: `/test đăng nhập & trang hồ sơ`
+- [ ] Review it (fresh model): `/check review đăng nhập & trang hồ sơ`
+- [ ] Document it: `/document đăng nhập & trang hồ sơ`
 
 ## Slice 2: Làm mới phiên & đăng xuất
 
@@ -145,6 +155,7 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 - **UC10 Thông báo & truyền thông**: soạn, phát hành, lượt đọc (5 API) · needs a decision
 - **UC11 Khảo sát & biểu quyết**: đợt khảo sát, nộp phiếu, kết quả (6 API) · needs a decision
 - **UC12 Báo cáo & thống kê**: KPI, báo cáo, xuất file nền (5 API) · needs a decision
+- **Gán nhân viên vào tòa nhà**: bảng gán để `phamVi.maToaNha` của nhân viên đúng khi khu có nhiều nhóm phụ trách riêng; hiện giả định nhân viên phụ trách mọi tòa · needs a decision · from spec 0004
 
 ## Legend
 

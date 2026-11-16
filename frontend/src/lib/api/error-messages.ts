@@ -18,6 +18,10 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   BUSINESS_RULE_VIOLATION: "Thao tác vi phạm quy định của hệ thống.",
   INTERNAL_ERROR: "Hệ thống đang gặp sự cố, vui lòng thử lại sau.",
   BACKEND_UNAVAILABLE: "Không kết nối được tới máy chủ, vui lòng thử lại sau ít phút.",
+  CSRF_REJECTED: "Yêu cầu bị từ chối vì lý do bảo mật. Vui lòng tải lại trang và thử lại.",
+  // Phân hệ xác thực (spec 0004); backend dùng cùng các câu này làm message
+  AUTH_INVALID_CREDENTIALS: "Số điện thoại, email hoặc mật khẩu không đúng.",
+  AUTH_ACCOUNT_LOCKED: "Tài khoản đang bị khóa hoặc đã ngừng hoạt động. Vui lòng liên hệ ban quản lý.",
 };
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */

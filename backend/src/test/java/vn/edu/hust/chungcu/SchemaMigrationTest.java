@@ -34,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
  * trong {@code @Transactional} để tự rollback; lỗi được kiểm tra theo SQLSTATE.
  */
 @Import(SeedTestcontainersConfiguration.class)
-@SpringBootTest(properties = "app.security.jwt-secret=test-only-secret-not-for-real-use")
-@ActiveProfiles({ "dev", "seed" })
+@SpringBootTest
+@ActiveProfiles({ "dev", "seed", "test" })
 class SchemaMigrationTest {
 
 	private static final String CHECK_VIOLATION = "23514";

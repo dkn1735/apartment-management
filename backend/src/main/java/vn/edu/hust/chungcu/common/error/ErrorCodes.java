@@ -18,6 +18,9 @@ public final class ErrorCodes {
 
 	public static final String FORBIDDEN = "FORBIDDEN";
 
+	/** Request ghi thiếu header {@code X-Requested-With} (spec 0004, AC-10). */
+	public static final String CSRF_REJECTED = "CSRF_REJECTED";
+
 	public static final String NOT_FOUND = "NOT_FOUND";
 
 	public static final String CONFLICT = "CONFLICT";
