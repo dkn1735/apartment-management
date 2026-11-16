@@ -18,6 +18,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -52,6 +53,9 @@ class HoSoIntegrationTest {
 
 	@Autowired
 	AccessTokenService accessTokens;
+
+	@Autowired
+	JwtDecoder jwtDecoder;
 
 	AuthApi auth;
 
@@ -121,6 +125,44 @@ class HoSoIntegrationTest {
 		this.mockMvc.perform(this.auth.profile(this.auth.accessToken(tk.soDienThoai())))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.phamVi.maCanHo").value(contains("A-0301")));
+	}
+
+	// AC-8: nhân viên thấy mọi tòa trong bảng toa_nha, cư dân thuần không thấy tòa nào.
+	// Tự rollback để tòa B không lọt sang test khác.
+	@Test
+	@Transactional
+	void nhanVienThayMoiToaMoiThemCuDanThuanVanKhongCoToa() throws Exception {
+		this.jdbc.update("""
+				INSERT INTO toa_nha (ma_toa_nha, ten_toa_nha, so_tang, dia_chi_khu_vuc)
+				VALUES ('B', 'Tòa B thử', 2, 'Khu thử')""");
+
+		this.mockMvc.perform(this.auth.profile(this.auth.accessToken("0900000002")))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.phamVi.maToaNha").value(contains("A", "B")));
+		this.mockMvc.perform(this.auth.profile(this.auth.accessToken("0900000007")))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.phamVi.maToaNha").isEmpty());
+	}
+
+	// AC-8: vai trò đọc từ DB mỗi lần gọi, không từ claim vaiTro của token cũ
+	@Test
+	@Transactional
+	void vaiTroDocTuDbNenBoVaiTroNgayKhiTokenCuVanCon() throws Exception {
+		TaiKhoanThu.TaiKhoan tk = this.taiKhoanThu.tao(this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED));
+		this.jdbc.update("INSERT INTO thanh_vien_ban_quan_tri (ma_nguoi_dung, nhiem_ky, vai_tro) VALUES (?, ?, ?)",
+				tk.maNguoiDung(), "2026-2028", "Thành viên");
+		String token = this.auth.accessToken(tk.soDienThoai());
+		this.mockMvc.perform(this.auth.profile(token))
+			.andExpect(jsonPath("$.data.vaiTro").value(contains("BAN_QUAN_TRI")));
+
+		this.jdbc.update("DELETE FROM thanh_vien_ban_quan_tri WHERE ma_nguoi_dung = ?", tk.maNguoiDung());
+
+		this.mockMvc.perform(this.auth.profile(token))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.vaiTro").isEmpty())
+			.andExpect(jsonPath("$.data.phamVi.maToaNha").isEmpty())
+			.andExpect(jsonPath("$.data.chiTietVaiTro.banQuanTri").doesNotExist());
+		assertThat(this.jwtDecoder.decode(token).getClaimAsStringList("vaiTro")).containsExactly("BAN_QUAN_TRI");
 	}
 
 	// AC-9

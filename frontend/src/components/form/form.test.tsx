@@ -6,11 +6,11 @@ import { RAW_MESSAGE } from "@/app/dev/ui/_demo/demo-api";
 import { Toaster } from "@/components/ui/sonner";
 import { expectNoA11yViolations } from "@/test/axe";
 
-function setup(onSuccess = vi.fn()) {
+function setup(onSuccess = vi.fn(), delayMs = 30) {
   const user = userEvent.setup();
   const view = render(
     <>
-      <DemoForm delayMs={30} onSuccess={onSuccess} />
+      <DemoForm delayMs={delayMs} onSuccess={onSuccess} />
       <Toaster />
     </>,
   );
@@ -44,14 +44,19 @@ describe("form với lỗi API", () => {
   });
 
   it("đang gửi thì nút có aria-busy, aria-disabled và lần bấm thứ hai không gửi", async () => {
-    const { user, onSuccess } = setup();
+    // Lần gửi đầu phải còn chạy khi bấm lần hai. Độ trễ 30 ms quá ngắn: máy bận thì lần gửi đầu
+    // đã xong trước lần bấm thứ hai, và lần bấm đó là một lần gửi mới hợp lệ (test chập chờn).
+    const delayMs = 500;
+    const { user, onSuccess } = setup(vi.fn(), delayMs);
     await fillValid(user);
     await user.click(submit());
     expect(submit()).toHaveAttribute("aria-busy", "true");
     expect(submit()).toHaveAttribute("aria-disabled", "true");
     expect(submit()).not.toBeDisabled();
     await user.click(submit());
-    expect(await screen.findByText("Đã lưu")).toBeInTheDocument();
+    expect(await screen.findByText("Đã lưu", {}, { timeout: 3000 })).toBeInTheDocument();
+    // Nếu lần bấm thứ hai lọt qua, nó xong chậm hơn tối đa một độ trễ; chờ đủ rồi mới đếm
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 

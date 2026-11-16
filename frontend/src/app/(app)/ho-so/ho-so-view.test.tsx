@@ -84,6 +84,7 @@ describe("Trang hồ sơ (AC-14)", () => {
     };
     const { container } = render(<HoSoView />);
     expect(screen.getByRole("heading", { name: "Chưa tải được hồ sơ" })).toBeInTheDocument();
+    expect(screen.getByText(/abc123/)).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Thử lại" }));
     expect(refetch).toHaveBeenCalledOnce();
     await expectNoA11yViolations(container);
