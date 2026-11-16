@@ -9,6 +9,8 @@ import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +18,7 @@ import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import vn.edu.hust.chungcu.common.error.ErrorResponse;
+import vn.edu.hust.chungcu.common.security.CsrfHeaderFilter;
 
 /**
  * Mô tả OpenAPI dùng chung: gắn schema {@code ErrorResponse} vào components và làm
@@ -28,12 +31,23 @@ public class OpenApiConfig {
 
 	private static final String ERROR_SCHEMA = "ErrorResponse";
 
+	private static final String CSRF_SCHEME = "csrfHeader";
+
 	@Bean
 	OpenAPI chungCuOpenApi() {
 		// Server tương đối: frontend gọi qua cùng tên miền, và file xuất ra không phụ
 		// thuộc máy
+		// Header chống CSRF (spec 0004): bấm "Authorize" trong Swagger, nhập
+		// XMLHttpRequest một
+		// lần. Scheme không đổi kiểu tham số mà pnpm gen:api sinh ra.
+		SecurityScheme csrf = new SecurityScheme().type(SecurityScheme.Type.APIKEY)
+			.in(SecurityScheme.In.HEADER)
+			.name(CsrfHeaderFilter.HEADER)
+			.description("Nhập XMLHttpRequest. Bắt buộc với POST, PUT, PATCH, DELETE.");
 		return new OpenAPI().info(new Info().title("Hệ thống Quản lý Chung cư API").version("v1"))
-			.servers(List.of(new Server().url("/")));
+			.servers(List.of(new Server().url("/")))
+			.components(new Components().addSecuritySchemes(CSRF_SCHEME, csrf))
+			.addSecurityItem(new SecurityRequirement().addList(CSRF_SCHEME));
 	}
 
 	@Bean

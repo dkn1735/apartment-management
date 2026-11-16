@@ -16,8 +16,8 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 1 | Stack & kiến trúc | Foundation | done |
 | 2 | Quy chuẩn code & công cụ | Foundation | done |
 | 3 | Mô hình dữ liệu | Foundation | done |
-| 4 | Design system & nền tảng giao diện | Foundation | in-progress |
-| 5 | Đăng nhập & trang hồ sơ | Slice 1 | planned |
+| 4 | Design system & nền tảng giao diện | Foundation | done |
+| 5 | Đăng nhập & trang hồ sơ | Slice 1 | in-progress |
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | planned |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | planned |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | planned |
@@ -55,25 +55,35 @@ spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main
 - [x] Verify it: `/check verify mô hình dữ liệu`
 - [x] Test it: `/test mô hình dữ liệu`
 
-### 4. Design system & nền tảng giao diện · in-progress
+### 4. Design system & nền tảng giao diện · done
 Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng, thông báo lỗi) bằng tiếng Việt, để mọi màn hình sau trông thống nhất và dùng được bằng bàn phím.
 **Done when:** `design.md` mô tả chữ, màu, khoảng cách, component; các component nền xử lý focus, bàn phím, trạng thái lỗi và trạng thái đang tải.
-spec [0003](../specs/0003-design-system-giao-dien/index.md)
+spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend/design.md`, `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/lib/`, `frontend/src/app/dev/`
 - [x] Design it (spec): `/architect design system & nền tảng giao diện`
-- [ ] Build it: `/develop design system & nền tảng giao diện`
-  - [ ] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
-  - [ ] Form và phản hồi đủ bộ: các loại ô, toast, hộp thoại xác nhận, trang lỗi (AC-3, AC-4, AC-5, AC-6, AC-8, AC-13)
-  - [ ] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
-  - [ ] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
-- [ ] Verify it: `/check verify design system & nền tảng giao diện`
-- [ ] Test it: `/test design system & nền tảng giao diện`
+- [x] Build it: `/develop design system & nền tảng giao diện`
+  - [x] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
+  - [x] Form và phản hồi đủ bộ: các loại ô, toast, hộp thoại xác nhận, trang lỗi (AC-3, AC-4, AC-5, AC-6, AC-8, AC-13)
+  - [x] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
+  - [x] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
+- [x] Verify it: `/check verify design system & nền tảng giao diện`
+- [x] Test it: `/test design system & nền tảng giao diện`
 
 ## Slice 1: Đăng nhập & trang hồ sơ
 
-### 5. Đăng nhập & trang hồ sơ · needs a decision · GA
+### 5. Đăng nhập & trang hồ sơ · in-progress · GA
 Đường chạy mỏng nhất xuyên mọi tầng (cũng chính là walking skeleton): người dùng đăng nhập bằng số điện thoại hoặc email và mật khẩu, nhận access token và refresh token, vào trang hồ sơ được bảo vệ (API-AUTH-01, API-AUTH-03). Spec này là spec gốc của phân hệ: chốt cách cấp và kiểm tra token, cách lưu token phía trình duyệt, cách băm mật khẩu. Các lát sau dựa vào nó.
 **Done when:** tài khoản seed đăng nhập được trên màn hình NextJS và thấy hồ sơ của mình (họ tên, vai trò, phạm vi tòa nhà hoặc căn hộ); sai mật khẩu hoặc tài khoản `Tạm khóa` bị từ chối với thông báo rõ ràng; vào trang được bảo vệ khi chưa đăng nhập thì bị chuyển về trang đăng nhập.
-- [ ] Design it (spec): `/architect đăng nhập & trang hồ sơ`
+spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/`, `frontend/src/proxy.ts`
+- [x] Design it (spec): `/architect đăng nhập & trang hồ sơ`
+- [x] Build it: `/develop đăng nhập & trang hồ sơ`
+  - [x] Đường mỏng: đăng nhập bằng số điện thoại tới trang hồ sơ, JWT trong cookie, chống CSRF, `proxy.ts` (AC-1, AC-7, AC-10, AC-11, AC-13)
+  - [x] Làm dày đăng nhập: chuẩn hóa tài khoản, sai thông tin, tài khoản khóa, ghi phiên, nâng hash, log (AC-2, AC-3, AC-4, AC-5, AC-6, AC-16)
+  - [x] Làm dày hồ sơ: phạm vi, chi tiết vai trò, khóa giữa chừng, trang `/ho-so` đủ phần (AC-8, AC-9, AC-14)
+  - [x] Giao diện đăng nhập đủ và khóa lại: xử lý 401 toàn cục, thông báo lý do, a11y, README (AC-12, AC-13, AC-15)
+- [x] Verify it: `/check verify đăng nhập & trang hồ sơ`
+- [x] Test it: `/test đăng nhập & trang hồ sơ`
+- [x] Review it (fresh model): `/check review đăng nhập & trang hồ sơ`
+- [x] Document it: `/document đăng nhập & trang hồ sơ`
 
 ## Slice 2: Làm mới phiên & đăng xuất
 
@@ -145,6 +155,7 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 - **UC10 Thông báo & truyền thông**: soạn, phát hành, lượt đọc (5 API) · needs a decision
 - **UC11 Khảo sát & biểu quyết**: đợt khảo sát, nộp phiếu, kết quả (6 API) · needs a decision
 - **UC12 Báo cáo & thống kê**: KPI, báo cáo, xuất file nền (5 API) · needs a decision
+- **Gán nhân viên vào tòa nhà**: bảng gán để `phamVi.maToaNha` của nhân viên đúng khi khu có nhiều nhóm phụ trách riêng; hiện giả định nhân viên phụ trách mọi tòa · needs a decision · from spec 0004
 
 ## Legend
 

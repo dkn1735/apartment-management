@@ -3,10 +3,130 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = Record<string, never>;
+export interface paths {
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Đăng nhập bằng số điện thoại hoặc email
+         * @description Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.
+         */
+        post: operations["dangNhap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hồ sơ của người đang đăng nhập */
+        get: operations["hoSo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DangNhapRequest: {
+            /** @description Số điện thoại hoặc email */
+            taiKhoan: string;
+            matKhau: string;
+        };
+        ApiResponseDangNhapResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["DangNhapResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        DangNhapResponse: {
+            maNguoiDung: string;
+            hoTen: string;
+            vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            /** Format: date-time */
+            accessTokenHetHanLuc: string;
+        };
+        ApiResponseHoSoResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["HoSoResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        ChiTietVaiTro: {
+            quanTriVien?: components["schemas"]["VaiTroQuanTriVien"];
+            banQuanLy?: components["schemas"]["VaiTroBanQuanLy"];
+            banQuanTri?: components["schemas"]["VaiTroBanQuanTri"];
+            keToan?: components["schemas"]["VaiTroKeToan"];
+            kyThuat?: components["schemas"]["VaiTroKyThuat"];
+            baoVe?: components["schemas"]["VaiTroBaoVe"];
+            cuDan?: components["schemas"]["VaiTroCuDan"];
+        };
+        HoSoResponse: {
+            maNguoiDung: string;
+            hoTen: string;
+            soDienThoai: string;
+            email: string;
+            /** @example Hoạt động */
+            trangThaiTaiKhoan: string;
+            vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            phamVi: components["schemas"]["PhamVi"];
+            chiTietVaiTro: components["schemas"]["ChiTietVaiTro"];
+        };
+        PhamVi: {
+            maToaNha: string[];
+            maCanHo: string[];
+        };
+        VaiTroBanQuanLy: {
+            maNv: string;
+            chucVu: string;
+            boPhan: string;
+        };
+        VaiTroBanQuanTri: {
+            maThanhVien: string;
+            nhiemKy: string;
+            vaiTro: string;
+        };
+        VaiTroBaoVe: {
+            maNv: string;
+            viTriTruc: string;
+        };
+        VaiTroCuDan: {
+            maCuDan: string;
+        };
+        VaiTroKeToan: {
+            maNv: string;
+            phamViPhuTrach: string;
+        };
+        VaiTroKyThuat: {
+            maNv: string;
+            chuyenMonKyThuat: string;
+        };
+        VaiTroQuanTriVien: {
+            maQuanTriVien: string;
+        };
         ErrorResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -30,4 +150,67 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    dangNhap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DangNhapRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseDangNhapResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    hoSo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+}

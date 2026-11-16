@@ -10,7 +10,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  * profile tạo một Spring context riêng, nhưng các context này cùng trỏ vào một container.
  */
 @TestConfiguration(proxyBeanMethods = false)
-class TestcontainersConfiguration {
+public class TestcontainersConfiguration {
 
 	/** Cùng tag với docker-compose (spec 0002): collation ICU có phiên bản. */
 	static final String POSTGRES_IMAGE = "postgres:18.7";

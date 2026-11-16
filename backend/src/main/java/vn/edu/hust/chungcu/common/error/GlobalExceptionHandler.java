@@ -40,7 +40,15 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(ApiException.class)
 	ResponseEntity<ErrorResponse> handleApi(ApiException ex, HttpServletRequest request) {
-		return errors.entity(request, ex.getStatus(), ex.getErrorCode(), ex.getMessage(), ex.getErrors());
+		ResponseEntity<ErrorResponse> response = errors.entity(request, ex.getStatus(), ex.getErrorCode(),
+				ex.getMessage(), ex.getErrors());
+		if (ex.getHeaders().isEmpty()) {
+			return response;
+		}
+		return ResponseEntity.status(response.getStatusCode())
+			.headers(response.getHeaders())
+			.headers(ex.getHeaders())
+			.body(response.getBody());
 	}
 
 	@ExceptionHandler(BindException.class)

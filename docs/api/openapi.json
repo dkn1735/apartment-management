@@ -7,9 +7,329 @@
   "servers" : [ {
     "url" : "/"
   } ],
-  "paths" : { },
+  "security" : [ {
+    "csrfHeader" : [ ]
+  } ],
+  "paths" : {
+    "/api/v1/auth/login" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Đăng nhập bằng số điện thoại hoặc email",
+        "description" : "Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.",
+        "operationId" : "dangNhap",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DangNhapRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseDangNhapResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/profile" : {
+      "get" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Hồ sơ của người đang đăng nhập",
+        "operationId" : "hoSo",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseHoSoResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components" : {
     "schemas" : {
+      "DangNhapRequest" : {
+        "type" : "object",
+        "properties" : {
+          "taiKhoan" : {
+            "type" : "string",
+            "description" : "Số điện thoại hoặc email",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "matKhau" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "matKhau", "taiKhoan" ]
+      },
+      "ApiResponseDangNhapResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/DangNhapResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "DangNhapResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maNguoiDung" : {
+            "type" : "string"
+          },
+          "hoTen" : {
+            "type" : "string"
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
+            }
+          },
+          "accessTokenHetHanLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "vaiTro" ]
+      },
+      "ApiResponseHoSoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/HoSoResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ChiTietVaiTro" : {
+        "type" : "object",
+        "properties" : {
+          "quanTriVien" : {
+            "$ref" : "#/components/schemas/VaiTroQuanTriVien"
+          },
+          "banQuanLy" : {
+            "$ref" : "#/components/schemas/VaiTroBanQuanLy"
+          },
+          "banQuanTri" : {
+            "$ref" : "#/components/schemas/VaiTroBanQuanTri"
+          },
+          "keToan" : {
+            "$ref" : "#/components/schemas/VaiTroKeToan"
+          },
+          "kyThuat" : {
+            "$ref" : "#/components/schemas/VaiTroKyThuat"
+          },
+          "baoVe" : {
+            "$ref" : "#/components/schemas/VaiTroBaoVe"
+          },
+          "cuDan" : {
+            "$ref" : "#/components/schemas/VaiTroCuDan"
+          }
+        }
+      },
+      "HoSoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maNguoiDung" : {
+            "type" : "string"
+          },
+          "hoTen" : {
+            "type" : "string"
+          },
+          "soDienThoai" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "trangThaiTaiKhoan" : {
+            "type" : "string",
+            "example" : "Hoạt động"
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
+            }
+          },
+          "phamVi" : {
+            "$ref" : "#/components/schemas/PhamVi"
+          },
+          "chiTietVaiTro" : {
+            "$ref" : "#/components/schemas/ChiTietVaiTro"
+          }
+        },
+        "required" : [ "chiTietVaiTro", "email", "hoTen", "maNguoiDung", "phamVi", "soDienThoai", "trangThaiTaiKhoan", "vaiTro" ]
+      },
+      "PhamVi" : {
+        "type" : "object",
+        "properties" : {
+          "maToaNha" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "maCanHo" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "maCanHo", "maToaNha" ]
+      },
+      "VaiTroBanQuanLy" : {
+        "type" : "object",
+        "properties" : {
+          "maNv" : {
+            "type" : "string"
+          },
+          "chucVu" : {
+            "type" : "string"
+          },
+          "boPhan" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "boPhan", "chucVu", "maNv" ]
+      },
+      "VaiTroBanQuanTri" : {
+        "type" : "object",
+        "properties" : {
+          "maThanhVien" : {
+            "type" : "string"
+          },
+          "nhiemKy" : {
+            "type" : "string"
+          },
+          "vaiTro" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maThanhVien", "nhiemKy", "vaiTro" ]
+      },
+      "VaiTroBaoVe" : {
+        "type" : "object",
+        "properties" : {
+          "maNv" : {
+            "type" : "string"
+          },
+          "viTriTruc" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maNv", "viTriTruc" ]
+      },
+      "VaiTroCuDan" : {
+        "type" : "object",
+        "properties" : {
+          "maCuDan" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maCuDan" ]
+      },
+      "VaiTroKeToan" : {
+        "type" : "object",
+        "properties" : {
+          "maNv" : {
+            "type" : "string"
+          },
+          "phamViPhuTrach" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maNv", "phamViPhuTrach" ]
+      },
+      "VaiTroKyThuat" : {
+        "type" : "object",
+        "properties" : {
+          "maNv" : {
+            "type" : "string"
+          },
+          "chuyenMonKyThuat" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "chuyenMonKyThuat", "maNv" ]
+      },
+      "VaiTroQuanTriVien" : {
+        "type" : "object",
+        "properties" : {
+          "maQuanTriVien" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maQuanTriVien" ]
+      },
       "ErrorResponse" : {
         "properties" : {
           "success" : {
@@ -49,6 +369,14 @@
             "type" : "string"
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "csrfHeader" : {
+        "type" : "apiKey",
+        "description" : "Nhập XMLHttpRequest. Bắt buộc với POST, PUT, PATCH, DELETE.",
+        "name" : "X-Requested-With",
+        "in" : "header"
       }
     }
   }

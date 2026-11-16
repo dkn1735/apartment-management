@@ -34,7 +34,7 @@ jobs:
         run: git diff --exit-code -- ../docs/api/openapi.json
 
   frontend:
-    name: Frontend (lint, format, typecheck, build)
+    name: Frontend (lint, format, typecheck, test, build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -59,6 +59,7 @@ jobs:
       - name: schema.d.ts phải khớp với openapi.json
         run: pnpm gen:api && git diff --exit-code -- src/lib/api/schema.d.ts
       - run: pnpm typecheck
+      - run: pnpm test
       - run: pnpm build
 
   docker:

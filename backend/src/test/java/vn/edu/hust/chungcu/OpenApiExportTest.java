@@ -23,9 +23,9 @@ import tools.jackson.databind.json.JsonMapper;
  * API.
  */
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest(properties = "app.security.jwt-secret=test-only-secret-not-for-real-use")
+@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("dev")
+@ActiveProfiles({ "dev", "test" })
 class OpenApiExportTest {
 
 	private static final Path OUTPUT = Path.of("..", "docs", "api", "openapi.json");

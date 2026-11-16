@@ -55,3 +55,9 @@ app:
   security:
     # Không có giá trị mặc định: thiếu JWT_SECRET thì backend dừng lúc khởi động
     jwt-secret: ${JWT_SECRET:}
+    access-token-ttl: PT15M
+    refresh-token-ttl: P7D
+    # Mật khẩu mới và mật khẩu cũ được nâng lên cost này sau lần đăng nhập đúng
+    bcrypt-cost: 12
+    # Đặt COOKIE_SECURE=false chỉ khi demo qua http trên mạng LAN
+    cookie-secure: ${COOKIE_SECURE:true}

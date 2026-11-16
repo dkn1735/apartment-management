@@ -10,9 +10,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @Import(TestcontainersConfiguration.class)
-@SpringBootTest(properties = "app.security.jwt-secret=test-only-secret-not-for-real-use")
+@SpringBootTest
 // Ghi đè SPRING_PROFILES_ACTIVE trong backend/.env, để test không bao giờ nạp seed
-@ActiveProfiles("dev")
+@ActiveProfiles({ "dev", "test" })
 class ChungCuApplicationTests {
 
 	@Autowired

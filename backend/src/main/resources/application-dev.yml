@@ -10,3 +10,8 @@ logging:
     level: "%5p [%X{requestId:-}]"
   level:
     vn.edu.hust.chungcu: DEBUG
+
+app:
+  security:
+    # Safari và Playwright không nhận cookie Secure qua http://localhost
+    cookie-secure: ${COOKIE_SECURE:false}

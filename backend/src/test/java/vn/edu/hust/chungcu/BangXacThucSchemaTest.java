@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
  * dùng chung container đã seed. Mỗi kịch bản tự rollback.
  */
 @Import(SeedTestcontainersConfiguration.class)
-@SpringBootTest(properties = "app.security.jwt-secret=test-only-secret-not-for-real-use")
-@ActiveProfiles({ "dev", "seed" })
+@SpringBootTest
+@ActiveProfiles({ "dev", "seed", "test" })
 @Transactional
 class BangXacThucSchemaTest {
 
