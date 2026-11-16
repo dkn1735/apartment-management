@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ButtonDemo } from "./_demo/button-demo";
 import { DemoForm } from "./_demo/demo-form";
 import { DialogDemo } from "./_demo/dialog-demo";
+import { DisabledFieldsDemo } from "./_demo/disabled-fields-demo";
 import { DisplayDemo } from "./_demo/display-demo";
 import { FeedbackDemo } from "./_demo/feedback-demo";
 import { OverviewDemo } from "./_demo/overview-demo";
@@ -67,6 +68,9 @@ export default function DevUiPage() {
           >
             <DemoGroup label="Form mẫu">
               <DemoForm />
+            </DemoGroup>
+            <DemoGroup label="Trạng thái vô hiệu">
+              <DisabledFieldsDemo />
             </DemoGroup>
           </DemoSection>
           <DemoSection id="hien-thi" title="Thẻ và chip">
