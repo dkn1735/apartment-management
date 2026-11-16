@@ -77,7 +77,7 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md)
 - [x] Design it (spec): `/architect đăng nhập & trang hồ sơ`
 - [ ] Build it: `/develop đăng nhập & trang hồ sơ`
   - [x] Đường mỏng: đăng nhập bằng số điện thoại tới trang hồ sơ, JWT trong cookie, chống CSRF, `proxy.ts` (AC-1, AC-7, AC-10, AC-11, AC-13)
-  - [ ] Làm dày đăng nhập: chuẩn hóa tài khoản, sai thông tin, tài khoản khóa, ghi phiên, nâng hash, log (AC-2, AC-3, AC-4, AC-5, AC-6, AC-16)
+  - [x] Làm dày đăng nhập: chuẩn hóa tài khoản, sai thông tin, tài khoản khóa, ghi phiên, nâng hash, log (AC-2, AC-3, AC-4, AC-5, AC-6, AC-16)
   - [ ] Làm dày hồ sơ: phạm vi, chi tiết vai trò, khóa giữa chừng, trang `/ho-so` đủ phần (AC-8, AC-9, AC-14)
   - [ ] Giao diện đăng nhập đủ và khóa lại: xử lý 401 toàn cục, thông báo lý do, a11y, README (AC-12, AC-13, AC-15)
 - [ ] Verify it: `/check verify đăng nhập & trang hồ sơ`
