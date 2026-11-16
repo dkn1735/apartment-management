@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
+import { SectionHeader } from "@/components/layout/section-header";
 
 type DemoSectionProps = { id: string; title: string; description?: string; children: ReactNode };
 
-/** Một mục trên trang /dev/ui, có id để mục lục trỏ tới. */
+/** Một mục trên trang /dev/ui, dựng bằng SectionHeader; có id để mục lục trỏ tới. */
 export function DemoSection({ id, title, description, children }: DemoSectionProps) {
   return (
     <section id={id} aria-labelledby={`${id}-tieu-de`} className="scroll-mt-6">
-      <h2 id={`${id}-tieu-de`} className="type-section-title">
-        {title}
-      </h2>
-      {description && <p className="mt-1 type-ui text-muted-foreground">{description}</p>}
-      <div className="mt-5 flex flex-col gap-6">{children}</div>
+      <SectionHeader id={`${id}-tieu-de`} eyebrow="Design system" title={title} description={description} />
+      <div className="flex flex-col gap-6">{children}</div>
     </section>
   );
 }

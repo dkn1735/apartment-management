@@ -4,6 +4,8 @@ import { DemoForm } from "./_demo/demo-form";
 import { DialogDemo } from "./_demo/dialog-demo";
 import { DisplayDemo } from "./_demo/display-demo";
 import { FeedbackDemo } from "./_demo/feedback-demo";
+import { OverviewDemo } from "./_demo/overview-demo";
+import { TableDemo } from "./_demo/table-demo";
 import { DemoGroup, DemoSection } from "./_demo/demo-section";
 import { PaletteDemo } from "./_demo/palette-demo";
 import { TypographyDemo } from "./_demo/typography-demo";
@@ -18,6 +20,8 @@ const SECTIONS = [
   { id: "hien-thi", title: "Thẻ và chip" },
   { id: "phan-hoi", title: "Phản hồi" },
   { id: "hop-thoai", title: "Hộp thoại" },
+  { id: "bang", title: "Bảng" },
+  { id: "tong-quan", title: "Số liệu và tổng quan" },
 ];
 
 /** Trang trưng bày design system, chỉ có khi chạy `pnpm dev` (spec 0003, mục Trang /dev/ui). */
@@ -71,6 +75,20 @@ export default function DevUiPage() {
           </DemoSection>
           <DemoSection id="hop-thoai" title="Hộp thoại">
             <DialogDemo />
+          </DemoSection>
+          <DemoSection
+            id="bang"
+            title="Bảng"
+            description="Phân trang và sắp xếp phía server; dữ liệu giả trễ 600ms. Bảng rộng cuộn ngang trong khung."
+          >
+            <TableDemo />
+          </DemoSection>
+          <DemoSection
+            id="tong-quan"
+            title="Số liệu và tổng quan"
+            description="Mảng tối đầu trang, ô số liệu, nhãn giá trị."
+          >
+            <OverviewDemo />
           </DemoSection>
         </div>
       </div>
