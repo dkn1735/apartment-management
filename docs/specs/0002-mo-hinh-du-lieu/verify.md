@@ -1,14 +1,17 @@
 # Verify: Mô hình dữ liệu · spec 0002 · updated 2026-11-16
+
 _Steps derived from spec 0002 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones._
 
 Các lệnh `psql` dưới đây chạy trên database dev: `docker compose exec -T db psql -U chungcu -d chungcu -tAc "<SQL>"`.
 
 ## UI / manual
+
 - [x] Xóa volume (`docker compose down -v`), `docker compose up -d`, chạy backend với `SPRING_PROFILES_ACTIVE=dev,seed` → log có `Successfully applied 10 migrations`, `/actuator/health` trả `UP` → AC-1, AC-7
 - [x] Dừng backend, chạy lại với `SPRING_PROFILES_ACTIVE=dev` (bỏ `seed`) trên cùng database → khởi động không lỗi Flyway, không báo thiếu migration → AC-7
-- [ ] `docker compose -f docker-compose.prod.yml up --build` trên volume trống → backend khởi động với `prod,seed`, có 8 tài khoản mẫu → AC-7
+- [x] `docker compose -f docker-compose.prod.yml up --build` trên volume trống → backend khởi động với `prod,seed`, có 8 tài khoản mẫu → AC-7
 
 ## Commands
+
 - [x] `cd backend && mvnw.cmd verify` → `Failures: 0, Errors: 0`, `BUILD SUCCESS` (58 test lúc đóng tính năng 3; số này tăng khi các tính năng sau thêm test, nên không so khớp) → AC-1 đến AC-9
 - [x] `psql`: `SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name<>'flyway_schema_history'` → `42` → AC-1
 - [x] `psql`: `SELECT count(*) FROM information_schema.columns WHERE table_schema='public' AND data_type='timestamp without time zone' AND table_name<>'flyway_schema_history'` → `0`; `khung_gio_tien_ich.gio_bat_dau` vẫn là `time without time zone` → AC-2
@@ -28,6 +31,7 @@ Các lệnh `psql` dưới đây chạy trên database dev: `docker compose exec
 - [x] Đổi `SPRING_PROFILES_ACTIVE` trong `backend/.env` giữa `dev` và `dev,seed` rồi chạy `mvnw.cmd verify` → `ChungCuApplicationTests` vẫn thấy `nguoi_dung_he_thong` trống trong cả hai trường hợp → AC-7 (Value sourcing: bật seed chỉ qua profile `seed`)
 
 ## Acceptance-criteria coverage
+
 - AC-1 · bước khởi động trên volume trống, đếm 42 bảng, `mvnw.cmd verify`
 - AC-2 · không còn `timestamp without time zone`, cột `TIME` giữ nguyên; test `moiCotKhoaNgoaiDeuCoIndex`, `cacCotTenVaTieuDeDungCollationTiengViet`
 - AC-3 · `\d nguoi_dung_he_thong` và 4 bảng mới
