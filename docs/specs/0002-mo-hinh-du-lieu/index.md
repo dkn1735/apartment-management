@@ -284,7 +284,7 @@ Cách làm Tracer Bullet áp vào một tính năng chỉ có tầng dữ liệu
 
 ## Follow-up
 
-- [ ] Sửa hai câu trong spec 0001, mục *Quy ước database*. (1) Ở phần sinh mã khóa chính: chặn tràn bằng `MAXVALUE 99999999` của sequence, CHECK định dạng chỉ là lớp phụ. (2) Ở phần seed: "seed chỉ chạy ở profile `dev`" thành "seed chạy khi bật profile `seed` (dev và bản demo), xem spec 0002".
+- [x] Sửa hai câu trong spec 0001, mục *Quy ước database*. (1) Ở phần sinh mã khóa chính: chặn tràn bằng `MAXVALUE 99999999` của sequence, CHECK định dạng chỉ là lớp phụ. (2) Ở phần seed: "seed chỉ chạy ở profile `dev`" thành "seed chạy khi bật profile `seed` (dev và bản demo), xem spec 0002".
 - [ ] Tạo tài khoản Admin đầu tiên khi database không có seed (ví dụ từ biến môi trường lúc khởi động): tính năng 11. Tới lúc đó, database không seed không có ai đăng nhập được; bản demo không bị ảnh hưởng vì có seed.
 - [ ] Cập nhật `sql/database_schema_quan_ly_chung_cu.sql` và file xlsx cho khớp schema mới trước khi nộp (tên, bảng mới, các mục sửa).
 - [ ] Ghi quy tắc "chữ viết tắt trong tên field Java viết như một từ" vào `AGENTS.md` `## Rules`: `/sync` sau khi tính năng này xong.
