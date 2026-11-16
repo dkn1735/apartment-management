@@ -61,6 +61,12 @@
       "skillPath": "skills/sync/SKILL.md",
       "computedHash": "5a88ad828e9845a79162c7b7c05222ac530dd1ca862a4a4e16092a40bdb4f59c"
     },
+    "tanstack-table": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
+      "computedHash": "235873fdbb88facf6b7df204a71b822e575e72cf3ce2c0628a0405b0d0db2620"
+    },
     "test": {
       "source": "jsmastery-pro/skills",
       "sourceType": "github",
