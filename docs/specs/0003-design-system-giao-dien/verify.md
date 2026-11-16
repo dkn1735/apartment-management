@@ -6,11 +6,11 @@ Chuẩn bị: `cd frontend && pnpm dev`, mở `http://localhost:3000/dev/ui` và
 
 ## UI / manual
 
-- [ ] Mở `/dev/ui`, mục Màu: mọi ô màu hiện tên biến và giá trị khớp `src/app/globals.css` → AC-1
+- [x] Mở `/dev/ui`, mục Màu: mọi ô màu hiện tên biến và giá trị khớp `src/app/globals.css` → AC-1
 - [x] Mục Chữ: chuỗi `Ẳ Ẵ Ặ Ỷ Ữ ặ ỡ ừ` hiện bằng Be Vietnam Pro ở mọi cỡ, dấu không bị cắt (kể cả `type-page-title` 24px dưới 640px) → AC-2
 - [x] Mục Chữ số đều cột: ghi chú nói Be Vietnam Pro không có `tnum`; cột tiền và diện tích trong bảng mẫu căn phải → AC-2 (nhánh dự phòng của spec)
 - [x] Đi hết `/dev/ui` chỉ bằng phím Tab, Shift+Tab, Enter, Space, phím mũi tên, Esc: mọi nút, ô nhập, Select, Checkbox, Switch, hộp thoại, bảng dùng được; vòng focus 2px màu đỏ gạch, cách 2px, luôn thấy → AC-3, AC-4
-- [ ] Rê chuột lên từng biến thể nút, mục Select, dòng bảng, mục menu: nền đổi theo token (`--primary-hover`, `--destructive-hover`, `--accent`) → AC-3
+- [x] Rê chuột lên từng biến thể nút, mục Select, dòng bảng, mục menu: nền đổi theo token (`--primary-hover`, `--destructive-hover`, `--accent`) → AC-3
 - [x] Trong `HeroBand` và mục menu đang chọn, Tab tới một phần tử: vòng focus màu sáng `--on-dark` → AC-4
 - [x] Mở `ConfirmDialog` "Khóa tài khoản (thành công)": focus ở "Hủy"; Tab không thoát khỏi hộp thoại; Esc đóng, focus về nút mở → AC-4
 - [x] Form mẫu, tình huống Thành công: nhập đủ, bấm Lưu, nút hiện vòng quay; bấm Lưu lần nữa ngay không gửi lần hai; toast "Đã lưu" hiện góc dưới phải, tự tắt sau khoảng 5 giây → AC-5, AC-8
@@ -54,7 +54,7 @@ Chuẩn bị: `cd frontend && pnpm dev`, mở `http://localhost:3000/dev/ui` và
 - [x] Ngày giờ: `formatNgayGio("2026-11-16T17:30:00Z")` ra `17/11/2026 00:30` (qua nửa đêm giờ Việt Nam)
 - [x] Tiền: `formatTien(4850000)` có NBSP trước `₫`
 - [x] Mục menu đang chọn: ở `/dev/ui/shell/can-ho/123` mục "Căn hộ" được chọn; ở `/dev/ui/shell` chỉ "Tổng quan"
-- [ ] Màu chip trạng thái: bảng mẫu ánh xạ "Đang ở" sang `success`, "Đang sửa chữa" sang `warning`
+- [x] Màu chip trạng thái: bảng mẫu ánh xạ "Đang ở" sang `success`, "Đang sửa chữa" sang `warning`
 - [x] Tên app: tab trình duyệt và thương hiệu đều là "Quản lý Chung cư" từ `APP_NAME`
 - [x] Ẩn `/dev/*`: theo `process.env.NODE_ENV` (bước curl ở trên)
 - [x] Tham số `sort=`: bấm sắp xếp gửi `maCanHo,asc` (tên trong `meta.sortField`)

@@ -65,7 +65,7 @@ spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend
   - [x] Form và phản hồi đủ bộ: các loại ô, toast, hộp thoại xác nhận, trang lỗi (AC-3, AC-4, AC-5, AC-6, AC-8, AC-13)
   - [x] Hiển thị dữ liệu: DataTable, định dạng, ô số liệu, mảng tối đầu trang (AC-3, AC-9, AC-10, AC-11)
   - [x] Khung app và khóa lại: AppShell, `/dev/ui/shell`, hoàn thiện `design.md` (AC-1, AC-3, AC-4, AC-12, AC-14)
-- [ ] Verify it: `/check verify design system & nền tảng giao diện`
+- [x] Verify it: `/check verify design system & nền tảng giao diện`
 - [ ] Test it: `/test design system & nền tảng giao diện`
 
 ## Slice 1: Đăng nhập & trang hồ sơ
