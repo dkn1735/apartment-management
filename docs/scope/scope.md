@@ -115,8 +115,9 @@ spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/sr
   - [x] Làm dày backend: test bắt buộc khai, `PublicPaths.CONG_KHAI`, log, OpenAPI, helper phân trang, service phạm vi (AC-1, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9)
   - [x] Làm dày giao diện: ma trận đủ, chặn trang, `KhongCoQuyen`, trạng thái đang tải và lỗi (AC-10, AC-11, AC-12, AC-13, AC-15)
   - [x] Trang Tổng quan và khóa lại: trang `/`, a11y, `verify.md`, README (AC-14, AC-16)
-- [ ] Verify it: `/check verify phân quyền theo vai trò & bố cục app`
-- [ ] Test it: `/test phân quyền theo vai trò & bố cục app`
+- [x] Verify it: `/check verify phân quyền theo vai trò & bố cục app`
+- [x] Test it: `/test phân quyền theo vai trò & bố cục app`
+- [x] Review it (fresh model): `/check review phân quyền theo vai trò & bố cục app`
 
 ## Slice 4: Ghi nhật ký kiểm toán dùng chung
 

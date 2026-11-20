@@ -62,6 +62,19 @@ describe("AppShell (AC-4, AC-12)", () => {
     await expectNoA11yViolations(container);
   });
 
+  it("danh sách của nhóm có nhãn lấy tên nhóm, ở cả thanh bên lẫn ngăn kéo (spec 0006, AC-16)", async () => {
+    const { user } = setup("/");
+    const sidebar = screen.getByRole("navigation", { name: "Menu chính" });
+    const nhom = within(sidebar).getByRole("list", { name: "Vận hành" });
+    expect(within(nhom).getByRole("link", { name: "Căn hộ" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Mở menu" }));
+    const drawer = await screen.findByRole("dialog");
+    expect(within(drawer).getByRole("list", { name: "Vận hành" })).toBeInTheDocument();
+    const ids = [...document.querySelectorAll("[aria-labelledby]")].map((el) => el.getAttribute("aria-labelledby"));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("liên kết bỏ qua là điểm Tab đầu tiên và trỏ tới main#noi-dung", async () => {
     const { user } = setup("/");
     await user.tab();
