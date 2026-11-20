@@ -1,5 +1,7 @@
 package vn.edu.hust.chungcu.auth.service;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -7,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.edu.hust.chungcu.auth.entity.PhienDangNhap;
 import vn.edu.hust.chungcu.auth.repository.NguoiDungHeThongRepository;
 import vn.edu.hust.chungcu.auth.repository.PhienDangNhapRepository;
+import vn.edu.hust.chungcu.common.config.AppProperties;
 
 /**
  * Phần ghi DB của một lần đăng nhập, trong một transaction (spec 0004, bước 7). Tách khỏi
  * {@link DangNhapService} để proxy transaction có tác dụng và bcrypt chạy ngoài
- * transaction.
+ * transaction. Cũng dọn các dòng phiên đã hết hạn hoặc thu hồi lâu (spec 0005, AC-15).
  */
 @Service
 public class PhienDangNhapService {
@@ -20,9 +23,25 @@ public class PhienDangNhapService {
 
 	private final PhienDangNhapRepository phien;
 
-	public PhienDangNhapService(NguoiDungHeThongRepository nguoiDung, PhienDangNhapRepository phien) {
+	private final Clock clock;
+
+	private final Duration retention;
+
+	public PhienDangNhapService(NguoiDungHeThongRepository nguoiDung, PhienDangNhapRepository phien, Clock clock,
+			AppProperties properties) {
 		this.nguoiDung = nguoiDung;
 		this.phien = phien;
+		this.clock = clock;
+		this.retention = properties.security().sessionRetention();
+	}
+
+	/**
+	 * Xóa dòng có {@code het_han_luc} hoặc {@code thu_hoi_luc} trước giờ hiện tại trừ
+	 * {@code session-retention}; trả số dòng đã xóa.
+	 */
+	@Transactional
+	public int donDep() {
+		return this.phien.xoaCu(Instant.now(this.clock).minus(this.retention));
 	}
 
 	@Transactional
