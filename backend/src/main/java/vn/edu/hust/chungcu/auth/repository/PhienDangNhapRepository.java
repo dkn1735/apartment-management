@@ -17,6 +17,11 @@ public interface PhienDangNhapRepository extends JpaRepository<PhienDangNhap, Lo
 	@Query("select p.maHoPhien from PhienDangNhap p where p.tokenHash = :hash")
 	Optional<UUID> timHoPhien(String hash);
 
+	/** Như {@link #timHoPhien}, kèm chủ họ phiên để ghi nhật ký (spec 0007, AC-4). */
+	@Query("select new vn.edu.hust.chungcu.auth.repository.HoPhienCuaToken(p.maHoPhien, p.maNguoiDung) "
+			+ "from PhienDangNhap p where p.tokenHash = :hash")
+	Optional<HoPhienCuaToken> timHoPhienVaNguoiDung(String hash);
+
 	Optional<PhienDangNhap> findByTokenHash(String hash);
 
 	/**
