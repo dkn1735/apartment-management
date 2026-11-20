@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.edu.hust.chungcu.auth.phanquyen.CongKhai;
 
 /**
  * Thay trang lỗi mặc định của Spring Boot ({@code /error}) để cả những lỗi xảy ra ngoài
@@ -24,6 +25,7 @@ public class JsonErrorController implements ErrorController {
 		this.errors = errors;
 	}
 
+	@CongKhai
 	@RequestMapping("${server.error.path:/error}")
 	ResponseEntity<ErrorResponse> error(HttpServletRequest request) {
 		HttpStatus status = resolveStatus(request);

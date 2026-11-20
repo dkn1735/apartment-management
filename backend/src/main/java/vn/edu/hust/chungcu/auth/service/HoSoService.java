@@ -1,21 +1,19 @@
 package vn.edu.hust.chungcu.auth.service;
 
-import java.time.Clock;
-import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import vn.edu.hust.chungcu.auth.dto.HoSoResponse;
+import vn.edu.hust.chungcu.auth.dto.ChiTietVaiTro;
 import vn.edu.hust.chungcu.auth.dto.PhamVi;
 import vn.edu.hust.chungcu.auth.dto.VaiTro;
 import vn.edu.hust.chungcu.auth.dto.VaiTroNguoiDung;
 import vn.edu.hust.chungcu.auth.entity.NguoiDungHeThong;
 import vn.edu.hust.chungcu.auth.repository.NguoiDungHeThongRepository;
 import vn.edu.hust.chungcu.auth.repository.VaiTroQuery;
-import vn.edu.hust.chungcu.canho.service.ToaNhaService;
 import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorCodes;
-import vn.edu.hust.chungcu.cutru.service.CuTruService;
 
 /**
  * Hồ sơ của người đang đăng nhập (spec 0004, mục Hồ sơ). Vai trò và trạng thái luôn đọc
@@ -28,22 +26,16 @@ public class HoSoService {
 
 	private final VaiTroQuery vaiTroQuery;
 
-	private final ToaNhaService toaNhaService;
-
-	private final CuTruService cuTruService;
+	private final PhamViTinhToan phamViTinhToan;
 
 	private final AuthCookies cookies;
 
-	private final Clock clock;
-
-	public HoSoService(NguoiDungHeThongRepository nguoiDung, VaiTroQuery vaiTroQuery, ToaNhaService toaNhaService,
-			CuTruService cuTruService, AuthCookies cookies, Clock clock) {
+	public HoSoService(NguoiDungHeThongRepository nguoiDung, VaiTroQuery vaiTroQuery, PhamViTinhToan phamViTinhToan,
+			AuthCookies cookies) {
 		this.nguoiDung = nguoiDung;
 		this.vaiTroQuery = vaiTroQuery;
-		this.toaNhaService = toaNhaService;
-		this.cuTruService = cuTruService;
+		this.phamViTinhToan = phamViTinhToan;
 		this.cookies = cookies;
-		this.clock = clock;
 	}
 
 	public HoSoResponse cua(String maNguoiDung) {
@@ -59,13 +51,12 @@ public class HoSoService {
 				tk.getTrangThaiTaiKhoan(), vaiTro.vaiTro(), phamVi(vaiTro), vaiTro.chiTiet());
 	}
 
+	// Cùng quy tắc với PhamViTruyCapService, chỉ khác nguồn vai trò (spec 0006, AC-6)
 	private PhamVi phamVi(VaiTroNguoiDung vaiTro) {
-		List<String> maToaNha = vaiTro.coVaiTroKhacCuDan() ? this.toaNhaService.danhSachMaToaNha() : List.of();
-		List<String> maCanHo = vaiTro.co(VaiTro.CU_DAN)
-				// Clock mang múi giờ app.timezone, nên đây là ngày theo giờ Việt Nam
-				? this.cuTruService.maCanHoDangCuTru(vaiTro.chiTiet().cuDan().maCuDan(), LocalDate.now(this.clock))
-				: List.of();
-		return new PhamVi(maToaNha, maCanHo);
+		ChiTietVaiTro.VaiTroCuDan cuDan = vaiTro.chiTiet().cuDan();
+		return this.phamViTinhToan.tinh(
+				vaiTro.vaiTro().isEmpty() ? EnumSet.noneOf(VaiTro.class) : EnumSet.copyOf(vaiTro.vaiTro()),
+				(cuDan != null) ? cuDan.maCuDan() : null);
 	}
 
 }

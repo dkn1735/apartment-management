@@ -15,7 +15,7 @@
       "post" : {
         "tags" : [ "Xác thực" ],
         "summary" : "Làm mới phiên bằng cookie refresh_token",
-        "description" : "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là token đang sống được trả lại. Không có body.",
+        "description" : "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là token đang sống được trả lại. Không có body.\n\nCông khai, không cần đăng nhập",
         "operationId" : "lamMoi",
         "parameters" : [ {
           "name" : "refresh_token",
@@ -53,7 +53,7 @@
       "post" : {
         "tags" : [ "Xác thực" ],
         "summary" : "Đăng xuất phiên trên máy này",
-        "description" : "Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.",
+        "description" : "Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.\n\nCông khai, không cần đăng nhập",
         "operationId" : "dangXuat",
         "parameters" : [ {
           "name" : "refresh_token",
@@ -91,7 +91,7 @@
       "post" : {
         "tags" : [ "Xác thực" ],
         "summary" : "Đăng nhập bằng số điện thoại hoặc email",
-        "description" : "Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.",
+        "description" : "Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.\n\nCông khai, không cần đăng nhập",
         "operationId" : "dangNhap",
         "requestBody" : {
           "content" : {
@@ -127,10 +127,82 @@
         }
       }
     },
+    "/api/v1/buildings" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Danh mục cấu trúc tòa nhà (API-UC01-01)",
+        "description" : "Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN",
+        "operationId" : "danhSach",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "tenToaNha,asc"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseToaNhaResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/profile" : {
       "get" : {
         "tags" : [ "Xác thực" ],
         "summary" : "Hồ sơ của người đang đăng nhập",
+        "description" : "Vai trò được phép: mọi người đã đăng nhập",
         "operationId" : "hoSo",
         "responses" : {
           "200" : {
@@ -288,6 +360,79 @@
           }
         },
         "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "vaiTro" ]
+      },
+      "ApiResponsePageResponseToaNhaResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseToaNhaResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PageResponseToaNhaResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ToaNhaResponse"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
+      },
+      "ToaNhaResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maToaNha" : {
+            "type" : "string"
+          },
+          "tenToaNha" : {
+            "type" : "string"
+          },
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "diaChiKhuVuc" : {
+            "type" : "string"
+          },
+          "soCanHo" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "diaChiKhuVuc", "maToaNha", "soCanHo", "soTang", "tenToaNha" ]
       },
       "ApiResponseHoSoResponse" : {
         "type" : "object",
