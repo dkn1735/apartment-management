@@ -17,9 +17,9 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 2 | Quy chuẩn code & công cụ | Foundation | done |
 | 3 | Mô hình dữ liệu | Foundation | done |
 | 4 | Design system & nền tảng giao diện | Foundation | done |
-| 5 | Đăng nhập & trang hồ sơ | Slice 1 | in-progress |
-| 6 | Làm mới phiên & đăng xuất | Slice 2 | in-progress |
-| 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | planned |
+| 5 | Đăng nhập & trang hồ sơ | Slice 1 | done |
+| 6 | Làm mới phiên & đăng xuất | Slice 2 | done |
+| 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | in-progress |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | planned |
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | planned |
 | 10 | Đổi mật khẩu | Slice 6 | planned |
@@ -70,7 +70,7 @@ spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend
 
 ## Slice 1: Đăng nhập & trang hồ sơ
 
-### 5. Đăng nhập & trang hồ sơ · in-progress · GA
+### 5. Đăng nhập & trang hồ sơ · done · GA
 Đường chạy mỏng nhất xuyên mọi tầng (cũng chính là walking skeleton): người dùng đăng nhập bằng số điện thoại hoặc email và mật khẩu, nhận access token và refresh token, vào trang hồ sơ được bảo vệ (API-AUTH-01, API-AUTH-03). Spec này là spec gốc của phân hệ: chốt cách cấp và kiểm tra token, cách lưu token phía trình duyệt, cách băm mật khẩu. Các lát sau dựa vào nó.
 **Done when:** tài khoản seed đăng nhập được trên màn hình NextJS và thấy hồ sơ của mình (họ tên, vai trò, phạm vi tòa nhà hoặc căn hộ); sai mật khẩu hoặc tài khoản `Tạm khóa` bị từ chối với thông báo rõ ràng; vào trang được bảo vệ khi chưa đăng nhập thì bị chuyển về trang đăng nhập.
 spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/`, `frontend/src/proxy.ts`
@@ -87,7 +87,7 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main
 
 ## Slice 2: Làm mới phiên & đăng xuất
 
-### 6. Làm mới phiên & đăng xuất · in-progress
+### 6. Làm mới phiên & đăng xuất · done
 Gia hạn phiên bằng refresh token mà không cần nhập lại mật khẩu (API-AUTH-02), và đăng xuất thì thu hồi refresh token. Dựa trên spec của tính năng 5.
 **Done when:** access token hết hạn được làm mới âm thầm khi người dùng đang thao tác; sau khi đăng xuất, refresh token cũ không dùng được nữa; refresh token hết hạn hoặc bị thu hồi thì người dùng phải đăng nhập lại.
 spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `backend/src/main/resources/db/migration/V10__phien_bat_dau_luc.sql`, `frontend/src/lib/api/refresh.ts`, `frontend/src/app/(app)/menu-nguoi-dung.tsx`
@@ -105,10 +105,18 @@ spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/
 
 ## Slice 3: Phân quyền theo vai trò & bố cục app
 
-### 7. Phân quyền theo vai trò & bố cục app · needs a decision
+### 7. Phân quyền theo vai trò & bố cục app · in-progress
 Một cách phân quyền dùng chung cho cả 80 API: xác định vai trò từ các bảng con (NhanVienBQL, NhanVienKyThuat, KeToan, ThanhVienBanQuanTri, CuDan) cùng Admin, chặn mỗi endpoint theo cột RBAC trong file đặc tả, và bố cục app NextJS có menu theo vai trò. Phân hệ nào sau này cũng dựa vào nó.
 **Done when:** mỗi vai trò chỉ thấy menu và gọi được API của mình; gọi API không đủ quyền trả về 403 và giao diện hiện trang báo không có quyền; một người có nhiều vai trò vẫn được xử lý đúng.
-- [ ] Design it (spec): `/architect phân quyền theo vai trò & bố cục app`
+spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/phanquyen/`, `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `frontend/src/lib/phan-quyen/`, `frontend/src/app/(app)/`
+- [x] Design it (spec): `/architect phân quyền theo vai trò & bố cục app`
+- [x] Build it: `/develop phân quyền theo vai trò & bố cục app`
+  - [x] Đường mỏng: `@ChoPhep`, interceptor, `GET /buildings`, menu từ hồ sơ, trang `/toa-nha` tối thiểu (AC-2, AC-7, AC-10, AC-15)
+  - [x] Làm dày backend: test bắt buộc khai, `PublicPaths.CONG_KHAI`, log, OpenAPI, helper phân trang, service phạm vi (AC-1, AC-3, AC-4, AC-5, AC-6, AC-7, AC-8, AC-9)
+  - [x] Làm dày giao diện: ma trận đủ, chặn trang, `KhongCoQuyen`, trạng thái đang tải và lỗi (AC-10, AC-11, AC-12, AC-13, AC-15)
+  - [x] Trang Tổng quan và khóa lại: trang `/`, a11y, `verify.md`, README (AC-14, AC-16)
+- [ ] Verify it: `/check verify phân quyền theo vai trò & bố cục app`
+- [ ] Test it: `/test phân quyền theo vai trò & bố cục app`
 
 ## Slice 4: Ghi nhật ký kiểm toán dùng chung
 
