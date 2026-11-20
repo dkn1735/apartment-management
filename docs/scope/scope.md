@@ -124,12 +124,12 @@ spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/sr
 ### 8. Ghi nhật ký kiểm toán dùng chung · in-progress
 Cơ chế ghi vào NhatKyHeThong mà mọi phân hệ cắm vào được, đặt trước các tính năng tạo ra sự kiện cần ghi. Đợt này ghi các sự kiện xác thực: đăng nhập thành công và thất bại, đăng xuất, đổi mật khẩu, khóa và mở khóa tài khoản.
 **Done when:** mỗi sự kiện xác thực tạo đúng một dòng log có người thực hiện, loại thao tác, đối tượng và chi tiết thay đổi; không ghi mật khẩu hay token vào log; ghi log lỗi không làm hỏng thao tác chính.
-spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md)
+spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/nhatky/`, `backend/src/main/resources/db/migration/V11__nhat_ky_he_thong.sql`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/`
 - [x] Design it (spec): `/architect ghi nhật ký kiểm toán dùng chung`
-- [ ] Build it: `/develop ghi nhật ký kiểm toán dùng chung`
+- [x] Build it: `/develop ghi nhật ký kiểm toán dùng chung`
   - [x] Đường mỏng: V11, `NhatKyService.ghi` trong transaction riêng, gắn đăng nhập thành công và thất bại (AC-1, AC-2, AC-3, AC-10)
   - [x] Ghi sau commit: đăng xuất và phát hiện dùng lại token (AC-4, AC-5, AC-6)
-  - [ ] Chịu lỗi và giữ bí mật: log ERROR, chặn tên khóa nhạy cảm, test quét, trigger và CHECK (AC-7, AC-8, AC-9)
+  - [x] Chịu lỗi và giữ bí mật: log ERROR, chặn tên khóa nhạy cảm, test quét, trigger và CHECK (AC-7, AC-8, AC-9)
 - [ ] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
 - [ ] Test it: `/test ghi nhật ký kiểm toán dùng chung`
 
