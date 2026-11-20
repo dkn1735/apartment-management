@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * Làm mới phiên bằng cookie refresh_token
-         * @description Xoay vòng refresh token và đặt lại ba cookie khi lamMoi là true. Khi lamMoi là false (token vừa được một request khác làm mới), không có cookie mới. Không có body.
+         * @description Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là token đang sống được trả lại. Không có body.
          */
         post: operations["lamMoi"];
         delete?: never;
@@ -100,7 +100,7 @@ export interface components {
             hoTen: string;
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             /** Format: date-time */
-            accessTokenHetHanLuc: string | null;
+            accessTokenHetHanLuc: string;
         };
         ApiResponseVoid: {
             success?: boolean;

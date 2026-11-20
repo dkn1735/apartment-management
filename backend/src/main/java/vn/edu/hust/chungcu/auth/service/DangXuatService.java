@@ -32,7 +32,8 @@ public class DangXuatService {
 
 	@Transactional
 	public void dangXuat(String refreshToken) {
-		if (refreshToken == null || refreshToken.isBlank()) {
+		// Sai định dạng coi như không có cookie, không chạm DB
+		if (!RefreshTokenGenerator.dungDinhDang(refreshToken)) {
 			return;
 		}
 		Optional<UUID> maHoPhien = this.phien.timHoPhien(RefreshTokenGenerator.sha256Hex(refreshToken));

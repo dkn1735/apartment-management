@@ -165,7 +165,8 @@ class LamMoiPhienIntegrationTest {
 		assertThat(AuthApi.setCookie(result, "phien").orElseThrow()).contains("Max-Age=1;");
 	}
 
-	// AC-3: mọi nguyên nhân cùng mã, cùng câu, xóa ba cookie, không thêm dòng
+	// AC-3: mọi nguyên nhân cùng mã, cùng câu, xóa ba cookie, không thêm dòng. Cookie
+	// 42 ký tự hay có ký tự ngoài base64url bị chặn trước khi đọc DB
 	@Test
 	void tokenKhongHopLeDeuTraCungMotLoi() throws Exception {
 		String t1 = this.auth.refreshToken(this.tk.soDienThoai());
@@ -177,7 +178,8 @@ class LamMoiPhienIntegrationTest {
 		this.auth.refreshToken(this.tk.soDienThoai());
 		int truoc = this.db.soDongCua(this.tk.maNguoiDung());
 
-		for (String token : new String[] { null, "", "rac-khong-co-trong-db", tHetHan, tDangXuat, t1 }) {
+		for (String token : new String[] { null, "", "rac-khong-co-trong-db", "a".repeat(42), "a".repeat(42) + "!",
+				"A".repeat(43), tHetHan, tDangXuat, t1 }) {
 			MvcResult result = this.mockMvc.perform(AuthApi.refreshRequest(token))
 				.andExpect(status().isUnauthorized())
 				.andExpect(jsonPath("$.errorCode").value("AUTH_REFRESH_INVALID"))

@@ -41,10 +41,13 @@ public interface PhienDangNhapRepository extends JpaRepository<PhienDangNhap, Lo
 			+ "where p.maHoPhien = :maHoPhien and p.thuHoiLuc is null")
 	int thuHoiHo(UUID maHoPhien, Instant luc, String lyDo);
 
-	/** Họ còn ít nhất một dòng chưa thu hồi và chưa hết hạn. */
-	@Query("select count(p) > 0 from PhienDangNhap p "
+	/**
+	 * Dòng còn hiệu lực (chưa thu hồi, chưa hết hạn) của họ; rỗng nghĩa là họ đã chết.
+	 * Index duy nhất một phần bảo đảm tối đa một dòng.
+	 */
+	@Query("select p from PhienDangNhap p "
 			+ "where p.maHoPhien = :maHoPhien and p.thuHoiLuc is null and p.hetHanLuc > :now")
-	boolean hoConHieuLuc(UUID maHoPhien, Instant now);
+	Optional<PhienDangNhap> timConHieuLuc(UUID maHoPhien, Instant now);
 
 	/** Xóa dòng đã hết hạn hoặc đã thu hồi trước {@code moc}; trả số dòng đã xóa. */
 	@Modifying

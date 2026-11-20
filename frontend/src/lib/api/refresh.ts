@@ -2,8 +2,9 @@ import type { Middleware } from "openapi-fetch";
 import { CSRF_HEADER, CSRF_HEADER_VALUE } from "./csrf";
 
 /**
- * Làm mới phiên âm thầm khi gặp 401 (spec 0005, AC-10, AC-14). Lời gọi làm mới không đi qua
- * `client`, nên không bao giờ tự kích hoạt chính middleware này.
+ * Làm mới phiên âm thầm khi gặp 401 (spec 0005, AC-10, AC-14, AC-17). Lời gọi làm mới không
+ * đi qua `client`, nên không bao giờ tự kích hoạt chính middleware này. Mọi response 200 của
+ * làm mới đều đặt cookie (kể cả `lamMoi` false), nên gửi lại ngay, không chờ.
  */
 
 export const DUONG_LAM_MOI = "/api/v1/auth/refresh-token";
@@ -11,10 +12,7 @@ export const DUONG_LAM_MOI = "/api/v1/auth/refresh-token";
 /** Ba đường auth không bao giờ kích hoạt làm mới khi trả 401. */
 const DUONG_KHONG_LAM_MOI = new Set(["/api/v1/auth/login", DUONG_LAM_MOI, "/api/v1/auth/logout"]);
 
-/** Chờ trước khi gửi lại khi tab khác vừa làm mới (`lamMoi` false), để cookie mới kịp tới. */
-export const CHO_SAU_KHOAN_DUNG_MS = 400;
-
-export type KetQuaLamMoi = { ok: true; lamMoi: boolean } | { ok: false; response: Response };
+export type KetQuaLamMoi = { ok: true } | { ok: false; response: Response };
 
 type FetchFn = (input: Request) => Promise<Response>;
 
@@ -34,14 +32,13 @@ export function lamMoiPhien(fetchFn: FetchFn, base: string): Promise<KetQuaLamMo
     method: "POST",
     headers: { [CSRF_HEADER]: CSRF_HEADER_VALUE },
     credentials: "same-origin",
+    // Trang tải lại hay điều hướng không hủy lời gọi, để `Set-Cookie` vẫn tới. Chỉ là lớp phụ:
+    // trình duyệt bỏ qua cờ này thì nhánh khoan dung ở server vẫn giữ người dùng đăng nhập
+    keepalive: true,
   });
   const lan = (async (): Promise<KetQuaLamMoi> => {
     const response = await fetchFn(request);
-    if (!response.ok) {
-      return { ok: false, response };
-    }
-    const body = (await response.json()) as { data?: { lamMoi?: unknown } };
-    return { ok: true, lamMoi: body.data?.lamMoi === true };
+    return response.ok ? { ok: true } : { ok: false, response };
   })();
   const chung = lan.finally(() => {
     dangChay = null;
@@ -87,10 +84,6 @@ async function laUnauthenticated(response: Response): Promise<boolean> {
   }
 }
 
-function cho(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 // Body của request ghi bị đọc khi gửi đi, nên chép trước theo id của middleware
 const banSao = new Map<string, Request>();
 
@@ -122,19 +115,8 @@ export const refreshMiddleware: Middleware = {
       // Mỗi nơi chờ nhận một bản riêng, để `api` đọc được body lỗi
       return ketQua.response.clone();
     }
-    if (ketQua.lamMoi) {
-      return guiLai(goc, fetchFn);
-    }
-    // Tab khác vừa làm mới: chờ cookie mới tới rồi gửi lại; vẫn 401 thì làm mới thêm đúng một lần
-    await cho(CHO_SAU_KHOAN_DUNG_MS);
-    const lan2 = await guiLai(goc, fetchFn);
-    if (!(await laUnauthenticated(lan2)) || dangXuat) {
-      return lan2;
-    }
-    const ketQua2 = await lamMoiPhien(fetchFn, request.url);
-    if (!ketQua2.ok) {
-      return ketQua2.response.clone();
-    }
+    // Lần gửi lại đi thẳng qua `fetchFn`, không qua middleware: vẫn 401 thì `handleAuthError`
+    // chuyển `het-phien`, không làm mới lần hai
     return guiLai(goc, fetchFn);
   },
   onError({ id }) {

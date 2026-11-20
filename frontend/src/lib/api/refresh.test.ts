@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError, csrfHeaderMiddleware } from "./api";
 import { authNavigation, handleAuthError, resetAuthRedirect } from "./query-client";
-import { CHO_SAU_KHOAN_DUNG_MS, lamMoiPhien, refreshMiddleware, resetRefreshState } from "./refresh";
+import { lamMoiPhien, refreshMiddleware, resetRefreshState } from "./refresh";
 import type { paths } from "./schema";
 
 const LOI_401 = { success: false, code: 401, errorCode: "UNAUTHENTICATED", message: "x" };
@@ -112,30 +112,25 @@ describe("Làm mới âm thầm khi gặp 401 (AC-10)", () => {
     expect(fake.count(PROFILE)).toBe(2);
   });
 
-  it("lamMoi false thì chờ 400 ms rồi gửi lại; vẫn 401 thì làm mới thêm đúng một lần", async () => {
+  it("lamMoi false thì gửi lại ngay, không chờ, chỉ một lời gọi làm mới; lời gọi làm mới có keepalive", async () => {
     vi.useFakeTimers();
-    let soLanLamMoi = 0;
-    let soLanHoSo = 0;
+    let keepalive: boolean | undefined;
+    let daLamMoi = false;
     const fake = fakeFetch((request) => {
       if (new URL(request.url).pathname === REFRESH) {
-        soLanLamMoi += 1;
-        return lamMoiOk(soLanLamMoi > 1);
+        keepalive = request.keepalive;
+        daLamMoi = true;
+        return lamMoiOk(false);
       }
-      soLanHoSo += 1;
-      return soLanHoSo < 3 ? json(401, LOI_401) : hoSo("Vũ Cư Dân");
+      return daLamMoi ? hoSo("Vũ Cư Dân") : json(401, LOI_401);
     });
     const client = taoClient(fake.fn);
-    const p = api(client.GET(PROFILE));
 
-    // vi.waitFor tự tua đồng hồ giả, nên chỉ tua bằng tay ở đây
-    await vi.advanceTimersByTimeAsync(CHO_SAU_KHOAN_DUNG_MS - 1);
+    // Không tua đồng hồ giả: nếu còn chờ bằng setTimeout thì promise này không bao giờ xong
+    await expect(api(client.GET(PROFILE))).resolves.toEqual({ hoTen: "Vũ Cư Dân" });
     expect(fake.count(REFRESH)).toBe(1);
-    expect(fake.count(PROFILE)).toBe(1);
-    await vi.advanceTimersByTimeAsync(1);
-
-    await expect(p).resolves.toEqual({ hoTen: "Vũ Cư Dân" });
-    expect(fake.count(REFRESH)).toBe(2);
-    expect(fake.count(PROFILE)).toBe(3);
+    expect(fake.count(PROFILE)).toBe(2);
+    expect(keepalive).toBe(true);
   });
 
   it("làm mới trả 500 thì nơi gọi nhận ApiError, không chuyển trang, lần sau vẫn làm mới được", async () => {
@@ -172,7 +167,7 @@ describe("Làm mới âm thầm khi gặp 401 (AC-10)", () => {
     const client = taoClient(fake.fn);
     await expect(api(client.GET(PROFILE))).rejects.toMatchObject({ errorCode: "BACKEND_UNAVAILABLE" });
     matMang = false;
-    await expect(lamMoiPhien(fake.fn, "http://localhost")).resolves.toEqual({ ok: true, lamMoi: true });
+    await expect(lamMoiPhien(fake.fn, "http://localhost")).resolves.toEqual({ ok: true });
   });
 
   it("401 có errorCode khác UNAUTHENTICATED thì không làm mới", async () => {

@@ -97,6 +97,7 @@ spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/
   - [x] Làm dày làm mới: hết hạn, trần 30 ngày, dùng lại token cũ, khoan dung 10 giây, khóa tài khoản, khóa theo họ phiên (AC-2, AC-3, AC-4, AC-5, AC-6, AC-11, AC-16)
   - [x] Đăng xuất xuyên suốt: endpoint, menu người dùng, thông báo ở trang đăng nhập (AC-8, AC-13, AC-14)
   - [x] Dọn dẹp phiên cũ hằng ngày (AC-15)
+  - [x] Làm mới chịu được response bị mất: token kế tiếp HMAC, khoan dung 30 giây trả lại token đang sống, keepalive, bỏ chờ 400 ms (AC-1, AC-3, AC-4, AC-5, AC-6, AC-10, AC-16, AC-17)
 - [ ] Verify it: `/check verify làm mới phiên & đăng xuất`
 - [ ] Test it: `/test làm mới phiên & đăng xuất`
 

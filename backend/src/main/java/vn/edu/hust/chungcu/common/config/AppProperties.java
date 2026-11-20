@@ -31,7 +31,8 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 	 * @param cookieSecure có đặt cờ {@code Secure} cho cookie xác thực không
 	 * @param sessionMaxLifetime tuổi tối đa của một họ phiên kể từ lần đăng nhập đầu
 	 * (spec 0005)
-	 * @param refreshReuseGrace khoảng khoan dung cho các request làm mới chạy đua
+	 * @param refreshReuseGrace khoảng khoan dung cho các request làm mới chạy đua và cho
+	 * response làm mới bị mất; lớn hơn 0 và không quá 60 giây
 	 * @param sessionRetention giữ dòng đã hết hạn hoặc thu hồi bao lâu trước khi xóa;
 	 * phải không nhỏ hơn {@code sessionMaxLifetime}
 	 * @param sessionCleanupCron lịch job dọn dẹp phiên, theo {@code app.timezone}
@@ -61,6 +62,18 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 		@AssertTrue(message = "JWT_SECRET đang là chuỗi mẫu của backend/.env.example, hãy đổi thành chuỗi ngẫu nhiên")
 		public boolean isJwtSecretKhacChuoiMau() {
 			return !JWT_SECRET_MAU.equals(this.jwtSecret);
+		}
+
+		private static final Duration KHOAN_DUNG_TOI_DA = Duration.ofSeconds(60);
+
+		/**
+		 * Lỗi cấu hình không được âm thầm nới rộng khoảng mà token bị lộ vẫn dùng được
+		 * (spec 0005, Configuration required).
+		 */
+		@AssertTrue(message = "app.security.refresh-reuse-grace phải lớn hơn 0 và không quá PT60S")
+		public boolean isRefreshReuseGraceHopLe() {
+			return this.refreshReuseGrace == null || (this.refreshReuseGrace.isPositive()
+					&& this.refreshReuseGrace.compareTo(KHOAN_DUNG_TOI_DA) <= 0);
 		}
 
 		/**

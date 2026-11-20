@@ -64,8 +64,9 @@ app:
     # Làm mới phiên (spec 0005): phiên trượt 7 ngày mỗi lần làm mới, không quá 30 ngày
     # kể từ lần đăng nhập đầu
     session-max-lifetime: P30D
-    # Dùng lại token vừa xoay trong khoảng này không bị coi là đánh cắp (tab chạy đua)
-    refresh-reuse-grace: PT10S
+    # Dùng lại token vừa xoay trong khoảng này nhận lại token đang sống, không bị coi
+    # là đánh cắp (tab chạy đua, response làm mới bị mất); từ PT1S tới PT60S
+    refresh-reuse-grace: PT30S
     # Phải không nhỏ hơn session-max-lifetime
     session-retention: P30D
     session-cleanup-cron: "0 0 3 * * *"

@@ -24,7 +24,7 @@ class AppPropertiesTest {
 		.withUserConfiguration(Config.class)
 		.withPropertyValues("app.timezone=Asia/Ho_Chi_Minh", "app.security.access-token-ttl=PT15M",
 				"app.security.refresh-token-ttl=P7D", "app.security.bcrypt-cost=12", "app.security.cookie-secure=true",
-				"app.security.session-max-lifetime=P30D", "app.security.refresh-reuse-grace=PT10S",
+				"app.security.session-max-lifetime=P30D", "app.security.refresh-reuse-grace=PT30S",
 				"app.security.session-retention=P30D", "app.security.session-cleanup-cron=0 0 3 * * *");
 
 	@Test
@@ -72,6 +72,19 @@ class AppPropertiesTest {
 				.rootCause()
 				.hasMessageContaining("session-retention phải không nhỏ hơn"));
 		this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.session-retention=P30D")
+			.run(context -> assertThat(context).hasNotFailed());
+	}
+
+	@Test
+	void refreshReuseGraceNgoaiKhoangThiKhongKhoiDong() {
+		for (String grace : new String[] { "PT0S", "PT61S", "-PT1S" }) {
+			this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.refresh-reuse-grace=" + grace)
+				.run(context -> assertThat(context).hasFailed()
+					.getFailure()
+					.rootCause()
+					.hasMessageContaining("refresh-reuse-grace phải lớn hơn 0"));
+		}
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.refresh-reuse-grace=PT60S")
 			.run(context -> assertThat(context).hasNotFailed());
 	}
 

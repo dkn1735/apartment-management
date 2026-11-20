@@ -64,17 +64,15 @@ public class AuthController {
 	}
 
 	@Operation(summary = "Làm mới phiên bằng cookie refresh_token",
-			description = "Xoay vòng refresh token và đặt lại ba cookie khi lamMoi là true. Khi lamMoi là false "
-					+ "(token vừa được một request khác làm mới), không có cookie mới. Không có body.")
+			description = "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. "
+					+ "lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là "
+					+ "token đang sống được trả lại. Không có body.")
 	@PostMapping("/refresh-token")
 	public ResponseEntity<ApiResponse<LamMoiPhienResponse>> lamMoi(
 			@CookieValue(name = AuthCookies.REFRESH_TOKEN, required = false) String refreshToken,
 			HttpServletRequest http) {
 		LamMoiPhienService.KetQuaLamMoi ketQua = this.lamMoiPhienService.lamMoi(refreshToken, thietBi(http));
 		ResponseEntity<ApiResponse<LamMoiPhienResponse>> ok = ApiResponse.ok(ketQua.data(), "Làm mới phiên thành công");
-		if (!ketQua.data().lamMoi()) {
-			return ok;
-		}
 		// Service đã commit; cookie chỉ được đặt sau khi xoay vòng đã ghi xong
 		return ResponseEntity.status(ok.getStatusCode())
 			.headers(this.cookies.dat(ketQua.accessToken(), ketQua.refreshToken(), ketQua.refreshMaxAge()))
