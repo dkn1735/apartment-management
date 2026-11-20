@@ -11,6 +11,82 @@
     "csrfHeader" : [ ]
   } ],
   "paths" : {
+    "/api/v1/auth/refresh-token" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Làm mới phiên bằng cookie refresh_token",
+        "description" : "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là token đang sống được trả lại. Không có body.",
+        "operationId" : "lamMoi",
+        "parameters" : [ {
+          "name" : "refresh_token",
+          "in" : "cookie",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseLamMoiPhienResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Đăng xuất phiên trên máy này",
+        "description" : "Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.",
+        "operationId" : "dangXuat",
+        "parameters" : [ {
+          "name" : "refresh_token",
+          "in" : "cookie",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/login" : {
       "post" : {
         "tags" : [ "Xác thực" ],
@@ -83,6 +159,74 @@
   },
   "components" : {
     "schemas" : {
+      "ApiResponseLamMoiPhienResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/LamMoiPhienResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "LamMoiPhienResponse" : {
+        "type" : "object",
+        "properties" : {
+          "lamMoi" : {
+            "type" : "boolean"
+          },
+          "maNguoiDung" : {
+            "type" : "string"
+          },
+          "hoTen" : {
+            "type" : "string"
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
+            }
+          },
+          "accessTokenHetHanLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "accessTokenHetHanLuc", "hoTen", "lamMoi", "maNguoiDung", "vaiTro" ]
+      },
+      "ApiResponseVoid" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : { },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "DangNhapRequest" : {
         "type" : "object",
         "properties" : {

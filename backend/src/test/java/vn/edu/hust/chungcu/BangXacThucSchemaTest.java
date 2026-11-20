@@ -110,8 +110,8 @@ class BangXacThucSchemaTest {
 	void phienKhongCoGiaTriMacDinhChoTaoLuc() {
 		String nguoiDung = taoNguoiDung("0911000009");
 		assertSqlState(NOT_NULL_VIOLATION, () -> this.jdbc.update("""
-				INSERT INTO phien_dang_nhap (ma_nguoi_dung, ma_ho_phien, token_hash, het_han_luc)
-				VALUES (?, gen_random_uuid(), ?, %s)""".formatted(HET_HAN_LUC), nguoiDung, HASH_HOP_LE));
+				INSERT INTO phien_dang_nhap (ma_nguoi_dung, ma_ho_phien, token_hash, bat_dau_luc, het_han_luc)
+				VALUES (?, gen_random_uuid(), ?, %s, %s)""".formatted(TAO_LUC, HET_HAN_LUC), nguoiDung, HASH_HOP_LE));
 	}
 
 	// Value sourcing: ma_ho_phien do app sinh. Tách riêng vì lỗi đầu tiên làm hỏng
@@ -120,8 +120,8 @@ class BangXacThucSchemaTest {
 	void phienKhongCoGiaTriMacDinhChoMaHoPhien() {
 		String nguoiDung = taoNguoiDung("0911000018");
 		assertSqlState(NOT_NULL_VIOLATION, () -> this.jdbc.update("""
-				INSERT INTO phien_dang_nhap (ma_nguoi_dung, token_hash, tao_luc, het_han_luc)
-				VALUES (?, ?, %s, %s)""".formatted(TAO_LUC, HET_HAN_LUC), nguoiDung, HASH_HOP_LE));
+				INSERT INTO phien_dang_nhap (ma_nguoi_dung, token_hash, bat_dau_luc, tao_luc, het_han_luc)
+				VALUES (?, ?, %s, %s, %s)""".formatted(TAO_LUC, TAO_LUC, HET_HAN_LUC), nguoiDung, HASH_HOP_LE));
 	}
 
 	// Value sourcing: tao_luc do code nghiệp vụ ghi từ Clock
@@ -217,8 +217,9 @@ class BangXacThucSchemaTest {
 
 	private int chenPhien(String nguoiDung, String tokenHash, String taoLuc, String hetHanLuc) {
 		return this.jdbc.update("""
-				INSERT INTO phien_dang_nhap (ma_nguoi_dung, ma_ho_phien, token_hash, tao_luc, het_han_luc)
-				VALUES (?, gen_random_uuid(), ?, %s, %s)""".formatted(taoLuc, hetHanLuc), nguoiDung, tokenHash);
+				INSERT INTO phien_dang_nhap (ma_nguoi_dung, ma_ho_phien, token_hash, bat_dau_luc, tao_luc, het_han_luc)
+				VALUES (?, gen_random_uuid(), ?, %s, %s, %s)""".formatted(taoLuc, taoLuc, hetHanLuc), nguoiDung,
+				tokenHash);
 	}
 
 	private int chenYeuCauDatLai(String nguoiDung, String tokenHash, String taoLuc, String hetHanLuc) {

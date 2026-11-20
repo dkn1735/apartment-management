@@ -1,11 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { render as rtlRender, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createQueryClient } from "@/lib/api/query-client";
 import { mockPathname } from "@/test/next-navigation";
 import AppLayout from "./layout";
 
 const state = vi.hoisted(() => ({ current: {} as { data?: { hoTen: string } } }));
 
 vi.mock("@/lib/auth/use-ho-so", () => ({ useHoSo: () => state.current }));
+
+// Menu người dùng có mutation đăng xuất, nên cần QueryClient
+const render = (ui: ReactElement) =>
+  rtlRender(<QueryClientProvider client={createQueryClient()}>{ui}</QueryClientProvider>);
 
 beforeEach(() => {
   state.current = {};
@@ -26,8 +33,9 @@ describe("Layout (app) (AC-14)", () => {
     expect(screen.getByRole("banner")).toHaveTextContent("Vũ Cư Dân");
   });
 
-  it("đang tải thì không hiện tên", () => {
+  it("đang tải thì nút menu hiện Tài khoản, không hiện tên (spec 0005, AC-13)", () => {
     render(<AppLayout>nội dung</AppLayout>);
     expect(screen.getByRole("banner")).not.toHaveTextContent("Vũ Cư Dân");
+    expect(screen.getByRole("button", { name: /^Tài khoản/ })).toBeInTheDocument();
   });
 });

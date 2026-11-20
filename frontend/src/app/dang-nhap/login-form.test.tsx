@@ -116,7 +116,18 @@ describe("Thông báo lý do (AC-15)", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Tài khoản đang bị khóa");
   });
 
+  it("ly-do=dang-xuat hiện Bạn đã đăng xuất. (spec 0005, AC-14)", async () => {
+    const { container } = setup("ly-do=dang-xuat");
+    expect(screen.getByRole("status")).toHaveTextContent("Bạn đã đăng xuất.");
+    await expectNoA11yViolations(container);
+  });
+
   it("ly-do lạ thì không hiện gì", () => {
+    setup("ly-do=toString");
+    expect(screen.getByRole("status", { hidden: true })).toBeEmptyDOMElement();
+  });
+
+  it("ly-do không có trong danh sách thì không hiện gì", () => {
     setup("ly-do=abc");
     expect(screen.getByRole("status", { hidden: true })).toBeEmptyDOMElement();
   });

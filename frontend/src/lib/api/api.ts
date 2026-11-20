@@ -1,4 +1,6 @@
 import createClient, { type Middleware } from "openapi-fetch";
+import { CSRF_HEADER, CSRF_HEADER_VALUE } from "./csrf";
+import { refreshMiddleware } from "./refresh";
 import type { components, paths } from "./schema";
 
 /** Vỏ bọc lỗi chung của backend (spec 0001). */
@@ -25,9 +27,7 @@ export class ApiError extends Error {
 /** Client openapi-fetch có kiểu sinh từ docs/api/openapi.json. Gọi cùng tên miền, nên baseUrl rỗng. */
 export const client = createClient<paths>({ baseUrl: "" });
 
-/** Header chống CSRF mà backend đòi ở mọi request ghi (spec 0004, AC-10). */
-export const CSRF_HEADER = "X-Requested-With";
-export const CSRF_HEADER_VALUE = "XMLHttpRequest";
+export { CSRF_HEADER, CSRF_HEADER_VALUE };
 
 /** Gắn header chống CSRF cho mọi request của client, để không màn hình nào phải tự thêm. */
 export const csrfHeaderMiddleware: Middleware = {
@@ -37,7 +37,8 @@ export const csrfHeaderMiddleware: Middleware = {
   },
 };
 
-client.use(csrfHeaderMiddleware);
+// Làm mới phiên âm thầm khi gặp 401 (spec 0005, AC-10); mọi chỗ gọi api(...) giữ nguyên
+client.use(csrfHeaderMiddleware, refreshMiddleware);
 
 type Envelope<T> = { success?: boolean; data?: T };
 

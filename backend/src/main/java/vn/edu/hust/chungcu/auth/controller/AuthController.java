@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.edu.hust.chungcu.auth.dto.DangNhapRequest;
 import vn.edu.hust.chungcu.auth.dto.DangNhapResponse;
 import vn.edu.hust.chungcu.auth.dto.HoSoResponse;
+import vn.edu.hust.chungcu.auth.dto.LamMoiPhienResponse;
 import vn.edu.hust.chungcu.auth.service.DangNhapService;
+import vn.edu.hust.chungcu.auth.service.DangXuatService;
 import vn.edu.hust.chungcu.auth.service.AuthCookies;
 import vn.edu.hust.chungcu.auth.service.HoSoService;
+import vn.edu.hust.chungcu.auth.service.LamMoiPhienService;
 import vn.edu.hust.chungcu.auth.service.ThongTinThietBi;
 import vn.edu.hust.chungcu.common.api.ApiResponse;
 
@@ -31,11 +35,18 @@ public class AuthController {
 
 	private final HoSoService hoSoService;
 
+	private final LamMoiPhienService lamMoiPhienService;
+
+	private final DangXuatService dangXuatService;
+
 	private final AuthCookies cookies;
 
-	public AuthController(DangNhapService dangNhapService, HoSoService hoSoService, AuthCookies cookies) {
+	public AuthController(DangNhapService dangNhapService, HoSoService hoSoService,
+			LamMoiPhienService lamMoiPhienService, DangXuatService dangXuatService, AuthCookies cookies) {
 		this.dangNhapService = dangNhapService;
 		this.hoSoService = hoSoService;
+		this.lamMoiPhienService = lamMoiPhienService;
+		this.dangXuatService = dangXuatService;
 		this.cookies = cookies;
 	}
 
@@ -44,21 +55,50 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<DangNhapResponse>> dangNhap(@Valid @RequestBody DangNhapRequest request,
 			HttpServletRequest http) {
-		// getRemoteAddr đã qua forward-headers-strategy, nên là IP trình duyệt mà Next.js
-		// chuyển tiếp
-		ThongTinThietBi thietBi = new ThongTinThietBi(http.getRemoteAddr(), http.getHeader(HttpHeaders.USER_AGENT));
-		DangNhapService.KetQuaDangNhap ketQua = this.dangNhapService.dangNhap(request, thietBi);
+		DangNhapService.KetQuaDangNhap ketQua = this.dangNhapService.dangNhap(request, thietBi(http));
 		// Service đã commit; cookie chỉ được đặt sau khi phiên đã ghi xong
 		ResponseEntity<ApiResponse<DangNhapResponse>> ok = ApiResponse.ok(ketQua.data(), "Đăng nhập thành công");
 		return ResponseEntity.status(ok.getStatusCode())
-			.headers(this.cookies.dat(ketQua.accessToken(), ketQua.refreshToken()))
+			.headers(this.cookies.dat(ketQua.accessToken(), ketQua.refreshToken(), ketQua.refreshMaxAge()))
 			.body(ok.getBody());
+	}
+
+	@Operation(summary = "Làm mới phiên bằng cookie refresh_token",
+			description = "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. "
+					+ "lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là "
+					+ "token đang sống được trả lại. Không có body.")
+	@PostMapping("/refresh-token")
+	public ResponseEntity<ApiResponse<LamMoiPhienResponse>> lamMoi(
+			@CookieValue(name = AuthCookies.REFRESH_TOKEN, required = false) String refreshToken,
+			HttpServletRequest http) {
+		LamMoiPhienService.KetQuaLamMoi ketQua = this.lamMoiPhienService.lamMoi(refreshToken, thietBi(http));
+		ResponseEntity<ApiResponse<LamMoiPhienResponse>> ok = ApiResponse.ok(ketQua.data(), "Làm mới phiên thành công");
+		// Service đã commit; cookie chỉ được đặt sau khi xoay vòng đã ghi xong
+		return ResponseEntity.status(ok.getStatusCode())
+			.headers(this.cookies.dat(ketQua.accessToken(), ketQua.refreshToken(), ketQua.refreshMaxAge()))
+			.body(ok.getBody());
+	}
+
+	@Operation(summary = "Đăng xuất phiên trên máy này",
+			description = "Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.")
+	@PostMapping("/logout")
+	public ResponseEntity<ApiResponse<Void>> dangXuat(
+			@CookieValue(name = AuthCookies.REFRESH_TOKEN, required = false) String refreshToken) {
+		this.dangXuatService.dangXuat(refreshToken);
+		ResponseEntity<ApiResponse<Void>> ok = ApiResponse.ok(null, "Đăng xuất thành công");
+		return ResponseEntity.status(ok.getStatusCode()).headers(this.cookies.xoa()).body(ok.getBody());
 	}
 
 	@Operation(summary = "Hồ sơ của người đang đăng nhập")
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<HoSoResponse>> hoSo(@AuthenticationPrincipal Jwt jwt) {
 		return ApiResponse.ok(this.hoSoService.cua(jwt.getSubject()), "Lấy thông tin tài khoản thành công");
+	}
+
+	// getRemoteAddr đã qua forward-headers-strategy, nên là IP trình duyệt mà Next.js
+	// chuyển tiếp
+	private static ThongTinThietBi thietBi(HttpServletRequest http) {
+		return new ThongTinThietBi(http.getRemoteAddr(), http.getHeader(HttpHeaders.USER_AGENT));
 	}
 
 }

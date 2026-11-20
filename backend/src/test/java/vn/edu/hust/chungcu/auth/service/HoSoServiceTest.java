@@ -57,7 +57,8 @@ class HoSoServiceTest {
 	@BeforeEach
 	void setUp() {
 		AppProperties properties = new AppProperties(VN,
-				new AppProperties.Security("k".repeat(32), Duration.ofMinutes(15), Duration.ofDays(7), 4, true));
+				new AppProperties.Security("k".repeat(32), Duration.ofMinutes(15), Duration.ofDays(7), 4, true,
+						Duration.ofDays(30), Duration.ofSeconds(10), Duration.ofDays(30), "0 0 3 * * *"));
 		this.service = new HoSoService(this.nguoiDung, this.vaiTroQuery, this.toaNha, this.cuTru,
 				new AuthCookies(properties), CLOCK);
 		when(this.toaNha.danhSachMaToaNha()).thenReturn(List.of("A", "B"));
