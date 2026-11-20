@@ -190,6 +190,29 @@ class LamMoiPhienIntegrationTest {
 		assertThat(this.db.soDongCua(this.tk.maNguoiDung())).isEqualTo(truoc);
 	}
 
+	// AC-3: token chỉ đọc từ cookie refresh_token; gửi ở body, header hay cookie tên khác
+	// thì vẫn 401 và không xoay
+	@Test
+	void tokenNgoaiCookieRefreshTokenBiBoQua() throws Exception {
+		String t1 = this.auth.refreshToken(this.tk.soDienThoai());
+		int truoc = this.db.soDongCua(this.tk.maNguoiDung());
+
+		for (var request : List.of(
+				AuthApi.refreshRequest(null)
+					.contentType("application/json")
+					.content("{\"refreshToken\":\"" + t1 + "\"}"),
+				AuthApi.refreshRequest(null).header("Authorization", "Bearer " + t1),
+				AuthApi.refreshRequest(null).header("X-Refresh-Token", t1),
+				AuthApi.refreshRequest(null).param("refresh_token", t1),
+				AuthApi.refreshRequest(null).cookie(new Cookie("refreshToken", t1)))) {
+			this.mockMvc.perform(request)
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.errorCode").value("AUTH_REFRESH_INVALID"));
+		}
+		assertThat(this.db.soDongCua(this.tk.maNguoiDung())).isEqualTo(truoc);
+		assertThat(this.db.lyDo(this.db.hoPhien(t1))).containsExactly("con");
+	}
+
 	// AC-7: access token rác hay hết hạn không chặn làm mới; vẫn cần header chống CSRF
 	@Test
 	void duongCongKhaiNhungVanCanHeaderChongCsrf() throws Exception {

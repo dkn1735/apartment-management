@@ -2,7 +2,7 @@ import createClient from "openapi-fetch";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api, ApiError, csrfHeaderMiddleware } from "./api";
 import { authNavigation, handleAuthError, resetAuthRedirect } from "./query-client";
-import { lamMoiPhien, refreshMiddleware, resetRefreshState } from "./refresh";
+import { batDauDangXuat, ketThucDangXuat, lamMoiPhien, refreshMiddleware, resetRefreshState } from "./refresh";
 import type { paths } from "./schema";
 
 const LOI_401 = { success: false, code: 401, errorCode: "UNAUTHENTICATED", message: "x" };
@@ -41,6 +41,7 @@ function taoClient(fetchFn: (request: Request) => Promise<Response>) {
 const REFRESH = "/api/v1/auth/refresh-token";
 const PROFILE = "/api/v1/auth/profile";
 const LOGIN = "/api/v1/auth/login";
+const LOGOUT = "/api/v1/auth/logout";
 
 beforeEach(() => {
   resetRefreshState();
@@ -220,5 +221,61 @@ describe("Làm mới thất bại thì về trang đăng nhập (AC-11)", () => 
     const error = await api(client.GET(PROFILE)).catch((e: unknown) => e);
     handleAuthError(error);
     expect(assign).toHaveBeenCalledWith("/dang-nhap?ly-do=khoa");
+  });
+});
+
+describe("Những lúc không làm mới (AC-10, AC-11, AC-14)", () => {
+  it.each([LOGOUT, REFRESH])("401 UNAUTHENTICATED từ %s không kích hoạt làm mới", async (duong) => {
+    const fake = fakeFetch(() => json(401, LOI_401));
+    const client = taoClient(fake.fn);
+    await expect(api(client.POST(duong as never))).rejects.toMatchObject({ errorCode: "UNAUTHENTICATED" });
+    expect(fake.calls.map((c) => c.path)).toEqual([duong]);
+  });
+
+  it("đang đăng xuất thì 401 không làm mới; hết cờ đăng xuất thì làm mới lại", async () => {
+    const fake = fakeFetch((request) =>
+      new URL(request.url).pathname === REFRESH
+        ? lamMoiOk()
+        : fake.count(REFRESH)
+          ? hoSo("Vũ Cư Dân")
+          : json(401, LOI_401),
+    );
+    const client = taoClient(fake.fn);
+
+    batDauDangXuat();
+    await expect(api(client.GET(PROFILE))).rejects.toMatchObject({ errorCode: "UNAUTHENTICATED" });
+    expect(fake.count(REFRESH)).toBe(0);
+
+    ketThucDangXuat();
+    await expect(api(client.GET(PROFILE))).resolves.toEqual({ hoTen: "Vũ Cư Dân" });
+    expect(fake.count(REFRESH)).toBe(1);
+  });
+
+  it("làm mới bị CSRF_REJECTED thì nơi gọi nhận lỗi đó, không chuyển trang", async () => {
+    const assign = vi.spyOn(authNavigation, "assign").mockImplementation(() => {});
+    const fake = fakeFetch((request) =>
+      new URL(request.url).pathname === REFRESH
+        ? json(403, { success: false, code: 403, errorCode: "CSRF_REJECTED", message: "x" })
+        : json(401, LOI_401),
+    );
+    const client = taoClient(fake.fn);
+    const error = await api(client.GET(PROFILE)).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toMatchObject({ errorCode: "CSRF_REJECTED", status: 403 });
+    handleAuthError(error);
+    expect(assign).not.toHaveBeenCalled();
+    expect(fake.count(PROFILE)).toBe(1);
+    assign.mockRestore();
+  });
+
+  it("request gửi lại vẫn 401 thì chuyển tới het-phien (AC-11)", async () => {
+    const assign = vi.spyOn(authNavigation, "assign").mockImplementation(() => {});
+    window.history.pushState({}, "", "/ho-so");
+    const fake = fakeFetch((request) => (new URL(request.url).pathname === REFRESH ? lamMoiOk() : json(401, LOI_401)));
+    const client = taoClient(fake.fn);
+    const error = await api(client.GET(PROFILE)).catch((e: unknown) => e);
+    handleAuthError(error);
+    expect(assign).toHaveBeenCalledWith("/dang-nhap?next=%2Fho-so&ly-do=het-phien");
+    assign.mockRestore();
   });
 });
