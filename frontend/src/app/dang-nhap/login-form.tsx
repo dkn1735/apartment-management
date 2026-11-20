@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Clock, Lock } from "lucide-react";
+import { CircleCheck, Clock, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as z from "zod";
 import { FormAlert } from "@/components/form/form-alert";
@@ -28,7 +28,13 @@ type Values = z.output<typeof schema>;
 const LY_DO = {
   "het-phien": { tone: "info", icon: Clock, text: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại." },
   khoa: { tone: "warning", icon: Lock, text: ERROR_MESSAGES.AUTH_ACCOUNT_LOCKED },
+  // Spec 0005, AC-14
+  "dang-xuat": { tone: "success", icon: CircleCheck, text: "Bạn đã đăng xuất." },
 } as const;
+
+function laLyDo(value: string | null): value is keyof typeof LY_DO {
+  return value !== null && Object.hasOwn(LY_DO, value);
+}
 
 /** Form đăng nhập (spec 0004, AC-12). Đọc `next` và `ly-do` từ URL nên phải nằm trong Suspense. */
 export function LoginForm() {
@@ -43,7 +49,7 @@ export function LoginForm() {
   });
 
   const lyDoParam = searchParams.get("ly-do");
-  const lyDo = lyDoParam === "het-phien" || lyDoParam === "khoa" ? LY_DO[lyDoParam] : null;
+  const lyDo = laLyDo(lyDoParam) ? LY_DO[lyDoParam] : null;
 
   const onSubmit = form.submitWith(async (values) => {
     try {

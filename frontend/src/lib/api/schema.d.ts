@@ -24,6 +24,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Đăng xuất phiên trên máy này
+         * @description Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.
+         */
+        post: operations["dangXuat"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -81,6 +101,15 @@ export interface components {
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             /** Format: date-time */
             accessTokenHetHanLuc: string | null;
+        };
+        ApiResponseVoid: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: unknown;
+            /** Format: date-time */
+            timestamp?: string;
         };
         DangNhapRequest: {
             /** @description Số điện thoại hoặc email */
@@ -206,6 +235,37 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseLamMoiPhienResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    dangXuat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refresh_token?: string;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */
