@@ -16,7 +16,7 @@ import { useDangXuat } from "@/lib/auth/use-dang-xuat";
 import { useHoSo } from "@/lib/auth/use-ho-so";
 
 // Viền focus rõ trên nền menu, ngoài nền --accent mặc định của mục
-const MUC = "min-h-10 gap-2.5 px-2.5 type-ui focus-visible:ring-2 focus-visible:ring-ring";
+const MUC = "min-h-10 gap-2.5 px-2.5 type-ui no-underline focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
  * Menu người dùng ở góc phải thanh trên (spec 0005, AC-13): họ tên là nút mở menu "Hồ sơ" và
