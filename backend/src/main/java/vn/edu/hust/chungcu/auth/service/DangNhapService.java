@@ -19,6 +19,10 @@ import vn.edu.hust.chungcu.auth.repository.NguoiDungHeThongRepository;
 import vn.edu.hust.chungcu.auth.repository.VaiTroQuery;
 import vn.edu.hust.chungcu.common.config.AppProperties;
 import vn.edu.hust.chungcu.common.error.ApiException;
+import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
+import vn.edu.hust.chungcu.nhatky.dto.LoaiThaoTac;
+import vn.edu.hust.chungcu.nhatky.dto.SuKienNhatKy;
+import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /**
  * Luồng đăng nhập (spec 0004, mục Luồng đăng nhập). Bước 1 tới 6 (gồm bcrypt) nằm ngoài
@@ -46,9 +50,12 @@ public class DangNhapService {
 
 	private final Duration refreshTtl;
 
+	private final NhatKyService nhatKy;
+
 	public DangNhapService(NguoiDungHeThongRepository nguoiDung, MatKhauService matKhau,
 			PhienDangNhapService phienService, VaiTroQuery vaiTroQuery, AccessTokenService accessTokens,
-			RefreshTokenGenerator refreshTokens, Clock clock, AppProperties properties) {
+			RefreshTokenGenerator refreshTokens, Clock clock, AppProperties properties, NhatKyService nhatKy) {
+		this.nhatKy = nhatKy;
 		this.nguoiDung = nguoiDung;
 		this.matKhau = matKhau;
 		this.phienService = phienService;
@@ -64,15 +71,18 @@ public class DangNhapService {
 		if (timThay.isEmpty()) {
 			this.matKhau.soKhopGia(request.matKhau());
 			log.info("Đăng nhập thất bại: lyDo=SAI_THONG_TIN");
+			ghiThatBai(null, ChiTietDangNhapThatBai.SAI_THONG_TIN);
 			throw saiThongTin();
 		}
 		NguoiDungHeThong tk = timThay.get();
 		if (!this.matKhau.khop(request.matKhau(), tk.getMatKhauHash())) {
 			log.info("Đăng nhập thất bại: lyDo=SAI_THONG_TIN, maNguoiDung={}", tk.getMaNguoiDung());
+			ghiThatBai(tk.getMaNguoiDung(), ChiTietDangNhapThatBai.SAI_THONG_TIN);
 			throw saiThongTin();
 		}
 		if (!tk.dangHoatDong()) {
 			log.info("Đăng nhập thất bại: lyDo=TAI_KHOAN_KHOA, maNguoiDung={}", tk.getMaNguoiDung());
+			ghiThatBai(tk.getMaNguoiDung(), ChiTietDangNhapThatBai.TAI_KHOAN_KHOA);
 			throw taiKhoanKhoa();
 		}
 		// Băm lại (khoảng 250 ms) trước khi mở transaction, để không giữ kết nối DB
@@ -93,7 +103,16 @@ public class DangNhapService {
 		log.info("Đăng nhập thành công: maNguoiDung={}", tk.getMaNguoiDung());
 		DangNhapResponse data = new DangNhapResponse(tk.getMaNguoiDung(), tk.getHoTen(), vaiTro,
 				accessToken.hetHanLuc());
+		// Không có transaction đang chạy (phiên đã commit trong taoPhien), nên ghi ngay
+		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_DANG_NHAP_THANH_CONG, tk.getMaNguoiDung(),
+				DoiTuongTacDong.nguoiDung(tk.getMaNguoiDung()), new ChiTietPhien(maHoPhien)));
 		return new KetQuaDangNhap(data, accessToken.value(), refreshToken, this.refreshTtl);
+	}
+
+	/** {@code maNguoiDung} null khi không xác định được tài khoản (spec 0007, AC-3). */
+	private void ghiThatBai(String maNguoiDung, String lyDo) {
+		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_DANG_NHAP_THAT_BAI, maNguoiDung,
+				DoiTuongTacDong.nguoiDung(maNguoiDung), new ChiTietDangNhapThatBai(lyDo)));
 	}
 
 	private Optional<NguoiDungHeThong> tim(TaiKhoanDangNhap taiKhoan) {

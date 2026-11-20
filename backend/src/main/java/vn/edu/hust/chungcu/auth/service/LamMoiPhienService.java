@@ -22,6 +22,10 @@ import vn.edu.hust.chungcu.auth.repository.PhienDangNhapRepository;
 import vn.edu.hust.chungcu.auth.repository.VaiTroQuery;
 import vn.edu.hust.chungcu.common.config.AppProperties;
 import vn.edu.hust.chungcu.common.error.ApiException;
+import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
+import vn.edu.hust.chungcu.nhatky.dto.LoaiThaoTac;
+import vn.edu.hust.chungcu.nhatky.dto.SuKienNhatKy;
+import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /**
  * Luồng làm mới (spec 0005, mục Luồng làm mới): xoay vòng refresh token trong cùng họ
@@ -57,9 +61,12 @@ public class LamMoiPhienService {
 
 	private final AppProperties.Security cauHinh;
 
+	private final NhatKyService nhatKy;
+
 	public LamMoiPhienService(PhienDangNhapRepository phien, NguoiDungHeThongRepository nguoiDung,
 			VaiTroQuery vaiTroQuery, AccessTokenService accessTokens, RefreshTokenGenerator refreshTokens,
-			AuthCookies cookies, Clock clock, AppProperties properties) {
+			AuthCookies cookies, Clock clock, AppProperties properties, NhatKyService nhatKy) {
+		this.nhatKy = nhatKy;
 		this.phien = phien;
 		this.nguoiDung = nguoiDung;
 		this.vaiTroQuery = vaiTroQuery;
@@ -128,6 +135,11 @@ public class LamMoiPhienService {
 			log.warn(
 					"Phát hiện dùng lại refresh token đã xoay vòng, đã thu hồi cả họ phiên: maNguoiDung={}, maHoPhien={}",
 					dongCu.getMaNguoiDung(), maHoPhien);
+			// Transaction này commit dù ném lỗi (noRollbackFor), nên dòng nhật ký được
+			// ghi sau
+			// commit (spec 0007, AC-5)
+			this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_PHAT_HIEN_DUNG_LAI_TOKEN, dongCu.getMaNguoiDung(),
+					DoiTuongTacDong.nguoiDung(dongCu.getMaNguoiDung()), new ChiTietPhien(maHoPhien)));
 			throw khongHopLe();
 		}
 		String tokenSong = timTheoChuoi(token, conSong.getTokenHash());

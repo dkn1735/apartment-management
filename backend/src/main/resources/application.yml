@@ -13,6 +13,10 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      # Mỗi dòng nhật ký hoãn tới sau commit cần kết nối thứ hai khi kết nối đầu chưa trả
+      # về pool (spec 0007); mặc định chỉ 10
+      maximum-pool-size: 20
   jpa:
     open-in-view: false
     hibernate:

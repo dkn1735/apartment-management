@@ -4,3 +4,9 @@ app:
   security:
     jwt-secret: test-only-secret-not-for-real-use-0123456789
     bcrypt-cost: 4
+# Mỗi Spring context được cache giữ pool riêng; mặc định Hikari giữ sẵn đủ 20 kết nối
+# (spec 0007), nhiều context cộng lại vượt max_connections 100 của container.
+spring:
+  datasource:
+    hikari:
+      minimum-idle: 2
