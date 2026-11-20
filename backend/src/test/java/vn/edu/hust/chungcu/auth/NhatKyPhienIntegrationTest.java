@@ -83,6 +83,48 @@ class NhatKyPhienIntegrationTest {
 		assertThat(this.nhatKy.loaiCua(this.tk.maNguoiDung())).containsExactly(DANG_NHAP, "AUTH_DANG_XUAT");
 	}
 
+	// AC-4: đăng xuất bằng token đã xoay vòng vẫn ghi đúng chủ phiên và họ phiên của
+	// cookie
+	@Test
+	void dangXuatBangTokenDaXoayGhiDungChuPhien() throws Exception {
+		String t1 = this.auth.refreshToken(this.tk.soDienThoai());
+		UUID ho = this.phien.hoPhien(t1);
+		lamMoi(t1);
+		String requestId = "nk-" + UUID.randomUUID();
+		this.mockMvc.perform(AuthApi.logoutRequest(t1).header("X-Request-Id", requestId)).andExpect(status().isOk());
+
+		List<Map<String, Object>> dong = this.nhatKy.theoRequest(requestId);
+		assertThat(dong).hasSize(1);
+		Map<String, Object> d = dong.getFirst();
+		assertThat(d.get("loai_thao_tac")).isEqualTo("AUTH_DANG_XUAT");
+		assertThat(d.get("ma_nguoi_dung")).isEqualTo(this.tk.maNguoiDung());
+		assertThat(d.get("doi_tuong_tac_dong")).isEqualTo("NguoiDungHeThong:" + this.tk.maNguoiDung());
+		assertThat(NhatKyDb.chiTiet(d)).isEqualTo(NhatKyDb.json("{\"maHoPhien\":\"" + ho + "\"}"));
+		assertThat(this.phien.soDongConHieuLuc(ho)).isZero();
+	}
+
+	// AC-4: đăng xuất trên một thiết bị chỉ ghi họ phiên của thiết bị đó; họ kia không bị
+	// đụng và không có dòng nào
+	@Test
+	void dangXuatMotThietBiKhongGhiHoKhac() throws Exception {
+		String tokenA = this.auth.refreshToken(this.tk.soDienThoai());
+		String tokenB = this.auth.refreshToken(this.tk.soDienThoai());
+		UUID hoA = this.phien.hoPhien(tokenA);
+		UUID hoB = this.phien.hoPhien(tokenB);
+		assertThat(hoA).isNotEqualTo(hoB);
+
+		this.mockMvc.perform(AuthApi.logoutRequest(tokenA)).andExpect(status().isOk());
+
+		assertThat(this.phien.soDongConHieuLuc(hoA)).isZero();
+		assertThat(this.phien.soDongConHieuLuc(hoB)).isEqualTo(1);
+		List<Map<String, Object>> dangXuat = this.nhatKy.cua(this.tk.maNguoiDung())
+			.stream()
+			.filter(d -> "AUTH_DANG_XUAT".equals(d.get("loai_thao_tac")))
+			.toList();
+		assertThat(dangXuat).hasSize(1);
+		assertThat(NhatKyDb.chiTiet(dangXuat.getFirst())).isEqualTo(NhatKyDb.json("{\"maHoPhien\":\"" + hoA + "\"}"));
+	}
+
 	// AC-5: dùng lại token quá khoảng khoan dung ghi một dòng dù response là 401
 	@Test
 	void dungLaiQuaKhoangKhoanDungGhiMotDong() throws Exception {
