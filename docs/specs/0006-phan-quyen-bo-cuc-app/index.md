@@ -1,7 +1,7 @@
 # 0006. Phân quyền theo vai trò và bố cục app: annotation `@ChoPhep` nhận enum, service phạm vi dùng chung, menu và chặn trang theo một bảng cấu hình
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

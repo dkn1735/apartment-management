@@ -19,8 +19,8 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 4 | Design system & nền tảng giao diện | Foundation | done |
 | 5 | Đăng nhập & trang hồ sơ | Slice 1 | done |
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | done |
-| 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | in-progress |
-| 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | planned |
+| 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | done |
+| 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | planned |
 | 10 | Đổi mật khẩu | Slice 6 | planned |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | planned |
@@ -105,7 +105,7 @@ spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/
 
 ## Slice 3: Phân quyền theo vai trò & bố cục app
 
-### 7. Phân quyền theo vai trò & bố cục app · in-progress
+### 7. Phân quyền theo vai trò & bố cục app · done
 Một cách phân quyền dùng chung cho cả 80 API: xác định vai trò từ các bảng con (NhanVienBQL, NhanVienKyThuat, KeToan, ThanhVienBanQuanTri, CuDan) cùng Admin, chặn mỗi endpoint theo cột RBAC trong file đặc tả, và bố cục app NextJS có menu theo vai trò. Phân hệ nào sau này cũng dựa vào nó.
 **Done when:** mỗi vai trò chỉ thấy menu và gọi được API của mình; gọi API không đủ quyền trả về 403 và giao diện hiện trang báo không có quyền; một người có nhiều vai trò vẫn được xử lý đúng.
 spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/phanquyen/`, `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `frontend/src/lib/phan-quyen/`, `frontend/src/app/(app)/`
@@ -121,10 +121,17 @@ spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/sr
 
 ## Slice 4: Ghi nhật ký kiểm toán dùng chung
 
-### 8. Ghi nhật ký kiểm toán dùng chung · needs a decision
+### 8. Ghi nhật ký kiểm toán dùng chung · in-progress
 Cơ chế ghi vào NhatKyHeThong mà mọi phân hệ cắm vào được, đặt trước các tính năng tạo ra sự kiện cần ghi. Đợt này ghi các sự kiện xác thực: đăng nhập thành công và thất bại, đăng xuất, đổi mật khẩu, khóa và mở khóa tài khoản.
 **Done when:** mỗi sự kiện xác thực tạo đúng một dòng log có người thực hiện, loại thao tác, đối tượng và chi tiết thay đổi; không ghi mật khẩu hay token vào log; ghi log lỗi không làm hỏng thao tác chính.
-- [ ] Design it (spec): `/architect ghi nhật ký kiểm toán dùng chung`
+spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md)
+- [x] Design it (spec): `/architect ghi nhật ký kiểm toán dùng chung`
+- [ ] Build it: `/develop ghi nhật ký kiểm toán dùng chung`
+  - [x] Đường mỏng: V11, `NhatKyService.ghi` trong transaction riêng, gắn đăng nhập thành công và thất bại (AC-1, AC-2, AC-3, AC-10)
+  - [ ] Ghi sau commit: đăng xuất và phát hiện dùng lại token (AC-4, AC-5, AC-6)
+  - [ ] Chịu lỗi và giữ bí mật: log ERROR, chặn tên khóa nhạy cảm, test quét, trigger và CHECK (AC-7, AC-8, AC-9)
+- [ ] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
+- [ ] Test it: `/test ghi nhật ký kiểm toán dùng chung`
 
 ## Slice 5: Màn hình tra cứu nhật ký kiểm toán
 
