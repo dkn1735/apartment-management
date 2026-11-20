@@ -10,7 +10,10 @@ const state = vi.hoisted(() => ({
   current: {} as { data?: unknown; error?: unknown; isError?: boolean; refetch?: () => void; isRefetching?: boolean },
 }));
 
-vi.mock("@/lib/auth/use-ho-so", () => ({ useHoSo: () => state.current }));
+vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/use-ho-so")>()),
+  useHoSo: () => state.current,
+}));
 
 const HAI_VAI_TRO: HoSo = {
   maNguoiDung: "ND00000006",

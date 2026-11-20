@@ -1,5 +1,6 @@
 package vn.edu.hust.chungcu.common.security;
 
+import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -16,12 +17,29 @@ public final class PublicPaths {
 
 	private static final PathPatternRequestMatcher.Builder PATHS = PathPatternRequestMatcher.withDefaults();
 
+	/**
+	 * Một đường công khai; {@code methodHoacNull} null nghĩa là mọi method. Handler của
+	 * mỗi đường phải mang {@code @CongKhai} (spec 0006, AC-1).
+	 */
+	public record DuongCongKhai(HttpMethod methodHoacNull, String mau) {
+
+		RequestMatcher matcher() {
+			return (this.methodHoacNull != null) ? PATHS.matcher(this.methodHoacNull, this.mau)
+					: PATHS.matcher(this.mau);
+		}
+
+	}
+
+	/** Luôn công khai, từng cặp (method, mẫu đường dẫn). */
+	public static final List<DuongCongKhai> CONG_KHAI = List.of(
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/login"),
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/refresh-token"),
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/logout"), new DuongCongKhai(null, "/error"),
+			new DuongCongKhai(null, "/actuator/health"), new DuongCongKhai(null, "/actuator/health/**"));
+
 	/** Luôn công khai. */
 	public static final RequestMatcher ALWAYS = new OrRequestMatcher(
-			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/login"),
-			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/refresh-token"),
-			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/logout"), PATHS.matcher("/error"),
-			PATHS.matcher("/actuator/health"), PATHS.matcher("/actuator/health/**"));
+			CONG_KHAI.stream().map(DuongCongKhai::matcher).toList());
 
 	/** Swagger: chỉ công khai khi bật {@code springdoc.api-docs.enabled} (dev). */
 	public static final RequestMatcher API_DOCS = new OrRequestMatcher(PATHS.matcher("/swagger-ui.html"),

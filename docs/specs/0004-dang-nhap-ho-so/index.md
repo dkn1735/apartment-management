@@ -1,7 +1,7 @@
 # 0004. Đăng nhập và trang hồ sơ: JWT trong cookie HttpOnly, phiên lưu trong DB
 
 **Date**: 2026-11-16
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

@@ -15,9 +15,4 @@ public record VaiTroNguoiDung(List<VaiTro> vaiTro, ChiTietVaiTro chiTiet) {
 		return this.vaiTro.contains(value);
 	}
 
-	/** Có ít nhất một vai trò khác {@code CU_DAN}: là nhân viên hoặc quản trị. */
-	public boolean coVaiTroKhacCuDan() {
-		return this.vaiTro.stream().anyMatch(v -> v != VaiTro.CU_DAN);
-	}
-
 }

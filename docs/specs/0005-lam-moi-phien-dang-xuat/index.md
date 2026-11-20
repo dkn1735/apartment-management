@@ -1,7 +1,7 @@
 # 0005. Làm mới phiên và đăng xuất: xoay vòng refresh token theo họ phiên, làm mới âm thầm khi gặp 401
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

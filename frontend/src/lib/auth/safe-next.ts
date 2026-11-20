@@ -1,5 +1,5 @@
 /** Trang mặc định sau khi đăng nhập. */
-export const TRANG_MAC_DINH = "/ho-so";
+export const TRANG_MAC_DINH = "/";
 
 /** Trang đăng nhập; không bao giờ là đích của `next`. */
 export const TRANG_DANG_NHAP = "/dang-nhap";
@@ -10,7 +10,7 @@ const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 /**
  * Đích chuyển tới sau khi đăng nhập (spec 0004, Quy tắc next), dùng chung cho `proxy.ts` và trang đăng nhập.
  * Chỉ nhận đường dẫn nội bộ: bắt đầu bằng `/`, không phải `//` hay `/\` (trình duyệt hiểu là tên miền khác),
- * không có ký tự điều khiển, không trỏ về trang đăng nhập. Còn lại trả `/ho-so`.
+ * không có ký tự điều khiển, không trỏ về trang đăng nhập. Còn lại trả trang Tổng quan `/` (spec 0006, AC-14).
  */
 export function safeNext(value: string | null | undefined): string {
   if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {

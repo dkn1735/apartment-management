@@ -18,6 +18,8 @@ import vn.edu.hust.chungcu.auth.dto.DangNhapRequest;
 import vn.edu.hust.chungcu.auth.dto.DangNhapResponse;
 import vn.edu.hust.chungcu.auth.dto.HoSoResponse;
 import vn.edu.hust.chungcu.auth.dto.LamMoiPhienResponse;
+import vn.edu.hust.chungcu.auth.phanquyen.CongKhai;
+import vn.edu.hust.chungcu.auth.phanquyen.DaDangNhap;
 import vn.edu.hust.chungcu.auth.service.DangNhapService;
 import vn.edu.hust.chungcu.auth.service.DangXuatService;
 import vn.edu.hust.chungcu.auth.service.AuthCookies;
@@ -52,6 +54,7 @@ public class AuthController {
 
 	@Operation(summary = "Đăng nhập bằng số điện thoại hoặc email",
 			description = "Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.")
+	@CongKhai
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<DangNhapResponse>> dangNhap(@Valid @RequestBody DangNhapRequest request,
 			HttpServletRequest http) {
@@ -67,6 +70,7 @@ public class AuthController {
 			description = "Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. "
 					+ "lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là "
 					+ "token đang sống được trả lại. Không có body.")
+	@CongKhai
 	@PostMapping("/refresh-token")
 	public ResponseEntity<ApiResponse<LamMoiPhienResponse>> lamMoi(
 			@CookieValue(name = AuthCookies.REFRESH_TOKEN, required = false) String refreshToken,
@@ -81,6 +85,7 @@ public class AuthController {
 
 	@Operation(summary = "Đăng xuất phiên trên máy này",
 			description = "Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.")
+	@CongKhai
 	@PostMapping("/logout")
 	public ResponseEntity<ApiResponse<Void>> dangXuat(
 			@CookieValue(name = AuthCookies.REFRESH_TOKEN, required = false) String refreshToken) {
@@ -90,6 +95,7 @@ public class AuthController {
 	}
 
 	@Operation(summary = "Hồ sơ của người đang đăng nhập")
+	@DaDangNhap
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<HoSoResponse>> hoSo(@AuthenticationPrincipal Jwt jwt) {
 		return ApiResponse.ok(this.hoSoService.cua(jwt.getSubject()), "Lấy thông tin tài khoản thành công");

@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api/api";
-import { useHoSo, type HoSo } from "@/lib/auth/use-ho-so";
+import { laLoiChuyenVeDangNhap, useHoSo, type HoSo } from "@/lib/auth/use-ho-so";
 import { chiTietCua, NHAN_VAI_TRO } from "@/lib/vai-tro";
 
 const TONE_TRANG_THAI: Readonly<Record<string, StatusTone>> = {
@@ -19,13 +19,6 @@ const TONE_TRANG_THAI: Readonly<Record<string, StatusTone>> = {
   "Tạm khóa": "warning",
   "Ngừng hoạt động": "neutral",
 };
-
-/** Lỗi mà QueryClient đã tự chuyển về trang đăng nhập; trang giữ skeleton thay vì báo lỗi. */
-function dangChuyenVeDangNhap(error: unknown): boolean {
-  return (
-    error instanceof ApiError && (error.errorCode === "UNAUTHENTICATED" || error.errorCode === "AUTH_ACCOUNT_LOCKED")
-  );
-}
 
 /** Trang hồ sơ (spec 0004, AC-14): thông tin tài khoản, vai trò, phạm vi. Không bao giờ hiện CCCD. */
 export function HoSoView() {
@@ -36,7 +29,7 @@ export function HoSoView() {
       <PageHeader title="Hồ sơ của tôi" description="Thông tin hệ thống đang ghi nhận cho tài khoản của bạn." />
       {data ? (
         <NoiDung hoSo={data} />
-      ) : isError && !dangChuyenVeDangNhap(error) ? (
+      ) : isError && !laLoiChuyenVeDangNhap(error) ? (
         <Card>
           <ErrorState
             title="Chưa tải được hồ sơ"

@@ -93,9 +93,9 @@ describe("Form đăng nhập (AC-12)", () => {
 
   it.each([
     ["next=%2Fho-so%3Ftab%3D1", "/ho-so?tab=1"],
-    ["next=%2F%2Fevil.com", "/ho-so"],
-    ["next=https%3A%2F%2Fevil.com", "/ho-so"],
-    ["", "/ho-so"],
+    ["next=%2F%2Fevil.com", "/"],
+    ["next=https%3A%2F%2Fevil.com", "/"],
+    ["", "/"],
   ])("thành công với %s thì chuyển tới %s", async (query, expected) => {
     apiMock.mockResolvedValue({ maNguoiDung: "ND00000007" });
     const { user } = setup(query);

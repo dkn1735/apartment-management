@@ -59,8 +59,8 @@ class HoSoServiceTest {
 		AppProperties properties = new AppProperties(VN,
 				new AppProperties.Security("k".repeat(32), Duration.ofMinutes(15), Duration.ofDays(7), 4, true,
 						Duration.ofDays(30), Duration.ofSeconds(10), Duration.ofDays(30), "0 0 3 * * *"));
-		this.service = new HoSoService(this.nguoiDung, this.vaiTroQuery, this.toaNha, this.cuTru,
-				new AuthCookies(properties), CLOCK);
+		this.service = new HoSoService(this.nguoiDung, this.vaiTroQuery,
+				new PhamViTinhToan(this.toaNha, this.cuTru, CLOCK), new AuthCookies(properties));
 		when(this.toaNha.danhSachMaToaNha()).thenReturn(List.of("A", "B"));
 		when(this.cuTru.maCanHoDangCuTru(any(), any())).thenReturn(List.of("A-0101"));
 	}
@@ -87,6 +87,15 @@ class HoSoServiceTest {
 		HoSoResponse hoSo = hoSo("Hoạt động", vaiTro(List.of(VaiTro.BAN_QUAN_LY, VaiTro.CU_DAN), BQL, CU_DAN));
 		assertThat(hoSo.phamVi().maToaNha()).containsExactly("A", "B");
 		assertThat(hoSo.phamVi().maCanHo()).containsExactly("A-0101");
+	}
+
+	// Spec 0006 AC-6: Admin không có phạm vi tòa (lệch có chủ ý so với spec 0004 AC-8)
+	@Test
+	void chiQuanTriVienThiKhongCoToa() {
+		HoSoResponse hoSo = hoSo("Hoạt động", vaiTro(List.of(VaiTro.QUAN_TRI_VIEN), null, null));
+		assertThat(hoSo.phamVi().maToaNha()).isEmpty();
+		assertThat(hoSo.phamVi().maCanHo()).isEmpty();
+		verify(this.toaNha, never()).danhSachMaToaNha();
 	}
 
 	@Test

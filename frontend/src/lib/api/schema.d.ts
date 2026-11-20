@@ -16,6 +16,8 @@ export interface paths {
         /**
          * Làm mới phiên bằng cookie refresh_token
          * @description Đặt lại ba cookie ở mọi response 200. lamMoi true: vừa xoay ra refresh token mới. lamMoi false: token gửi lên vừa được xoay trong khoảng khoan dung, refresh_token là token đang sống được trả lại. Không có body.
+         *
+         *     Công khai, không cần đăng nhập
          */
         post: operations["lamMoi"];
         delete?: never;
@@ -36,6 +38,8 @@ export interface paths {
         /**
          * Đăng xuất phiên trên máy này
          * @description Thu hồi họ phiên mà cookie refresh_token trỏ tới và xóa ba cookie. Luôn trả 200.
+         *
+         *     Công khai, không cần đăng nhập
          */
         post: operations["dangXuat"];
         delete?: never;
@@ -56,8 +60,32 @@ export interface paths {
         /**
          * Đăng nhập bằng số điện thoại hoặc email
          * @description Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.
+         *
+         *     Công khai, không cần đăng nhập
          */
         post: operations["dangNhap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/buildings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh mục cấu trúc tòa nhà (API-UC01-01)
+         * @description Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN
+         */
+        get: operations["danhSach"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -71,7 +99,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Hồ sơ của người đang đăng nhập */
+        /**
+         * Hồ sơ của người đang đăng nhập
+         * @description Vai trò được phép: mọi người đã đăng nhập
+         */
         get: operations["hoSo"];
         put?: never;
         post?: never;
@@ -131,6 +162,35 @@ export interface components {
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             /** Format: date-time */
             accessTokenHetHanLuc: string;
+        };
+        ApiResponsePageResponseToaNhaResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseToaNhaResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseToaNhaResponse: {
+            items: components["schemas"]["ToaNhaResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        ToaNhaResponse: {
+            maToaNha: string;
+            tenToaNha: string;
+            /** Format: int32 */
+            soTang: number;
+            diaChiKhuVuc: string;
+            /** Format: int64 */
+            soCanHo: number;
         };
         ApiResponseHoSoResponse: {
             success?: boolean;
@@ -299,6 +359,51 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDangNhapResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    danhSach: {
+        parameters: {
+            query?: {
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseToaNhaResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

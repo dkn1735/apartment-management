@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, client } from "@/lib/api/api";
+import { api, ApiError, client } from "@/lib/api/api";
 import type { components } from "@/lib/api/schema";
 
 export type HoSo = components["schemas"]["HoSoResponse"];
@@ -15,4 +15,11 @@ export function useHoSo() {
     queryKey: HO_SO_QUERY_KEY,
     queryFn: () => api<HoSo>(client.GET("/api/v1/auth/profile")),
   });
+}
+
+/** Lỗi mà QueryClient đã tự chuyển về trang đăng nhập; nơi hiện hồ sơ giữ skeleton thay vì báo lỗi. */
+export function laLoiChuyenVeDangNhap(error: unknown): boolean {
+  return (
+    error instanceof ApiError && (error.errorCode === "UNAUTHENTICATED" || error.errorCode === "AUTH_ACCOUNT_LOCKED")
+  );
 }

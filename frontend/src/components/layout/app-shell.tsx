@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { AppNav } from "./app-nav";
 import { Brand } from "./brand";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MobileNav } from "./mobile-nav";
 import type { NavGroup } from "./nav";
 
@@ -9,6 +10,8 @@ export type AppShellProps = {
   nav: NavGroup[];
   /** Vùng bên phải thanh trên, ví dụ menu người dùng. */
   userSlot?: ReactNode;
+  /** Chưa biết vai trò: hiện khung xương thay cho menu (spec 0006, AC-13). */
+  navPending?: boolean;
   children: ReactNode;
 };
 
@@ -17,7 +20,8 @@ export type AppShellProps = {
  * thanh bên cố định từ 1024px, dưới 1024px menu nằm trong ngăn kéo.
  * Dùng được trong layout server lẫn client: icon của menu được render ở đây, chỉ link và ngăn kéo chạy phía client.
  */
-export function AppShell({ nav, userSlot, children }: AppShellProps) {
+export function AppShell({ nav, userSlot, navPending, children }: AppShellProps) {
+  const menu = navPending ? <NavSkeleton /> : <AppNav nav={nav} />;
   return (
     <div className="min-h-dvh">
       <a
@@ -30,13 +34,11 @@ export function AppShell({ nav, userSlot, children }: AppShellProps) {
         <div className="px-3">
           <Brand />
         </div>
-        <AppNav nav={nav} />
+        {menu}
       </aside>
       <div className="flex min-h-dvh flex-col lg:pl-64">
         <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b bg-background px-4 sm:px-6">
-          <MobileNav title={<Brand />}>
-            <AppNav nav={nav} />
-          </MobileNav>
+          <MobileNav title={<Brand />}>{menu}</MobileNav>
           <Brand className="min-w-0 lg:hidden" />
           <div className="ml-auto flex items-center gap-3">{userSlot}</div>
         </header>
@@ -48,6 +50,18 @@ export function AppShell({ nav, userSlot, children }: AppShellProps) {
           {children}
         </main>
       </div>
+    </div>
+  );
+}
+
+/** Bốn dòng giữ chỗ cho menu khi chưa biết vai trò; trình đọc màn hình nghe "Đang tải menu". */
+function NavSkeleton() {
+  return (
+    <div role="status" className="flex flex-col gap-2 px-3">
+      <span className="sr-only">Đang tải menu</span>
+      {Array.from({ length: 4 }, (_, index) => (
+        <Skeleton key={index} className="h-8 w-full rounded-full" />
+      ))}
     </div>
   );
 }

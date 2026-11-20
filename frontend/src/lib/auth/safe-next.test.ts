@@ -23,8 +23,8 @@ describe("safeNext (AC-12, AC-13)", () => {
     [""],
     [null],
     [undefined],
-  ])("trả /ho-so với %j", (input) => {
-    expect(safeNext(input)).toBe("/ho-so");
+  ])("trả / với %j", (input) => {
+    expect(safeNext(input)).toBe("/");
   });
 
   it("không nhầm trang có tiền tố giống /dang-nhap", () => {
