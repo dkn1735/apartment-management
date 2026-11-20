@@ -2,13 +2,13 @@
 
 import { useTable, type RowData } from "@tanstack/react-table";
 import type { UseQueryResult } from "@tanstack/react-query";
-import { CircleAlert, RotateCcw } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { cn } from "cn";
 import { EmptyState } from "@/components/feedback/empty-state";
-import { ErrorState } from "@/components/feedback/error-state";
+import { QueryErrorState } from "@/components/feedback/query-error-state";
+import { RetryButton } from "@/components/feedback/retry-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCaption, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import type { ApiError } from "@/lib/api/api";
@@ -65,11 +65,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
   if (query.isError && !data) {
     return (
       <div className="rounded-md border bg-card">
-        <ErrorState
-          title="Không tải được dữ liệu"
-          error={query.error}
-          actions={<RetryButton onRetry={query.refetch} />}
-        />
+        <QueryErrorState title="Không tải được dữ liệu" error={query.error} onRetry={query.refetch} />
       </div>
     );
   }
@@ -85,9 +81,12 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
         <Alert tone="danger" role="alert">
           <CircleAlert aria-hidden="true" />
           <AlertTitle>{messageFor(query.error)}</AlertTitle>
-          <AlertDescription>
-            <RetryButton onRetry={query.refetch} className="w-fit" />
-          </AlertDescription>
+          {/* 403 thì thử lại cũng vô ích (spec 0006, AC-12) */}
+          {query.error.errorCode !== "FORBIDDEN" && (
+            <AlertDescription>
+              <RetryButton onRetry={query.refetch} className="w-fit" />
+            </AlertDescription>
+          )}
         </Alert>
       )}
       {/* Bảng rộng hơn màn hình cuộn ngang trong khung này; khung nhận focus để cuộn bằng phím mũi tên (AC-10) */}
@@ -165,15 +164,6 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
 }
 
 const EMPTY: never[] = [];
-
-function RetryButton({ onRetry, className }: { onRetry: () => unknown; className?: string }) {
-  return (
-    <Button size="sm" variant="outline" className={className} onClick={() => onRetry()}>
-      <RotateCcw aria-hidden="true" />
-      Thử lại
-    </Button>
-  );
-}
 
 function SkeletonRows({ columnCount }: { columnCount: number }) {
   return Array.from({ length: SKELETON_ROWS }, (_, index) => (

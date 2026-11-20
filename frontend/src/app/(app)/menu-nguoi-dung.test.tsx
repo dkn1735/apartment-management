@@ -12,7 +12,10 @@ import { MenuNguoiDung } from "./menu-nguoi-dung";
 const hoSo = vi.hoisted(() => ({ current: {} as { data?: { hoTen: string; email: string; soDienThoai: string } } }));
 const apiMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/auth/use-ho-so", () => ({ useHoSo: () => hoSo.current }));
+vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/use-ho-so")>()),
+  useHoSo: () => hoSo.current,
+}));
 vi.mock("@/lib/api/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/api")>();
   return { ...actual, api: apiMock, client: { POST: vi.fn((path: string) => Promise.resolve({ path })) } };

@@ -55,6 +55,21 @@ Mở http://localhost:3000, trang được bảo vệ sẽ chuyển về `/dang-
 
 Commit cả hai file kèm thay đổi API.
 
+## Thêm một endpoint mới
+
+Quyền theo spec 0006. Bạn có thể làm theo ba bước sau mỗi khi thêm API:
+
+1. **Khai quyền trên method controller**, đúng một trong ba annotation của `auth/phanquyen`:
+   `@ChoPhep({BAN_QUAN_LY, KE_TOAN})` khi cần vai trò (sai vai trò trả 403 `FORBIDDEN` trước khi đọc tham số),
+   `@DaDangNhap` cho mọi người đã đăng nhập, `@CongKhai` cho đường không cần đăng nhập (thêm cặp method và
+   đường dẫn vào `PublicPaths.CONG_KHAI`). Cột RBAC của file đặc tả đổi sang enum theo bảng *Ánh xạ cột RBAC*
+   của spec 0006. Quên khai thì `PhanQuyenCoverageTest` báo đỏ. Không dùng `@PreAuthorize`.
+2. **Lọc dữ liệu theo phạm vi** bằng `PhamViTruyCapService.cuaNguoiDangGoi()`: truyền `maToaNha` hoặc `maCanHo`
+   xuống service, hoặc gọi `yeuCauToaNha(ma)`, `yeuCauCanHo(ma)`. Dữ liệu ngoài phạm vi trả 404 giống dữ liệu
+   không tồn tại. API danh sách đọc `page`, `size`, `sort` bằng `TrangYeuCau.tu(...)`.
+3. **Có trang ở giao diện** thì thêm hoặc bật một dòng trong `frontend/src/lib/phan-quyen/muc-chuc-nang.ts`
+   (`sanSang: true` kèm `icon`, `moTa`): menu, trang Tổng quan và chặn trang tự theo dòng đó.
+
 ## Chạy bản demo
 
 `docker compose -f docker-compose.prod.yml up --build`, mở http://localhost:3000. Cần `.env` ở gốc có `POSTGRES_PASSWORD` và `JWT_SECRET`.

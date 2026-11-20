@@ -6,9 +6,14 @@ import { createQueryClient } from "@/lib/api/query-client";
 import { mockPathname } from "@/test/next-navigation";
 import AppLayout from "./layout";
 
-const state = vi.hoisted(() => ({ current: {} as { data?: { hoTen: string } } }));
+const state = vi.hoisted(() => ({
+  current: {} as { data?: { hoTen: string; vaiTro: string[] }; isPending?: boolean },
+}));
 
-vi.mock("@/lib/auth/use-ho-so", () => ({ useHoSo: () => state.current }));
+vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/use-ho-so")>()),
+  useHoSo: () => state.current,
+}));
 
 // Menu người dùng có mutation đăng xuất, nên cần QueryClient
 const render = (ui: ReactElement) =>
@@ -28,7 +33,7 @@ describe("Layout (app) (AC-14)", () => {
   });
 
   it("thanh trên hiện họ tên khi đã có hồ sơ", () => {
-    state.current = { data: { hoTen: "Vũ Cư Dân" } };
+    state.current = { data: { hoTen: "Vũ Cư Dân", vaiTro: ["CU_DAN"] } };
     render(<AppLayout>nội dung</AppLayout>);
     expect(screen.getByRole("banner")).toHaveTextContent("Vũ Cư Dân");
   });
@@ -37,5 +42,19 @@ describe("Layout (app) (AC-14)", () => {
     render(<AppLayout>nội dung</AppLayout>);
     expect(screen.getByRole("banner")).not.toHaveTextContent("Vũ Cư Dân");
     expect(screen.getByRole("button", { name: /^Tài khoản/ })).toBeInTheDocument();
+  });
+
+  it("menu theo vai trò: BQL có nhóm Ban quản lý với Tòa nhà (spec 0006, AC-10)", () => {
+    state.current = { data: { hoTen: "Trần Ban Quản Lý", vaiTro: ["BAN_QUAN_LY"] } };
+    render(<AppLayout>nội dung</AppLayout>);
+    expect(screen.getAllByText("Ban quản lý").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Tòa nhà" })[0]).toHaveAttribute("href", "/toa-nha");
+  });
+
+  it("chưa biết vai trò thì menu là skeleton (spec 0006, AC-13)", () => {
+    state.current = { isPending: true };
+    render(<AppLayout>nội dung</AppLayout>);
+    expect(screen.queryByRole("navigation", { name: "Menu chính" })).not.toBeInTheDocument();
+    expect(screen.getAllByText("Đang tải menu").length).toBeGreaterThan(0);
   });
 });
