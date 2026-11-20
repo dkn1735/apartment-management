@@ -1,6 +1,8 @@
 package vn.edu.hust.chungcu.auth.repository;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +14,20 @@ public interface NguoiDungHeThongRepository extends JpaRepository<NguoiDungHeTho
 	Optional<NguoiDungHeThong> findBySoDienThoai(String soDienThoai);
 
 	Optional<NguoiDungHeThong> findByEmail(String email);
+
+	/**
+	 * Mã và họ tên của các người dùng trong {@code ma}, một truy vấn (spec 0007, AC-13).
+	 */
+	@Query("select n.maNguoiDung as maNguoiDung, n.hoTen as hoTen from NguoiDungHeThong n where n.maNguoiDung in :ma")
+	List<HoTenNguoiDung> timHoTen(Collection<String> ma);
+
+	interface HoTenNguoiDung {
+
+		String getMaNguoiDung();
+
+		String getHoTen();
+
+	}
 
 	/**
 	 * Ghi lúc đăng nhập mà không tăng {@code phien_ban}, để hai lần đăng nhập cùng lúc

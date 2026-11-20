@@ -32,6 +32,21 @@ public record TrangYeuCau(int page, int size, String sortField, Sort.Direction d
 	 */
 	public static TrangYeuCau tu(String page, String size, String sort, Set<String> choPhepSort, String sortMacDinh) {
 		List<ErrorResponse.FieldError> loi = new ArrayList<>();
+		TrangYeuCau trang = tu(page, size, sort, choPhepSort, sortMacDinh, loi);
+		if (!loi.isEmpty()) {
+			throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCodes.VALIDATION_FAILED, "Dữ liệu không hợp lệ", loi);
+		}
+		return trang;
+	}
+
+	/**
+	 * Như {@link #tu(String, String, String, Set, String)} nhưng không ném: thêm lỗi vào
+	 * {@code loi} và trả {@code null} khi sai, để endpoint có thêm bộ lọc gộp mọi lỗi vào
+	 * một response 400.
+	 */
+	public static TrangYeuCau tu(String page, String size, String sort, Set<String> choPhepSort, String sortMacDinh,
+			List<ErrorResponse.FieldError> loi) {
+		int truoc = loi.size();
 		int p = soNguyen(page, 1);
 		if (p < 1) {
 			loi.add(new ErrorResponse.FieldError("page", "Số trang phải từ 1 trở lên"));
@@ -45,8 +60,8 @@ public record TrangYeuCau(int page, int size, String sortField, Sort.Direction d
 		if (!sortDung) {
 			loi.add(new ErrorResponse.FieldError("sort", "Không sắp xếp được theo trường này"));
 		}
-		if (!loi.isEmpty()) {
-			throw new ApiException(HttpStatus.BAD_REQUEST, ErrorCodes.VALIDATION_FAILED, "Dữ liệu không hợp lệ", loi);
+		if (loi.size() > truoc) {
+			return null;
 		}
 		return new TrangYeuCau(p, s, m.group(1), "asc".equals(m.group(2)) ? Sort.Direction.ASC : Sort.Direction.DESC);
 	}

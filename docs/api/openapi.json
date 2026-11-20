@@ -127,6 +127,152 @@
         }
       }
     },
+    "/api/v1/system/audit-logs" : {
+      "get" : {
+        "tags" : [ "Nhật ký hệ thống" ],
+        "summary" : "Tra cứu nhật ký kiểm toán (API-AUTH-05)",
+        "description" : "Mới nhất trước. Bộ lọc kết hợp bằng AND; ngày theo giờ Việt Nam, gồm cả ngày denNgay.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY, BAN_QUAN_TRI",
+        "operationId" : "traCuuNhatKy",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "thoiGianGhi hoặc loaiThaoTac, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "thoiGianGhi,desc"
+          }
+        }, {
+          "name" : "maNguoiDung",
+          "in" : "query",
+          "description" : "Mã người thực hiện, dạng ND + 8 chữ số",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "pattern" : "^ND[0-9]{8}$"
+          }
+        }, {
+          "name" : "loaiThaoTac",
+          "in" : "query",
+          "description" : "Mã một loại thao tác, lấy từ /action-types",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "tuNgay",
+          "in" : "query",
+          "description" : "Từ ngày, yyyy-MM-dd",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "denNgay",
+          "in" : "query",
+          "description" : "Đến ngày (gồm cả ngày này), yyyy-MM-dd",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseNhatKyResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/audit-logs/action-types" : {
+      "get" : {
+        "tags" : [ "Nhật ký hệ thống" ],
+        "summary" : "Danh mục loại thao tác của nhật ký",
+        "description" : "Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY, BAN_QUAN_TRI",
+        "operationId" : "danhMucLoaiThaoTac",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseListLoaiThaoTacResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/buildings" : {
       "get" : {
         "tags" : [ "Căn hộ" ],
@@ -360,6 +506,131 @@
           }
         },
         "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "vaiTro" ]
+      },
+      "ApiResponsePageResponseNhatKyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseNhatKyResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "NhatKyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maLog" : {
+            "type" : "string"
+          },
+          "maNguoiDung" : {
+            "type" : [ "string", "null" ]
+          },
+          "hoTen" : {
+            "type" : [ "string", "null" ]
+          },
+          "loaiThaoTac" : {
+            "type" : "string"
+          },
+          "tenThaoTac" : {
+            "type" : "string"
+          },
+          "doiTuongTacDong" : {
+            "type" : "string"
+          },
+          "chiTietThayDoi" : {
+            "type" : [ "object", "null" ],
+            "additionalProperties" : true
+          },
+          "diaChiIp" : {
+            "type" : [ "string", "null" ]
+          },
+          "requestId" : {
+            "type" : [ "string", "null" ]
+          },
+          "thoiGianGhi" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "doiTuongTacDong", "loaiThaoTac", "maLog", "tenThaoTac", "thoiGianGhi" ]
+      },
+      "PageResponseNhatKyResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/NhatKyResponse"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
+      },
+      "ApiResponseListLoaiThaoTacResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/LoaiThaoTacResponse"
+            }
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "LoaiThaoTacResponse" : {
+        "type" : "object",
+        "properties" : {
+          "ma" : {
+            "type" : "string"
+          },
+          "nhan" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "ma", "nhan" ]
       },
       "ApiResponsePageResponseToaNhaResponse" : {
         "type" : "object",
