@@ -35,3 +35,35 @@ To read the table on the dev DB: `docker compose exec db psql -U <user> -d <db> 
 ## Acceptance-criteria coverage
 - AC-1 manual 1, commands 2 · AC-2 manual 2 and 3, commands 2 · AC-3 manual 4, commands 2 · AC-4 manual 5, commands 3 · AC-5 commands 3 · AC-6 commands 4 · AC-7 commands 5 · AC-8 manual 4, commands 6 · AC-9 commands 7 · AC-10 commands 8
 - AC-11 to AC-14 belong to feature 9 (read API and screen), not checked here
+
+# Verify: Màn hình tra cứu nhật ký kiểm toán · spec 0007 · updated 2026-11-21
+_Steps for feature 9 (AC-11 to AC-14). Run with the `seed` profile; every seed account uses password `ChungCu@2026`. `/check verify` runs these; `/test` locks the durable ones._
+
+## UI / manual
+- [ ] Sign in as `0900000001` (Admin), `0900000002` (BQL) or `0900000006` (BQT): the menu shows "Nhật ký hệ thống", and `/nhat-ky` shows a table with the newest row first → AC-11
+- [ ] Sign in as `0900000004` (Kế toán) or `0900000007` (Cư dân): there is no menu item, and opening `/nhat-ky` directly shows the "no permission" page → AC-11
+- [ ] Sign in with a wrong password for an account that doesn't exist, then open `/nhat-ky` as Admin: that row shows "Không xác định" as the actor, with IP and request id filled in → AC-11, AC-13
+- [ ] The "Thời gian" column shows Vietnam time (`dd/MM/yyyy HH:mm`); click its header and the order flips; click "Thao tác" and rows group by code → AC-11
+- [ ] The "Loại thao tác" select lists the four types in declaration order, plus "Tất cả loại thao tác" → AC-14
+- [ ] Filter by user code, by type, then by from and to dates: the URL gets the parameters, the page resets to 1, and Back restores the old filter in the form → AC-12
+- [ ] Type `nd1` as the user code, or a to date before the from date: the error shows under that field and the URL does not change → AC-12
+- [ ] A filter that matches nothing shows "Không có dòng nhật ký nào khớp bộ lọc" and a "Xóa bộ lọc" button that clears the URL → scope Done when
+- [ ] Edit the URL by hand to `/nhat-ky?tuNgay=2026-02-30`: an alert lists "Ngày phải có dạng yyyy-MM-dd" and offers "Xóa bộ lọc" → AC-12
+- [ ] Stop the backend and reload: the table shows the error state with "Thử lại" → scope Done when
+- [ ] Do all of the above with only the keyboard: focus is visible on every control, and every field has a label → AGENTS.md WCAG AA
+
+## Commands
+- [ ] `cd backend && mvnw.cmd test -Dtest=NhatKyTraCuuIntegrationTest` → 18 tests pass → AC-11 to AC-14
+- [ ] `cd frontend && pnpm vitest run "src/app/(app)/nhat-ky"` → all pass, including the axe checks → AC-11, AC-12, AC-14
+- [ ] `GET /api/v1/system/audit-logs?page=0&size=500&sort=maLog,asc&maNguoiDung=x&loaiThaoTac=y&tuNgay=z&denNgay=w` as Admin → 400 `VALIDATION_FAILED` with `errors` in the order page, size, sort, maNguoiDung, loaiThaoTac, tuNgay, denNgay → AC-12
+- [ ] Count rows (`SELECT max(ma_log) FROM nhat_ky_he_thong`) before and after reading the list a few times → unchanged, because reading never writes → AC-11
+
+## Value sourcing
+- [ ] `hoTen`: change a user's `ho_ten` in the DB, then reload → the list shows the new name for old rows too (current name, not the name at the time) → AC-13
+- [ ] `tenThaoTac`: insert a row with `loai_thao_tac` `AUTH_DA_BO` → the list shows the code itself and does not fail → AC-11
+- [ ] `tuNgay`/`denNgay` boundaries: rows at `2026-03-09T17:00:00Z` and `2026-03-10T16:59:59Z` show for `tuNgay=denNgay=2026-03-10`, while `2026-03-09T16:59:59Z` and `2026-03-10T17:00:00Z` do not (Vietnam day, `app.timezone`) → AC-12
+- [ ] `totalItems`/`totalPages`: with a filter on, go to `page=99` → empty items, totals match the filtered count → AC-11
+- [ ] `ma`/`nhan` of the type list: compare with the `LoaiThaoTac` enum order → AC-14
+
+## Acceptance-criteria coverage
+- AC-11 manual 1, 2, 4, 9, commands 1, 4, value sourcing 2, 4 · AC-12 manual 6, 7, 9, commands 3, value sourcing 3 · AC-13 manual 3, value sourcing 1 (query count of at most three is by design, not yet asserted by a test) · AC-14 manual 5, value sourcing 5

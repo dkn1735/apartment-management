@@ -21,7 +21,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | done |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | done |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
-| 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | planned |
+| 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
 | 10 | Đổi mật khẩu | Slice 6 | planned |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | planned |
 | 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | planned |
@@ -135,10 +135,13 @@ spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `bac
 
 ## Slice 5: Màn hình tra cứu nhật ký kiểm toán
 
-### 9. Màn hình tra cứu nhật ký kiểm toán
+### 9. Màn hình tra cứu nhật ký kiểm toán · in-progress
 Admin, BQT và BQL xem lịch sử thao tác có phân trang (API-AUTH-05). Dựa trên spec của tính năng 8.
 **Done when:** người có quyền xem được danh sách log mới nhất trước, phân trang và lọc theo người dùng, loại thao tác, khoảng thời gian; vai trò khác bị chặn; trạng thái rỗng và lỗi hiển thị đúng.
-- [ ] Build it: `/develop màn hình tra cứu nhật ký kiểm toán`
+spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/nhatky/`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/NguoiDungTraCuuService.java`, `frontend/src/app/(app)/nhat-ky/`
+- [x] Build it: `/develop màn hình tra cứu nhật ký kiểm toán`
+  - [x] API đọc: danh sách có bộ lọc, danh mục loại thao tác, họ tên theo lô (AC-11, AC-12, AC-13, AC-14)
+  - [x] Màn hình `/nhat-ky`: bảng, bộ lọc trên URL, trạng thái rỗng và lỗi, mục menu (AC-11, AC-12, AC-14)
 
 ## Slice 6: Đổi mật khẩu
 
