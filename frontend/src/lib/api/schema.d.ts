@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/auth/refresh-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Làm mới phiên bằng cookie refresh_token
+         * @description Xoay vòng refresh token và đặt lại ba cookie khi lamMoi là true. Khi lamMoi là false (token vừa được một request khác làm mới), không có cookie mới. Không có body.
+         */
+        post: operations["lamMoi"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -45,6 +65,23 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ApiResponseLamMoiPhienResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["LamMoiPhienResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        LamMoiPhienResponse: {
+            lamMoi: boolean;
+            maNguoiDung: string;
+            hoTen: string;
+            vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            /** Format: date-time */
+            accessTokenHetHanLuc: string | null;
+        };
         DangNhapRequest: {
             /** @description Số điện thoại hoặc email */
             taiKhoan: string;
@@ -151,6 +188,37 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    lamMoi: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                refresh_token?: string;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseLamMoiPhienResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     dangNhap: {
         parameters: {
             query?: never;

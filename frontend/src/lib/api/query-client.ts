@@ -1,6 +1,7 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { safeNext, TRANG_DANG_NHAP } from "@/lib/auth/safe-next";
 import { ApiError } from "./api";
+import { dangDangXuat } from "./refresh";
 
 /** Đặt `meta: { [BO_QUA_CHUYEN_TRANG]: true }` cho mutation tự xử lý lỗi xác thực (form đăng nhập). */
 export const BO_QUA_CHUYEN_TRANG = "boQuaChuyenTrang";
@@ -42,10 +43,11 @@ function laTrangKhongChuyen(pathname: string): boolean {
 
 /**
  * Lỗi xác thực ở bất kỳ lời gọi API nào thì về trang đăng nhập (spec 0004, AC-15):
- * 401 `UNAUTHENTICATED` kèm `next` và `ly-do=het-phien`; 403 `AUTH_ACCOUNT_LOCKED` kèm `ly-do=khoa`.
+ * 401 `UNAUTHENTICATED` hoặc `AUTH_REFRESH_INVALID` (làm mới thất bại, spec 0005 AC-11) kèm `next`
+ * và `ly-do=het-phien`; 403 `AUTH_ACCOUNT_LOCKED` kèm `ly-do=khoa`. Đang đăng xuất thì bỏ qua mọi lỗi.
  */
 export function handleAuthError(error: unknown, boQua = false): void {
-  if (boQua || dangChuyenTrang || typeof window === "undefined" || !(error instanceof ApiError)) {
+  if (boQua || dangChuyenTrang || dangDangXuat() || typeof window === "undefined" || !(error instanceof ApiError)) {
     return;
   }
   const { pathname, search } = window.location;
@@ -53,7 +55,7 @@ export function handleAuthError(error: unknown, boQua = false): void {
     return;
   }
   let dich: string | null = null;
-  if (error.errorCode === "UNAUTHENTICATED") {
+  if (error.errorCode === "UNAUTHENTICATED" || error.errorCode === "AUTH_REFRESH_INVALID") {
     const next = encodeURIComponent(safeNext(pathname + search));
     dich = `${TRANG_DANG_NHAP}?next=${next}&ly-do=het-phien`;
   } else if (error.errorCode === "AUTH_ACCOUNT_LOCKED") {

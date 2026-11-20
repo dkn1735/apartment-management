@@ -61,3 +61,11 @@ app:
     bcrypt-cost: 12
     # Đặt COOKIE_SECURE=false chỉ khi demo qua http trên mạng LAN
     cookie-secure: ${COOKIE_SECURE:true}
+    # Làm mới phiên (spec 0005): phiên trượt 7 ngày mỗi lần làm mới, không quá 30 ngày
+    # kể từ lần đăng nhập đầu
+    session-max-lifetime: P30D
+    # Dùng lại token vừa xoay trong khoảng này không bị coi là đánh cắp (tab chạy đua)
+    refresh-reuse-grace: PT10S
+    # Phải không nhỏ hơn session-max-lifetime
+    session-retention: P30D
+    session-cleanup-cron: "0 0 3 * * *"

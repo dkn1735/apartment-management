@@ -2,6 +2,7 @@ package vn.edu.hust.chungcu.common.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,7 +23,9 @@ class AppPropertiesTest {
 		.withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class))
 		.withUserConfiguration(Config.class)
 		.withPropertyValues("app.timezone=Asia/Ho_Chi_Minh", "app.security.access-token-ttl=PT15M",
-				"app.security.refresh-token-ttl=P7D", "app.security.bcrypt-cost=12", "app.security.cookie-secure=true");
+				"app.security.refresh-token-ttl=P7D", "app.security.bcrypt-cost=12", "app.security.cookie-secure=true",
+				"app.security.session-max-lifetime=P30D", "app.security.refresh-reuse-grace=PT10S",
+				"app.security.session-retention=P30D", "app.security.session-cleanup-cron=0 0 3 * * *");
 
 	@Test
 	void thieuJwtSecretThiKhongKhoiDong() {
@@ -60,10 +63,23 @@ class AppPropertiesTest {
 				.hasMessageContaining("JWT_SECRET đang là chuỗi mẫu"));
 	}
 
+	// Spec 0005: dòng đã xoay vòng phải sống ít nhất bằng tuổi tối đa của họ phiên
+	@Test
+	void sessionRetentionNhoHonMaxLifetimeThiKhongKhoiDong() {
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.session-retention=P29D")
+			.run(context -> assertThat(context).hasFailed()
+				.getFailure()
+				.rootCause()
+				.hasMessageContaining("session-retention phải không nhỏ hơn"));
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.session-retention=P30D")
+			.run(context -> assertThat(context).hasNotFailed());
+	}
+
 	@Test
 	void cookieSecureMacDinhCoCoSecure() {
 		this.runner.withPropertyValues(KHOA_HOP_LE).withBean(AuthCookies.class).run(context -> {
-			assertThat(context.getBean(AuthCookies.class).dat("a", "r").get("Set-Cookie")).hasSize(3)
+			assertThat(context.getBean(AuthCookies.class).dat("a", "r", Duration.ofDays(7)).get("Set-Cookie"))
+				.hasSize(3)
 				.allSatisfy(cookie -> assertThat(cookie).contains("; Secure"));
 		});
 	}
@@ -73,7 +89,8 @@ class AppPropertiesTest {
 		this.runner.withPropertyValues(KHOA_HOP_LE, "app.security.cookie-secure=false")
 			.withBean(AuthCookies.class)
 			.run(context -> {
-				assertThat(context.getBean(AuthCookies.class).dat("a", "r").get("Set-Cookie")).hasSize(3)
+				assertThat(context.getBean(AuthCookies.class).dat("a", "r", Duration.ofDays(7)).get("Set-Cookie"))
+					.hasSize(3)
 					.allSatisfy(cookie -> assertThat(cookie).doesNotContain("Secure"));
 				assertThat(context.getBean(AuthCookies.class).xoa().get("Set-Cookie")).hasSize(3)
 					.allSatisfy(cookie -> assertThat(cookie).contains("Max-Age=0"));

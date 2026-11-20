@@ -3,6 +3,7 @@ package vn.edu.hust.chungcu.auth.service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,7 +78,10 @@ public class DangNhapService {
 		// Băm lại (khoảng 250 ms) trước khi mở transaction, để không giữ kết nối DB
 		String hashMoi = this.matKhau.hashMoiNeuCan(request.matKhau(), tk.getMatKhauHash()).orElse(null);
 
-		Instant now = Instant.now(this.clock);
+		// PostgreSQL lưu tới micro giây; cắt trước để giá trị đã lưu bằng giá trị đã so
+		// (spec
+		// 0005)
+		Instant now = Instant.now(this.clock).truncatedTo(ChronoUnit.MICROS);
 		UUID maHoPhien = UUID.randomUUID();
 		String refreshToken = this.refreshTokens.moi();
 		this.phienService.taoPhien(new PhienDangNhapService.PhienMoi(tk.getMaNguoiDung(), maHoPhien,
@@ -89,7 +93,7 @@ public class DangNhapService {
 		log.info("Đăng nhập thành công: maNguoiDung={}", tk.getMaNguoiDung());
 		DangNhapResponse data = new DangNhapResponse(tk.getMaNguoiDung(), tk.getHoTen(), vaiTro,
 				accessToken.hetHanLuc());
-		return new KetQuaDangNhap(data, accessToken.value(), refreshToken);
+		return new KetQuaDangNhap(data, accessToken.value(), refreshToken, this.refreshTtl);
 	}
 
 	private Optional<NguoiDungHeThong> tim(TaiKhoanDangNhap taiKhoan) {
@@ -110,8 +114,12 @@ public class DangNhapService {
 				AuthErrorCodes.AUTH_ACCOUNT_LOCKED_MESSAGE);
 	}
 
-	/** Kết quả cho controller: dữ liệu response và hai token để đặt cookie. */
-	public record KetQuaDangNhap(DangNhapResponse data, String accessToken, String refreshToken) {
+	/**
+	 * Kết quả cho controller: dữ liệu response, hai token và {@code Max-Age} của cookie
+	 * refresh để đặt cookie.
+	 */
+	public record KetQuaDangNhap(DangNhapResponse data, String accessToken, String refreshToken,
+			Duration refreshMaxAge) {
 
 		@Override
 		public String toString() {

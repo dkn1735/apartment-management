@@ -29,13 +29,23 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 	 * @param refreshTokenTtl thời gian sống của refresh token và cookie {@code phien}
 	 * @param bcryptCost cost của bcrypt khi băm mật khẩu mới
 	 * @param cookieSecure có đặt cờ {@code Secure} cho cookie xác thực không
+	 * @param sessionMaxLifetime tuổi tối đa của một họ phiên kể từ lần đăng nhập đầu
+	 * (spec 0005)
+	 * @param refreshReuseGrace khoảng khoan dung cho các request làm mới chạy đua
+	 * @param sessionRetention giữ dòng đã hết hạn hoặc thu hồi bao lâu trước khi xóa;
+	 * phải không nhỏ hơn {@code sessionMaxLifetime}
+	 * @param sessionCleanupCron lịch job dọn dẹp phiên, theo {@code app.timezone}
 	 */
 	public record Security(@NotBlank(message = "Thiếu JWT_SECRET (khóa ký access token)") String jwtSecret,
 			@NotNull(message = "Thiếu app.security.access-token-ttl") Duration accessTokenTtl,
 			@NotNull(message = "Thiếu app.security.refresh-token-ttl") Duration refreshTokenTtl,
 			@Min(value = 4, message = "app.security.bcrypt-cost phải từ 4 tới 31") @Max(value = 31,
 					message = "app.security.bcrypt-cost phải từ 4 tới 31") int bcryptCost,
-			boolean cookieSecure) {
+			boolean cookieSecure,
+			@NotNull(message = "Thiếu app.security.session-max-lifetime") Duration sessionMaxLifetime,
+			@NotNull(message = "Thiếu app.security.refresh-reuse-grace") Duration refreshReuseGrace,
+			@NotNull(message = "Thiếu app.security.session-retention") Duration sessionRetention,
+			@NotBlank(message = "Thiếu app.security.session-cleanup-cron") String sessionCleanupCron) {
 
 		/** Chuỗi mẫu trong {@code backend/.env.example}; backend không đọc file đó. */
 		public static final String JWT_SECRET_MAU = "doi-thanh-chuoi-ngau-nhien-du-dai";
@@ -51,6 +61,16 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 		@AssertTrue(message = "JWT_SECRET đang là chuỗi mẫu của backend/.env.example, hãy đổi thành chuỗi ngẫu nhiên")
 		public boolean isJwtSecretKhacChuoiMau() {
 			return !JWT_SECRET_MAU.equals(this.jwtSecret);
+		}
+
+		/**
+		 * Dòng {@code Đã xoay vòng} phải sống ít nhất bằng tuổi tối đa của họ phiên, để
+		 * dùng lại token cũ luôn bị phát hiện chừng nào họ còn sống (spec 0005).
+		 */
+		@AssertTrue(message = "app.security.session-retention phải không nhỏ hơn app.security.session-max-lifetime")
+		public boolean isSessionRetentionDuDai() {
+			return this.sessionRetention == null || this.sessionMaxLifetime == null
+					|| this.sessionRetention.compareTo(this.sessionMaxLifetime) >= 0;
 		}
 
 	}

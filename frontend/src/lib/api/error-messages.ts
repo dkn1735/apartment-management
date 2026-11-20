@@ -22,6 +22,8 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   // Phân hệ xác thực (spec 0004); backend dùng cùng các câu này làm message
   AUTH_INVALID_CREDENTIALS: "Số điện thoại, email hoặc mật khẩu không đúng.",
   AUTH_ACCOUNT_LOCKED: "Tài khoản đang bị khóa hoặc đã ngừng hoạt động. Vui lòng liên hệ ban quản lý.",
+  // Spec 0005: mọi lý do làm mới thất bại dùng chung câu này
+  AUTH_REFRESH_INVALID: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.",
 };
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */

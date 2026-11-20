@@ -29,19 +29,21 @@ public class AuthCookies {
 
 	private final Duration accessTtl;
 
-	private final Duration refreshTtl;
-
 	public AuthCookies(AppProperties properties) {
 		this.secure = properties.security().cookieSecure();
 		this.accessTtl = properties.security().accessTokenTtl();
-		this.refreshTtl = properties.security().refreshTokenTtl();
 	}
 
-	public HttpHeaders dat(String accessToken, String refreshToken) {
+	/**
+	 * @param refreshMaxAge {@code Max-Age} của {@code refresh_token} và {@code phien}:
+	 * bằng {@code refresh-token-ttl} khi đăng nhập, bằng thời gian còn lại tới
+	 * {@code het_han_luc} khi làm mới (spec 0005, AC-2)
+	 */
+	public HttpHeaders dat(String accessToken, String refreshToken, Duration refreshMaxAge) {
 		HttpHeaders headers = new HttpHeaders();
 		add(headers, ACCESS_TOKEN, accessToken, PATH_GOC, this.accessTtl);
-		add(headers, REFRESH_TOKEN, refreshToken, PATH_REFRESH, this.refreshTtl);
-		add(headers, PHIEN, "1", PATH_GOC, this.refreshTtl);
+		add(headers, REFRESH_TOKEN, refreshToken, PATH_REFRESH, refreshMaxAge);
+		add(headers, PHIEN, "1", PATH_GOC, refreshMaxAge);
 		return headers;
 	}
 

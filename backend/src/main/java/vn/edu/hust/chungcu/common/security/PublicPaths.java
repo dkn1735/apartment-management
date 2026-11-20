@@ -8,8 +8,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 /**
  * Danh sách đường công khai dùng chung cho {@code authorizeHttpRequests} và
  * {@link CookieBearerTokenResolver} (spec 0004, mục Token), để cookie cũ hay hỏng không
- * bao giờ làm hỏng một đường công khai. Tính năng 6 thêm
- * {@code POST /api/v1/auth/refresh-token}.
+ * bao giờ làm hỏng một đường công khai. Làm mới và đăng xuất nhận diện phiên bằng cookie
+ * {@code refresh_token}, nên access token cũ hay hỏng không được chặn chúng (spec 0005,
+ * AC-7).
  */
 public final class PublicPaths {
 
@@ -17,7 +18,9 @@ public final class PublicPaths {
 
 	/** Luôn công khai. */
 	public static final RequestMatcher ALWAYS = new OrRequestMatcher(
-			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/login"), PATHS.matcher("/error"),
+			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/login"),
+			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/refresh-token"),
+			PATHS.matcher(HttpMethod.POST, "/api/v1/auth/logout"), PATHS.matcher("/error"),
 			PATHS.matcher("/actuator/health"), PATHS.matcher("/actuator/health/**"));
 
 	/** Swagger: chỉ công khai khi bật {@code springdoc.api-docs.enabled} (dev). */

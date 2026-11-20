@@ -31,8 +31,9 @@ public class PhienDangNhapService {
 		if (moi.hashMoi() != null) {
 			this.nguoiDung.nangCapMatKhauHash(moi.maNguoiDung(), moi.hashCu(), moi.hashMoi());
 		}
+		// Dòng đầu của họ phiên: bat_dau_luc = tao_luc (spec 0005, AC-9)
 		this.phien.save(new PhienDangNhap(moi.maNguoiDung(), moi.maHoPhien(), moi.tokenHash(), moi.taoLuc(),
-				moi.hetHanLuc(), moi.diaChiIp(), moi.userAgent()));
+				moi.taoLuc(), moi.hetHanLuc(), moi.diaChiIp(), moi.userAgent()));
 	}
 
 	/**
