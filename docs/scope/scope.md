@@ -18,7 +18,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 3 | Mô hình dữ liệu | Foundation | done |
 | 4 | Design system & nền tảng giao diện | Foundation | done |
 | 5 | Đăng nhập & trang hồ sơ | Slice 1 | in-progress |
-| 6 | Làm mới phiên & đăng xuất | Slice 2 | planned |
+| 6 | Làm mới phiên & đăng xuất | Slice 2 | in-progress |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | planned |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | planned |
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | planned |
@@ -87,10 +87,18 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main
 
 ## Slice 2: Làm mới phiên & đăng xuất
 
-### 6. Làm mới phiên & đăng xuất
+### 6. Làm mới phiên & đăng xuất · in-progress
 Gia hạn phiên bằng refresh token mà không cần nhập lại mật khẩu (API-AUTH-02), và đăng xuất thì thu hồi refresh token. Dựa trên spec của tính năng 5.
 **Done when:** access token hết hạn được làm mới âm thầm khi người dùng đang thao tác; sau khi đăng xuất, refresh token cũ không dùng được nữa; refresh token hết hạn hoặc bị thu hồi thì người dùng phải đăng nhập lại.
+spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md)
+- [x] Design it (spec): `/architect làm mới phiên & đăng xuất`
 - [ ] Build it: `/develop làm mới phiên & đăng xuất`
+  - [ ] Đường mỏng: làm mới âm thầm khi access token hết hạn, V10, middleware gửi lại request (AC-1, AC-7, AC-9, AC-10, AC-12)
+  - [ ] Làm dày làm mới: hết hạn, trần 30 ngày, dùng lại token cũ, khoan dung 10 giây, khóa tài khoản, khóa theo họ phiên (AC-2, AC-3, AC-4, AC-5, AC-6, AC-11, AC-16)
+  - [ ] Đăng xuất xuyên suốt: endpoint, menu người dùng, thông báo ở trang đăng nhập (AC-8, AC-13, AC-14)
+  - [ ] Dọn dẹp phiên cũ hằng ngày (AC-15)
+- [ ] Verify it: `/check verify làm mới phiên & đăng xuất`
+- [ ] Test it: `/test làm mới phiên & đăng xuất`
 
 ## Slice 3: Phân quyền theo vai trò & bố cục app
 
