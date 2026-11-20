@@ -70,6 +70,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/system/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tra cứu nhật ký kiểm toán (API-AUTH-05)
+         * @description Mới nhất trước. Bộ lọc kết hợp bằng AND; ngày theo giờ Việt Nam, gồm cả ngày denNgay.
+         *
+         *     Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY, BAN_QUAN_TRI
+         */
+        get: operations["traCuuNhatKy"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/audit-logs/action-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh mục loại thao tác của nhật ký
+         * @description Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY, BAN_QUAN_TRI
+         */
+        get: operations["danhMucLoaiThaoTac"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/buildings": {
         parameters: {
             query?: never;
@@ -162,6 +204,54 @@ export interface components {
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             /** Format: date-time */
             accessTokenHetHanLuc: string;
+        };
+        ApiResponsePageResponseNhatKyResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseNhatKyResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        NhatKyResponse: {
+            maLog: string;
+            maNguoiDung?: string | null;
+            hoTen?: string | null;
+            loaiThaoTac: string;
+            tenThaoTac: string;
+            doiTuongTacDong: string;
+            chiTietThayDoi?: {
+                [key: string]: unknown;
+            } | null;
+            diaChiIp?: string | null;
+            requestId?: string | null;
+            /** Format: date-time */
+            thoiGianGhi: string;
+        };
+        PageResponseNhatKyResponse: {
+            items: components["schemas"]["NhatKyResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        ApiResponseListLoaiThaoTacResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["LoaiThaoTacResponse"][];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        LoaiThaoTacResponse: {
+            ma: string;
+            nhan: string;
         };
         ApiResponsePageResponseToaNhaResponse: {
             success?: boolean;
@@ -359,6 +449,97 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDangNhapResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    traCuuNhatKy: {
+        parameters: {
+            query?: {
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description thoiGianGhi hoặc loaiThaoTac, cộng ,asc hoặc ,desc */
+                sort?: string;
+                /** @description Mã người thực hiện, dạng ND + 8 chữ số */
+                maNguoiDung?: string;
+                /** @description Mã một loại thao tác, lấy từ /action-types */
+                loaiThaoTac?: string;
+                /** @description Từ ngày, yyyy-MM-dd */
+                tuNgay?: string;
+                /** @description Đến ngày (gồm cả ngày này), yyyy-MM-dd */
+                denNgay?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseNhatKyResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    danhMucLoaiThaoTac: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListLoaiThaoTacResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

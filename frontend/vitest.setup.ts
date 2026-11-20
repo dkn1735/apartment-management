@@ -33,11 +33,11 @@ if (typeof window !== "undefined") {
 
 // next/navigation: test điều khiển qua src/test/next-navigation.ts
 vi.mock("next/navigation", async () => {
-  const { mockPathname, mockNotFound } = await import("./src/test/next-navigation");
+  const { mockPathname, mockNotFound, mockSearchParams, mockReplace } = await import("./src/test/next-navigation");
   return {
     usePathname: () => mockPathname(),
-    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() }),
-    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ push: vi.fn(), replace: mockReplace, back: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() }),
+    useSearchParams: () => mockSearchParams(),
     notFound: mockNotFound,
   };
 });

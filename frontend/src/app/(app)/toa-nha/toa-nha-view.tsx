@@ -1,11 +1,11 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { DataTable } from "@/components/data/data-table";
 import { dataTableColumns } from "@/components/data/data-table-columns";
 import { parseTableParams, toSortParam, type TableSort } from "@/components/data/table-params";
+import { useCapNhatUrl } from "@/components/data/use-cap-nhat-url";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { api, client, type ApiError } from "@/lib/api/api";
@@ -67,32 +67,5 @@ export function ToaNhaView() {
         getRowId={(row) => row.maToaNha}
       />
     </>
-  );
-}
-
-/**
- * Ghi tham số lên URL. DataTable gọi hai lần liền nhau (đổi sort rồi về trang 1), nên gộp vào bản mới nhất
- * thay vì đọc lại `searchParams` cũ của lần render này.
- */
-function useCapNhatUrl(searchParams: URLSearchParams) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const goc = searchParams.toString();
-  const moiNhat = useRef<{ goc: string; params: URLSearchParams } | null>(null);
-  return useCallback(
-    (doi: Record<string, string | undefined>) => {
-      // Các lần gọi trong cùng một lượt render có cùng `goc`, nên cộng dồn; URL đã đổi thì bắt đầu lại
-      if (moiNhat.current?.goc !== goc) {
-        moiNhat.current = { goc, params: new URLSearchParams(goc) };
-      }
-      const params = moiNhat.current.params;
-      for (const [ten, giaTri] of Object.entries(doi)) {
-        if (giaTri === undefined) params.delete(ten);
-        else params.set(ten, giaTri);
-      }
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [router, pathname, goc],
   );
 }
