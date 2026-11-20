@@ -12,9 +12,9 @@ Các lực cần cân: refresh token là thứ quý nhất trong trình duyệt 
 
 ## Options considered
 
-### Option 1: Xoay vòng mỗi lần làm mới, thu hồi cả họ khi dùng lại, khoan dung 10 giây
+### Option 1: Xoay vòng mỗi lần làm mới, thu hồi cả họ khi dùng lại, khoan dung 10 giây (sau đổi thành 30 giây và trả lại token, xem *Bổ sung 2026-11-20*)
 
-Mỗi lần làm mới cấp refresh token mới cùng `ma_ho_phien`, đánh dấu dòng cũ `Đã xoay vòng`. Token đã xoay mà bị dùng lại quá 10 giây thì thu hồi mọi dòng của họ. Trong 10 giây thì coi là các tab chạy đua: trả 200 không cookie, tab đó gửi lại request với cookie mà tab kia vừa nhận. Phiên trượt 7 ngày, trần 30 ngày tính từ `bat_dau_luc`.
+(Mô tả bản đầu; phần khoan dung đã được thay, xem *Bổ sung 2026-11-20*.) Mỗi lần làm mới cấp refresh token mới cùng `ma_ho_phien`, đánh dấu dòng cũ `Đã xoay vòng`. Token đã xoay mà bị dùng lại quá 10 giây thì thu hồi mọi dòng của họ. Trong 10 giây thì coi là các tab chạy đua: trả 200 không cookie, tab đó gửi lại request với cookie mà tab kia vừa nhận. Phiên trượt 7 ngày, trần 30 ngày tính từ `bat_dau_luc`.
 
 **Pros**:
 - Phát hiện được token bị đánh cắp; đúng thứ bảng `phien_dang_nhap` được thiết kế để làm.
@@ -71,3 +71,17 @@ Giữa Option 1 và Option 3, khác biệt nằm ở chỗ đặt phần xử l�
 Trần 30 ngày cần biết họ phiên bắt đầu lúc nào. Suy ra bằng `MIN(tao_luc)` của họ thì gãy khi job dọn dẹp xóa dòng đầu, nên thêm cột `bat_dau_luc` chép qua mỗi lần xoay. Giữ dòng đã thu hồi 30 ngày (bằng trần) bảo đảm token cũ của một họ còn sống luôn còn dòng để phát hiện dùng lại. Phía client, làm mới khi gặp 401 trong middleware của `openapi-fetch` thay vì hẹn giờ trước khi hết hạn: hẹn giờ trôi trong tab chạy nền và khi máy ngủ, còn nhánh 401 thì vẫn phải có, nên chỉ giữ một đường. Đặt trong middleware giữ nguyên mọi chỗ gọi `api(...)`, đúng quy tắc trong `AGENTS.md` là màn hình chỉ gọi API qua hàm `api`.
 
 Các quyết định nhỏ đã chốt khi viết: một mã `AUTH_REFRESH_INVALID` cho mọi nguyên nhân thất bại (không lộ là dùng lại hay hết hạn; mã riêng để client không phải đoán URL nào lỗi, phương án dự phòng là dùng lại `UNAUTHENTICATED`); đăng xuất công khai và nhận diện bằng cookie refresh để vẫn đăng xuất được khi access token đã hết (phương án dự phòng là đòi access token, buộc làm mới trước khi đăng xuất); `noRollbackFor` để việc thu hồi được commit dù request trả lỗi (phương án dự phòng là một bean `REQUIRES_NEW`, đúng nhưng thêm một lớp); `@Scheduled` trong tiến trình cho job dọn dẹp (một instance nên không cần ShedLock, phương án dự phòng là dọn khi đăng nhập, nhưng bỏ sót người không bao giờ đăng nhập lại).
+
+## Bổ sung 2026-11-20: response làm mới bị mất
+
+**Vấn đề.** Lần kiểm ở bước 5 thấy người dùng bị đưa về `het-phien` khi tải lại trang đúng lúc request làm mới đang chạy. Server đã xoay T1 thành T2 và commit, nhưng trang tải lại hủy response trước khi `Set-Cookie` tới trình duyệt, nên trình duyệt vẫn giữ T1. Thiết kế ban đầu có hai cách hỏng ở đây: trong 10 giây, nhánh khoan dung trả 200 không cookie, request gửi lại vẫn 401 và người dùng bị đá ra; quá 10 giây, T1 bị coi là token bị đánh cắp và cả họ bị thu hồi kèm WARN báo sai. Gốc của lỗi là giả định "cookie mới sẽ tới từ một response khác": đúng với hai tab chạy đua, sai khi response duy nhất mang cookie bị mất. Vì DB chỉ lưu hash, server không thể trả lại T2.
+
+**Các phương án đã cân.**
+- *Token kế tiếp tất định* (chọn): T2 = HMAC(`K`, T1). Trong khoảng khoan dung, server tính lại đúng token đang sống và đặt lại cookie. Ưu: làm mới thành idempotent (gọi lại ra cùng kết quả), không thêm cột, hai tab chạy đua nhận cùng cookie nên thứ tự response không còn quan trọng, client bỏ được đoạn chờ 400 ms. Nhược: kẻ cầm token vừa xoay trong khoảng khoan dung nhận được phiên; token phụ thuộc một khóa bí mật.
+- *Xoay thêm một lần trong grace*: dùng lại T1 trong grace thì thu hồi T2, cấp T3. Ưu: không cần khóa. Nhược: hai tab chạy đua nhận hai cookie khác nhau, trình duyệt có thể giữ cookie tới sau cùng là T2 đã chết, 15 phút sau làm mới bằng T2 bị coi là dùng lại và cả họ mất. Lỗi này hiếm nhưng không tái hiện được, đúng loại lỗi tệ nhất.
+- *Lưu T2 đã mã hóa trong DB*: cùng hiệu quả với HMAC nhưng thêm migration, thêm khóa mã hóa, và đặt dữ liệu đủ để dùng ngay vào DB.
+- *Chỉ dùng `keepalive` ở client*: rẻ, nhưng hành vi khác nhau giữa các trình duyệt và không cứu được trường hợp mất mạng giữa chừng. Giữ làm lớp phụ.
+
+**Vì sao chọn HMAC.** Nó sửa đúng gốc lỗi: mọi 200 đều mang cookie dùng được, nên client không còn phải đoán cookie có tới không. Đây cũng là cách các nhà cung cấp lớn làm với "reuse interval" (khoảng dùng lại): trong khoảng đó token cũ vẫn đổi được lấy token đang sống. Kẽ hở mới (kẻ trộm trong 30 giây nhận được phiên) được chặn ngược lại bằng AC-4: hai bên cùng giữ T2 thì bên làm mới sau quá 30 giây sẽ thu hồi cả họ. Khóa `K` suy ra từ `JWT_SECRET` bằng một nhãn cố định, vì lộ `JWT_SECRET` đã là mất trắng (ký được access token tùy ý), nên một biến môi trường riêng chỉ thêm việc cấu hình mà không thêm an toàn thật. Phương án dự phòng là biến `REFRESH_TOKEN_SECRET` riêng.
+
+**Các số đã chốt.** Khoảng khoan dung lên 30 giây (từ 10) vì một lần tải lại trên mạng chậm hoặc khi `next dev` đang biên dịch có thể quá 10 giây; phương án dự phòng là 60 giây, mức trần của validate. Đi chuỗi tối đa 3 bước, để tab mang T1 vẫn nhận được T3 khi tab khác đã xoay tiếp trong 30 giây; quá 3 bước trong 30 giây là bất thường nên trả 401 (phương án dự phòng là chỉ so token kế tiếp trực tiếp). Trường `lamMoi` giữ lại với nghĩa mới để không đổi hình dạng API và để test, log phân biệt được hai nhánh.
