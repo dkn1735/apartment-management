@@ -164,7 +164,7 @@ spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/ma
   - [x] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
   - [x] Bắt đổi mật khẩu xuyên suốt: claim, interceptor, cấp lại access token, chuyển trang (AC-13, AC-14)
   - [x] Chi tiết, sửa thông tin và vai trò: trùng thông tin, `phienBan`, gỡ vai trò bị chặn, trang chi tiết (AC-3, AC-6, AC-7, AC-8, AC-9, AC-16)
-  - [ ] Trạng thái và đặt lại mật khẩu: thu hồi phiên, tự bảo vệ, Admin cuối, khóa dòng (AC-9, AC-10, AC-11, AC-12, AC-16)
+  - [x] Trạng thái và đặt lại mật khẩu: thu hồi phiên, tự bảo vệ, Admin cuối, khóa dòng (AC-9, AC-10, AC-11, AC-12, AC-16)
   - [ ] Phạm vi BQL, tìm kiếm đủ, khóa lại: cư dân thuần, `unaccent`, a11y, `verify.md` (AC-5, AC-15, AC-16, AC-17)
 - [ ] Verify it: `/check verify quản lý tài khoản (admin)`
 - [ ] Test it: `/test quản lý tài khoản (admin)`

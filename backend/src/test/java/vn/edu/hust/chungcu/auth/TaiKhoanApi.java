@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -35,6 +36,12 @@ public final class TaiKhoanApi {
 	/** Số điện thoại ngẫu nhiên không đụng dải seed {@code 09000000xx}. */
 	public static String soMoi() {
 		return "093" + String.format("%07d", ThreadLocalRandom.current().nextInt(10_000_000));
+	}
+
+	/** Mã người dùng của một số điện thoại. */
+	public static String maTheoSo(JdbcTemplate jdbc, String soDienThoai) {
+		return jdbc.queryForObject("SELECT ma_nguoi_dung FROM nguoi_dung_he_thong WHERE so_dien_thoai = ?",
+				String.class, soDienThoai);
 	}
 
 	/** Số CCCD ngẫu nhiên 12 chữ số. */

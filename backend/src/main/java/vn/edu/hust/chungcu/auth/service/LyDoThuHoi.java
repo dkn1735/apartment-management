@@ -16,6 +16,8 @@ public final class LyDoThuHoi {
 
 	public static final String DOI_MAT_KHAU = "Đổi mật khẩu";
 
+	public static final String DAT_LAI_MAT_KHAU = "Đặt lại mật khẩu";
+
 	private LyDoThuHoi() {
 	}
 

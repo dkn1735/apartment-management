@@ -80,13 +80,15 @@ public class TaiKhoanQuery {
 	}
 
 	/**
-	 * Đọc và khóa dòng tài khoản tới hết transaction ({@code FOR UPDATE}), để mọi thao
-	 * tác ghi lên cùng tài khoản chạy lần lượt (spec 0008, AC-15). Phải gọi trong
-	 * transaction.
+	 * Đọc và khóa dòng tài khoản tới hết transaction, để mọi thao tác ghi lên cùng tài
+	 * khoản chạy lần lượt (spec 0008, AC-15). Phải gọi trong transaction. Dùng
+	 * {@code FOR NO KEY UPDATE}, không phải {@code FOR UPDATE}: khóa ngoại của
+	 * {@code phien_dang_nhap} lấy {@code FOR KEY SHARE} trên dòng này khi làm mới phiên,
+	 * và {@code FOR UPDATE} sẽ chặn nó, gây deadlock với khóa họ phiên.
 	 */
 	public Optional<DongTaiKhoan> khoa(String maNguoiDung) {
 		return this.jdbc
-			.sql("SELECT " + COT_CHUNG + " FROM nguoi_dung_he_thong n WHERE n.ma_nguoi_dung = :ma FOR UPDATE")
+			.sql("SELECT " + COT_CHUNG + " FROM nguoi_dung_he_thong n WHERE n.ma_nguoi_dung = :ma FOR NO KEY UPDATE")
 			.param("ma", maNguoiDung)
 			.query((rs, rowNum) -> dong(rs))
 			.optional();

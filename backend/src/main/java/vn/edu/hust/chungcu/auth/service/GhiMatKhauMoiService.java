@@ -1,7 +1,6 @@
 package vn.edu.hust.chungcu.auth.service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.hust.chungcu.auth.repository.NguoiDungHeThongRepository;
-import vn.edu.hust.chungcu.auth.repository.PhienDangNhapRepository;
 import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorCodes;
 import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
@@ -19,8 +17,7 @@ import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /**
  * Phần ghi DB của đổi mật khẩu, trong một transaction: thay hash có điều kiện, rồi thu
- * hồi mọi họ phiên khác của người dùng, mỗi họ dưới khóa của nó (spec 0005, Key
- * invariants) để một lần làm mới đang chạy không lọt ra token mới. Tách khỏi
+ * hồi mọi họ phiên khác của người dùng qua {@link ThuHoiPhienService}. Tách khỏi
  * {@link DoiMatKhauService} để bcrypt chạy ngoài transaction.
  */
 @Service
@@ -30,14 +27,14 @@ public class GhiMatKhauMoiService {
 
 	private final NguoiDungHeThongRepository nguoiDung;
 
-	private final PhienDangNhapRepository phien;
+	private final ThuHoiPhienService thuHoiPhien;
 
 	private final NhatKyService nhatKy;
 
-	public GhiMatKhauMoiService(NguoiDungHeThongRepository nguoiDung, PhienDangNhapRepository phien,
+	public GhiMatKhauMoiService(NguoiDungHeThongRepository nguoiDung, ThuHoiPhienService thuHoiPhien,
 			NhatKyService nhatKy) {
 		this.nguoiDung = nguoiDung;
-		this.phien = phien;
+		this.thuHoiPhien = thuHoiPhien;
 		this.nhatKy = nhatKy;
 	}
 
@@ -54,19 +51,7 @@ public class GhiMatKhauMoiService {
 			throw new ApiException(HttpStatus.CONFLICT, ErrorCodes.CONCURRENT_MODIFICATION,
 					"Mật khẩu vừa được thay đổi ở nơi khác, vui lòng tải lại và thử lại.");
 		}
-		List<UUID> hoKhac = this.phien.hoConHieuLucCua(maNguoiDung, now)
-			.stream()
-			.filter(ho -> !ho.equals(giuLai))
-			.toList();
-		int soHo = 0;
-		// Khóa theo thứ tự cố định của truy vấn để hai lần thu hồi cùng lúc không
-		// deadlock
-		for (UUID ho : hoKhac) {
-			this.phien.khoaHo(ho);
-			if (this.phien.thuHoiHo(ho, now, LyDoThuHoi.DOI_MAT_KHAU) > 0) {
-				soHo++;
-			}
-		}
+		int soHo = this.thuHoiPhien.thuHoi(maNguoiDung, giuLai, now, LyDoThuHoi.DOI_MAT_KHAU);
 		log.info("Đổi mật khẩu: maNguoiDung={}, soPhienThuHoi={}", maNguoiDung, soHo);
 		// Đang trong transaction: dòng nhật ký chờ tới sau commit (spec 0007, AC-6)
 		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_DOI_MAT_KHAU, maNguoiDung,

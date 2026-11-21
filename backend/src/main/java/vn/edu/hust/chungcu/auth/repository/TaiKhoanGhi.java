@@ -64,6 +64,40 @@ public class TaiKhoanGhi {
 			.update();
 	}
 
+	/**
+	 * Đổi trạng thái và tăng {@code phien_ban} trên dòng đã khóa (spec 0008, AC-10). Mở
+	 * lại ({@code moLai}) thì cũng đặt lại bộ đếm đăng nhập sai và khóa tạm.
+	 */
+	public void capNhatTrangThai(String maNguoiDung, String trangThai, boolean moLai, Instant luc) {
+		this.jdbc.sql("""
+				UPDATE nguoi_dung_he_thong
+				SET trang_thai_tai_khoan = :trangThai, phien_ban = phien_ban + 1, cap_nhat_luc = :luc,
+				    so_lan_dang_nhap_sai = CASE WHEN :moLai THEN 0 ELSE so_lan_dang_nhap_sai END,
+				    khoa_tam_den = CASE WHEN :moLai THEN NULL ELSE khoa_tam_den END
+				WHERE ma_nguoi_dung = :ma""")
+			.param("trangThai", trangThai)
+			.param("moLai", moLai)
+			.param("luc", OffsetDateTime.ofInstant(luc, ZoneOffset.UTC))
+			.param("ma", maNguoiDung)
+			.update();
+	}
+
+	/**
+	 * Đặt mật khẩu tạm, bật cờ bắt đổi, tăng {@code phien_ban} trên dòng đã khóa (spec
+	 * 0008, AC-12).
+	 */
+	public void datLaiMatKhau(String maNguoiDung, String matKhauHash, Instant luc) {
+		this.jdbc.sql("""
+				UPDATE nguoi_dung_he_thong
+				SET mat_khau_hash = :hash, phai_doi_mat_khau = true, doi_mat_khau_luc = :luc,
+				    phien_ban = phien_ban + 1, cap_nhat_luc = :luc
+				WHERE ma_nguoi_dung = :ma""")
+			.param("hash", matKhauHash)
+			.param("luc", OffsetDateTime.ofInstant(luc, ZoneOffset.UTC))
+			.param("ma", maNguoiDung)
+			.update();
+	}
+
 	/** Tăng {@code phien_ban} khi phiên bản còn khớp (AC-8, AC-9); 0 khi lệch. */
 	public int tangPhienBan(String maNguoiDung, long phienBan, Instant luc) {
 		return this.jdbc.sql("""

@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vn.edu.hust.chungcu.auth.dto.CapNhatTaiKhoanRequest;
+import vn.edu.hust.chungcu.auth.dto.DatLaiMatKhauResponse;
+import vn.edu.hust.chungcu.auth.dto.DoiTrangThaiRequest;
 import vn.edu.hust.chungcu.auth.dto.TaiKhoanChiTietResponse;
 import vn.edu.hust.chungcu.auth.dto.TaiKhoanTomTat;
 import vn.edu.hust.chungcu.auth.dto.TaoTaiKhoanRequest;
@@ -27,9 +29,11 @@ import vn.edu.hust.chungcu.auth.dto.TaoTaiKhoanResponse;
 import vn.edu.hust.chungcu.auth.dto.VaiTroCapNhatRequest;
 import vn.edu.hust.chungcu.auth.phanquyen.ChoPhep;
 import vn.edu.hust.chungcu.auth.service.CapNhatTaiKhoanService;
+import vn.edu.hust.chungcu.auth.service.DatLaiMatKhauService;
 import vn.edu.hust.chungcu.auth.service.NguoiQuanLy;
 import vn.edu.hust.chungcu.auth.service.TaiKhoanTraCuuService;
 import vn.edu.hust.chungcu.auth.service.TaoTaiKhoanService;
+import vn.edu.hust.chungcu.auth.service.TrangThaiTaiKhoanService;
 import vn.edu.hust.chungcu.auth.service.VaiTroTaiKhoanService;
 import vn.edu.hust.chungcu.common.api.ApiResponse;
 import vn.edu.hust.chungcu.common.api.PageResponse;
@@ -51,12 +55,18 @@ public class TaiKhoanController {
 
 	private final VaiTroTaiKhoanService vaiTro;
 
+	private final TrangThaiTaiKhoanService trangThai;
+
+	private final DatLaiMatKhauService datLai;
+
 	public TaiKhoanController(TaiKhoanTraCuuService traCuu, TaoTaiKhoanService tao, CapNhatTaiKhoanService capNhat,
-			VaiTroTaiKhoanService vaiTro) {
+			VaiTroTaiKhoanService vaiTro, TrangThaiTaiKhoanService trangThai, DatLaiMatKhauService datLai) {
 		this.traCuu = traCuu;
 		this.tao = tao;
 		this.capNhat = capNhat;
 		this.vaiTro = vaiTro;
+		this.trangThai = trangThai;
+		this.datLai = datLai;
 	}
 
 	@Operation(operationId = "traCuuTaiKhoan", summary = "Tra cứu tài khoản",
@@ -135,6 +145,26 @@ public class TaiKhoanController {
 							required = false) String phienBan) {
 		return ApiResponse.ok(this.vaiTro.go(NguoiQuanLy.tu(authentication), maNguoiDung, vaiTro, phienBan),
 				"Gỡ vai trò thành công");
+	}
+
+	@Operation(operationId = "doiTrangThaiTaiKhoan", summary = "Khóa, ngừng hoạt động hoặc mở lại tài khoản",
+			description = "Khóa hay ngừng thì thu hồi mọi phiên; lyDo bắt buộc. Rời Ngừng hoạt động chỉ Admin.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@PutMapping("/{maNguoiDung}/status")
+	public ResponseEntity<ApiResponse<TaiKhoanChiTietResponse>> doiTrangThai(Authentication authentication,
+			@PathVariable String maNguoiDung, @RequestBody DoiTrangThaiRequest request) {
+		return ApiResponse.ok(this.trangThai.doi(NguoiQuanLy.tu(authentication), maNguoiDung, request),
+				"Cập nhật trạng thái thành công");
+	}
+
+	@Operation(operationId = "datLaiMatKhauTaiKhoan", summary = "Đặt lại mật khẩu",
+			description = "Sinh mật khẩu tạm, chỉ hiện một lần, thu hồi mọi phiên; người dùng phải đổi ở lần đăng nhập tới.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@PostMapping("/{maNguoiDung}/reset-password")
+	public ResponseEntity<ApiResponse<DatLaiMatKhauResponse>> datLaiMatKhau(Authentication authentication,
+			@PathVariable String maNguoiDung) {
+		return khongLuu(ApiResponse.ok(this.datLai.datLai(NguoiQuanLy.tu(authentication), maNguoiDung),
+				"Đặt lại mật khẩu thành công"));
 	}
 
 	/** Response có mật khẩu tạm không được lưu ở bất kỳ cache nào (AC-1, AC-12). */

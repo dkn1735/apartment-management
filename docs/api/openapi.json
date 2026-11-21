@@ -155,6 +155,64 @@
         }
       }
     },
+    "/api/v1/accounts/{maNguoiDung}/status" : {
+      "put" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Khóa, ngừng hoạt động hoặc mở lại tài khoản",
+        "description" : "Khóa hay ngừng thì thu hồi mọi phiên; lyDo bắt buộc. Rời Ngừng hoạt động chỉ Admin.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "doiTrangThaiTaiKhoan",
+        "parameters" : [ {
+          "name" : "maNguoiDung",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DoiTrangThaiRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseTaiKhoanChiTietResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/accounts/{maNguoiDung}/roles/{vaiTro}" : {
       "put" : {
         "tags" : [ "Tài khoản" ],
@@ -517,6 +575,54 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiResponseTaoTaiKhoanResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/accounts/{maNguoiDung}/reset-password" : {
+      "post" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Đặt lại mật khẩu",
+        "description" : "Sinh mật khẩu tạm, chỉ hiện một lần, thu hồi mọi phiên; người dùng phải đổi ở lần đăng nhập tới.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "datLaiMatKhauTaiKhoan",
+        "parameters" : [ {
+          "name" : "maNguoiDung",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseDatLaiMatKhauResponse"
                 }
               }
             }
@@ -978,6 +1084,21 @@
         },
         "required" : [ "maVaiTro", "vaiTro" ]
       },
+      "DoiTrangThaiRequest" : {
+        "type" : "object",
+        "properties" : {
+          "trangThai" : {
+            "type" : "string",
+            "enum" : [ "Hoạt động", "Tạm khóa", "Ngừng hoạt động" ]
+          },
+          "lyDo" : {
+            "type" : "string",
+            "description" : "Bắt buộc khi khóa hoặc ngừng hoạt động",
+            "maxLength" : 500
+          }
+        },
+        "required" : [ "trangThai" ]
+      },
       "VaiTroCapNhatRequest" : {
         "type" : "object",
         "properties" : {
@@ -1282,6 +1403,39 @@
           }
         },
         "required" : [ "matKhauTam", "taiKhoan" ]
+      },
+      "ApiResponseDatLaiMatKhauResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/DatLaiMatKhauResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "DatLaiMatKhauResponse" : {
+        "type" : "object",
+        "properties" : {
+          "matKhauTam" : {
+            "type" : "string",
+            "description" : "Mật khẩu tạm, chỉ hiện một lần",
+            "example" : "XXXXXXXXXXXX"
+          }
+        },
+        "required" : [ "matKhauTam" ]
       },
       "ApiResponsePageResponseNhatKyResponse" : {
         "type" : "object",

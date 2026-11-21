@@ -14,6 +14,7 @@ import { api, client, type ApiError } from "@/lib/api/api";
 import { useHoSo } from "@/lib/auth/use-ho-so";
 import { khoaChiTiet, TONE_TRANG_THAI, type TaiKhoanChiTiet } from "@/lib/tai-khoan";
 import { TheThongTinChung } from "./the-thong-tin-chung";
+import { TheTrangThai } from "./the-trang-thai";
 import { TheVaiTro } from "./the-vai-tro";
 
 /** Trang chi tiết một tài khoản (spec 0008, AC-6, AC-17): thẻ Thông tin chung, Vai trò, Trạng thái và bảo mật. */
@@ -81,6 +82,7 @@ export function ChiTietTaiKhoanView() {
       <div className="grid gap-6 lg:grid-cols-2">
         <TheThongTinChung key={`ttc-${tk.phienBan}`} taiKhoan={tk} />
         <TheVaiTro taiKhoan={tk} laAdmin={laAdmin} laChinhMinh={hoSo?.maNguoiDung === tk.maNguoiDung} />
+        <TheTrangThai taiKhoan={tk} laAdmin={laAdmin} laChinhMinh={hoSo?.maNguoiDung === tk.maNguoiDung} />
       </div>
     </>
   );
