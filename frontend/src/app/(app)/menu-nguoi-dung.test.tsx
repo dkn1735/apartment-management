@@ -78,6 +78,8 @@ describe("Menu người dùng (AC-13)", () => {
     await screen.findByRole("menu");
     await waitFor(() => expect(screen.getByRole("menuitem", { name: "Hồ sơ" })).toHaveFocus());
     await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("menuitem", { name: "Đổi mật khẩu" })).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
     expect(screen.getByRole("menuitem", { name: "Đăng xuất" })).toHaveFocus();
   });
 

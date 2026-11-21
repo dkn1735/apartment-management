@@ -4,6 +4,28 @@
  */
 
 export interface paths {
+    "/api/v1/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Đổi mật khẩu của người đang đăng nhập
+         * @description Kiểm mật khẩu hiện tại, lưu mật khẩu mới, giữ phiên trên máy này và thu hồi mọi phiên khác. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số, khác mật khẩu hiện tại.
+         *
+         *     Vai trò được phép: mọi người đã đăng nhập
+         */
+        put: operations["doiMatKhau"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/refresh-token": {
         parameters: {
             query?: never;
@@ -158,6 +180,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DoiMatKhauRequest: {
+            matKhauCu: string;
+            /** @description Ít nhất 8 ký tự, có cả chữ và số, khác mật khẩu hiện tại */
+            matKhauMoi: string;
+        };
+        ApiResponseDoiMatKhauResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["DoiMatKhauResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        DoiMatKhauResponse: {
+            /** Format: date-time */
+            capNhatLuc?: string;
+        };
         ApiResponseLamMoiPhienResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -367,6 +407,39 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    doiMatKhau: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoiMatKhauRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseDoiMatKhauResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     lamMoi: {
         parameters: {
             query?: never;

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import * as z from "zod";
 import { FormAlert } from "@/components/form/form-alert";
 import { FormField } from "@/components/form/form-field";
+import { PasswordInput } from "@/components/form/password-input";
 import { SubmitButton } from "@/components/form/submit-button";
 import { useApiForm } from "@/components/form/use-api-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,7 +16,6 @@ import { api, client } from "@/lib/api/api";
 import { ERROR_MESSAGES } from "@/lib/api/error-messages";
 import { BO_QUA_CHUYEN_TRANG } from "@/lib/api/query-client";
 import { safeNext } from "@/lib/auth/safe-next";
-import { PasswordInput } from "./password-input";
 
 const schema = z.object({
   taiKhoan: z.string().trim().min(1, "Vui lòng nhập số điện thoại hoặc email"),

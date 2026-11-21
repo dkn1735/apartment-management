@@ -24,6 +24,8 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_ACCOUNT_LOCKED: "Tài khoản đang bị khóa hoặc đã ngừng hoạt động. Vui lòng liên hệ ban quản lý.",
   // Spec 0005: mọi lý do làm mới thất bại dùng chung câu này
   AUTH_REFRESH_INVALID: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.",
+  // API-AUTH-04: đổi mật khẩu
+  AUTH_OLD_PASSWORD_INCORRECT: "Mật khẩu hiện tại không đúng.",
 };
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */

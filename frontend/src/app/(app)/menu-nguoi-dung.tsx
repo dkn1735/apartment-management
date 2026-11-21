@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, LogOut, UserRound } from "lucide-react";
+import { ChevronDown, KeyRound, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,8 +19,8 @@ import { useHoSo } from "@/lib/auth/use-ho-so";
 const MUC = "min-h-10 gap-2.5 px-2.5 type-ui no-underline focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
- * Menu người dùng ở góc phải thanh trên (spec 0005, AC-13): họ tên là nút mở menu "Hồ sơ" và
- * "Đăng xuất". Khi hồ sơ đang tải hoặc lỗi, nút hiện "Tài khoản" để đăng xuất luôn dùng được.
+ * Menu người dùng ở góc phải thanh trên (spec 0005, AC-13): họ tên là nút mở menu "Hồ sơ",
+ * "Đổi mật khẩu" và "Đăng xuất". Khi hồ sơ đang tải hoặc lỗi, nút hiện "Tài khoản" để đăng xuất luôn dùng được.
  */
 export function MenuNguoiDung() {
   const { data } = useHoSo();
@@ -53,6 +53,12 @@ export function MenuNguoiDung() {
           <Link href="/ho-so">
             <UserRound aria-hidden="true" />
             Hồ sơ
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={MUC}>
+          <Link href="/doi-mat-khau">
+            <KeyRound aria-hidden="true" />
+            Đổi mật khẩu
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem

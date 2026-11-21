@@ -22,7 +22,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | done |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
-| 10 | Đổi mật khẩu | Slice 6 | planned |
+| 10 | Đổi mật khẩu | Slice 6 | in-progress |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | planned |
 | 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | planned |
 | 13 | Quên mật khẩu qua email | Slice 9 | planned |
@@ -145,10 +145,13 @@ spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `bac
 
 ## Slice 6: Đổi mật khẩu
 
-### 10. Đổi mật khẩu
+### 10. Đổi mật khẩu · in-progress
 Người dùng đã đăng nhập đổi mật khẩu sau khi nhập đúng mật khẩu cũ (API-AUTH-04). Dựa trên spec của tính năng 5 và 8.
 **Done when:** sai mật khẩu cũ bị từ chối; mật khẩu mới phải đạt quy tắc độ mạnh; đổi xong thì các phiên khác bị thu hồi và có dòng nhật ký kiểm toán.
-- [ ] Build it: `/develop đổi mật khẩu`
+không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_quan_ly_chung_cu.xlsx`, spec 0004, 0005, 0007) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/service/DoiMatKhauService.java`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/GhiMatKhauMoiService.java`, `frontend/src/app/(app)/doi-mat-khau/`
+- [x] Build it: `/develop đổi mật khẩu`
+  - [x] API `PUT /api/v1/auth/change-password`: kiểm mật khẩu cũ, quy tắc độ mạnh, thu hồi phiên khác, nhật ký `AUTH_DOI_MAT_KHAU`
+  - [x] Trang `/doi-mat-khau`, lối vào từ menu người dùng và trang hồ sơ
 
 ## Slice 7: Quản lý tài khoản (Admin)
 

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 
 /**
  * Ô mật khẩu có nút hiện/ẩn (spec 0004, AC-12). Nhãn nút cố định, trạng thái báo bằng `aria-pressed`.
- * Tính năng đổi mật khẩu (10) cần tới thì chuyển sang `components/form` và thêm vào /dev/ui.
+ * Dùng ở trang đăng nhập và trang đổi mật khẩu.
  */
 export function PasswordInput(props: Omit<ComponentProps<typeof Input>, "type">) {
   const [hien, setHien] = useState(false);
