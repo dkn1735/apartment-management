@@ -11,6 +11,46 @@
     "csrfHeader" : [ ]
   } ],
   "paths" : {
+    "/api/v1/auth/change-password" : {
+      "put" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Đổi mật khẩu của người đang đăng nhập",
+        "description" : "Kiểm mật khẩu hiện tại, lưu mật khẩu mới, giữ phiên trên máy này và thu hồi mọi phiên khác. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số, khác mật khẩu hiện tại.\n\nVai trò được phép: mọi người đã đăng nhập",
+        "operationId" : "doiMatKhau",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DoiMatKhauRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseDoiMatKhauResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/refresh-token" : {
       "post" : {
         "tags" : [ "Xác thực" ],
@@ -377,6 +417,55 @@
   },
   "components" : {
     "schemas" : {
+      "DoiMatKhauRequest" : {
+        "type" : "object",
+        "properties" : {
+          "matKhauCu" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 0
+          },
+          "matKhauMoi" : {
+            "type" : "string",
+            "description" : "Ít nhất 8 ký tự, có cả chữ và số, khác mật khẩu hiện tại",
+            "maxLength" : 128,
+            "minLength" : 8,
+            "pattern" : "^(?=.*\\p{L})(?=.*\\p{Nd}).*$"
+          }
+        },
+        "required" : [ "matKhauCu", "matKhauMoi" ]
+      },
+      "ApiResponseDoiMatKhauResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/DoiMatKhauResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "DoiMatKhauResponse" : {
+        "type" : "object",
+        "properties" : {
+          "capNhatLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "ApiResponseLamMoiPhienResponse" : {
         "type" : "object",
         "properties" : {

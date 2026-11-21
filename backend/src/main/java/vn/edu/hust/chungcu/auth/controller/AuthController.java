@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,22 +12,27 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.edu.hust.chungcu.auth.dto.DangNhapRequest;
 import vn.edu.hust.chungcu.auth.dto.DangNhapResponse;
+import vn.edu.hust.chungcu.auth.dto.DoiMatKhauRequest;
+import vn.edu.hust.chungcu.auth.dto.DoiMatKhauResponse;
 import vn.edu.hust.chungcu.auth.dto.HoSoResponse;
 import vn.edu.hust.chungcu.auth.dto.LamMoiPhienResponse;
 import vn.edu.hust.chungcu.auth.phanquyen.CongKhai;
 import vn.edu.hust.chungcu.auth.phanquyen.DaDangNhap;
 import vn.edu.hust.chungcu.auth.service.DangNhapService;
 import vn.edu.hust.chungcu.auth.service.DangXuatService;
+import vn.edu.hust.chungcu.auth.service.DoiMatKhauService;
 import vn.edu.hust.chungcu.auth.service.AuthCookies;
 import vn.edu.hust.chungcu.auth.service.HoSoService;
 import vn.edu.hust.chungcu.auth.service.LamMoiPhienService;
 import vn.edu.hust.chungcu.auth.service.ThongTinThietBi;
 import vn.edu.hust.chungcu.common.api.ApiResponse;
+import vn.edu.hust.chungcu.common.security.JwtConfig;
 
 @Tag(name = "Xác thực")
 @RestController
@@ -41,10 +47,14 @@ public class AuthController {
 
 	private final DangXuatService dangXuatService;
 
+	private final DoiMatKhauService doiMatKhauService;
+
 	private final AuthCookies cookies;
 
 	public AuthController(DangNhapService dangNhapService, HoSoService hoSoService,
-			LamMoiPhienService lamMoiPhienService, DangXuatService dangXuatService, AuthCookies cookies) {
+			LamMoiPhienService lamMoiPhienService, DangXuatService dangXuatService, DoiMatKhauService doiMatKhauService,
+			AuthCookies cookies) {
+		this.doiMatKhauService = doiMatKhauService;
 		this.dangNhapService = dangNhapService;
 		this.hoSoService = hoSoService;
 		this.lamMoiPhienService = lamMoiPhienService;
@@ -99,6 +109,28 @@ public class AuthController {
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<HoSoResponse>> hoSo(@AuthenticationPrincipal Jwt jwt) {
 		return ApiResponse.ok(this.hoSoService.cua(jwt.getSubject()), "Lấy thông tin tài khoản thành công");
+	}
+
+	@Operation(summary = "Đổi mật khẩu của người đang đăng nhập",
+			description = "Kiểm mật khẩu hiện tại, lưu mật khẩu mới, giữ phiên trên máy này và thu hồi mọi phiên "
+					+ "khác. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số, khác mật khẩu hiện tại.")
+	@DaDangNhap
+	@PutMapping("/change-password")
+	public ResponseEntity<ApiResponse<DoiMatKhauResponse>> doiMatKhau(@AuthenticationPrincipal Jwt jwt,
+			@Valid @RequestBody DoiMatKhauRequest request) {
+		return ApiResponse.ok(this.doiMatKhauService.doi(jwt.getSubject(), hoPhien(jwt), request),
+				"Đổi mật khẩu thành công");
+	}
+
+	/** Claim {@code sid} của access token; thiếu hay sai dạng thì không giữ họ nào. */
+	private static UUID hoPhien(Jwt jwt) {
+		try {
+			String sid = jwt.getClaimAsString(JwtConfig.CLAIM_SID);
+			return (sid != null) ? UUID.fromString(sid) : null;
+		}
+		catch (IllegalArgumentException ex) {
+			return null;
+		}
 	}
 
 	// getRemoteAddr đã qua forward-headers-strategy, nên là IP trình duyệt mà Next.js

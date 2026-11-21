@@ -13,7 +13,9 @@ public enum LoaiThaoTac {
 
 	AUTH_DANG_XUAT("Đăng xuất"),
 
-	AUTH_PHAT_HIEN_DUNG_LAI_TOKEN("Phát hiện dùng lại token cũ");
+	AUTH_PHAT_HIEN_DUNG_LAI_TOKEN("Phát hiện dùng lại token cũ"),
+
+	AUTH_DOI_MAT_KHAU("Đổi mật khẩu");
 
 	private final String nhan;
 

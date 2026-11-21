@@ -45,4 +45,13 @@ public interface NguoiDungHeThongRepository extends JpaRepository<NguoiDungHeTho
 	@Query("update NguoiDungHeThong n set n.matKhauHash = :hashMoi where n.maNguoiDung = :ma and n.matKhauHash = :hashCu")
 	int nangCapMatKhauHash(String ma, String hashCu, String hashMoi);
 
+	/**
+	 * Đổi mật khẩu có điều kiện (API-AUTH-04): hash trong DB phải còn là hash đã dùng để
+	 * kiểm mật khẩu cũ. Tăng {@code phien_ban} như mọi lần sửa dữ liệu của người dùng.
+	 */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("update NguoiDungHeThong n set n.matKhauHash = :hashMoi, n.capNhatLuc = :luc, n.phienBan = n.phienBan + 1 "
+			+ "where n.maNguoiDung = :ma and n.matKhauHash = :hashCu")
+	int doiMatKhauHash(String ma, String hashCu, String hashMoi, Instant luc);
+
 }

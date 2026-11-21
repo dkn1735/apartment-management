@@ -11,12 +11,13 @@ import vn.edu.hust.chungcu.nhatky.dto.LoaiThaoTac;
 class LoaiThaoTacTest {
 
 	@Test
-	void coDungBonGiaTriCuaTinhNang8() {
+	void coCacGiaTriCuaTinhNang8Va10() {
 		assertThat(LoaiThaoTac.values()).extracting(LoaiThaoTac::name, LoaiThaoTac::nhan)
 			.contains(org.assertj.core.groups.Tuple.tuple("AUTH_DANG_NHAP_THANH_CONG", "Đăng nhập thành công"),
 					org.assertj.core.groups.Tuple.tuple("AUTH_DANG_NHAP_THAT_BAI", "Đăng nhập thất bại"),
-					org.assertj.core.groups.Tuple.tuple("AUTH_DANG_XUAT", "Đăng xuất"), org.assertj.core.groups.Tuple
-						.tuple("AUTH_PHAT_HIEN_DUNG_LAI_TOKEN", "Phát hiện dùng lại token cũ"));
+					org.assertj.core.groups.Tuple.tuple("AUTH_DANG_XUAT", "Đăng xuất"),
+					org.assertj.core.groups.Tuple.tuple("AUTH_PHAT_HIEN_DUNG_LAI_TOKEN", "Phát hiện dùng lại token cũ"),
+					org.assertj.core.groups.Tuple.tuple("AUTH_DOI_MAT_KHAU", "Đổi mật khẩu"));
 	}
 
 	@Test

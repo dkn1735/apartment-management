@@ -1,7 +1,8 @@
 package vn.edu.hust.chungcu.auth.service;
 
 /**
- * Mã lỗi riêng của phân hệ xác thực (spec 0004, 0005). Câu thông báo trùng với frontend.
+ * Mã lỗi riêng của phân hệ xác thực (spec 0004, 0005, API-AUTH-04). Câu thông báo trùng
+ * với frontend.
  */
 public final class AuthErrorCodes {
 
@@ -17,6 +18,9 @@ public final class AuthErrorCodes {
 	public static final String AUTH_REFRESH_INVALID = "AUTH_REFRESH_INVALID";
 
 	public static final String AUTH_REFRESH_INVALID_MESSAGE = "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.";
+
+	/** Mật khẩu hiện tại gửi lên khi đổi mật khẩu không đúng (API-AUTH-04). */
+	public static final String AUTH_OLD_PASSWORD_INCORRECT = "AUTH_OLD_PASSWORD_INCORRECT";
 
 	private AuthErrorCodes() {
 	}

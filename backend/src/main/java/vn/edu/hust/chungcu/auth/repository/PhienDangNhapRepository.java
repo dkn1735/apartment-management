@@ -1,6 +1,7 @@
 package vn.edu.hust.chungcu.auth.repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,6 +54,14 @@ public interface PhienDangNhapRepository extends JpaRepository<PhienDangNhap, Lo
 	@Query("select p from PhienDangNhap p "
 			+ "where p.maHoPhien = :maHoPhien and p.thuHoiLuc is null and p.hetHanLuc > :now")
 	Optional<PhienDangNhap> timConHieuLuc(UUID maHoPhien, Instant now);
+
+	/**
+	 * Các họ phiên còn dòng hiệu lực của một người dùng, sắp theo mã họ để mọi nơi khóa
+	 * nhiều họ cùng một thứ tự.
+	 */
+	@Query("select distinct p.maHoPhien from PhienDangNhap p where p.maNguoiDung = :maNguoiDung "
+			+ "and p.thuHoiLuc is null and p.hetHanLuc > :now order by p.maHoPhien")
+	List<UUID> hoConHieuLucCua(String maNguoiDung, Instant now);
 
 	/** Xóa dòng đã hết hạn hoặc đã thu hồi trước {@code moc}; trả số dòng đã xóa. */
 	@Modifying
