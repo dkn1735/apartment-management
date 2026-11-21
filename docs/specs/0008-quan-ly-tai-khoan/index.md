@@ -1,7 +1,7 @@
 # 0008. Quản lý tài khoản (Admin): mật khẩu tạm do hệ thống sinh và bắt đổi lần đầu, endpoint riêng cho từng vai trò, BQL chỉ quản lý cư dân
 
 **Date**: 2026-11-22
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 

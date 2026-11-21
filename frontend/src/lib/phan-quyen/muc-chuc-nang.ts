@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, ScrollText, UserRound, type LucideIcon } from "lucide-react";
+import { Building2, LayoutDashboard, ScrollText, UserRound, UsersRound, type LucideIcon } from "lucide-react";
 import type { NavItem } from "@/components/layout/nav";
 import type { VaiTro } from "@/lib/vai-tro";
 
@@ -59,5 +59,12 @@ export const MUC_CHUC_NANG: readonly MucChucNang[] = [
     moTa: "Lịch sử đăng nhập, đăng xuất và thao tác cần kiểm toán",
     icon: ScrollText,
   },
-  { href: "/tai-khoan", label: "Tài khoản", vaiTro: ["QUAN_TRI_VIEN", "BAN_QUAN_LY"], sanSang: false },
+  {
+    href: "/tai-khoan",
+    label: "Tài khoản",
+    vaiTro: ["QUAN_TRI_VIEN", "BAN_QUAN_LY"],
+    sanSang: true,
+    moTa: "Tạo, tìm, khóa tài khoản và đặt lại mật khẩu",
+    icon: UsersRound,
+  },
 ];

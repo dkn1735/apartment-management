@@ -22,6 +22,29 @@ public final class AuthErrorCodes {
 	/** Mật khẩu hiện tại gửi lên khi đổi mật khẩu không đúng (API-AUTH-04). */
 	public static final String AUTH_OLD_PASSWORD_INCORRECT = "AUTH_OLD_PASSWORD_INCORRECT";
 
+	/** Số điện thoại, email hoặc số CCCD đã thuộc tài khoản khác (spec 0008, AC-3). */
+	public static final String AUTH_IDENTITY_TAKEN = "AUTH_IDENTITY_TAKEN";
+
+	/** Dòng vai trò đang bị dữ liệu khác tham chiếu nên không gỡ được (AC-9). */
+	public static final String AUTH_ROLE_IN_USE = "AUTH_ROLE_IN_USE";
+
+	/** Gỡ vai trò cuối cùng của tài khoản (AC-9). */
+	public static final String AUTH_LAST_ROLE = "AUTH_LAST_ROLE";
+
+	/**
+	 * Người quản lý tự khóa, tự gỡ quyền quản trị hay tự đặt lại mật khẩu (AC-9, AC-11,
+	 * AC-12).
+	 */
+	public static final String AUTH_SELF_PROTECTED = "AUTH_SELF_PROTECTED";
+
+	/** Thao tác khiến không còn quản trị viên đang hoạt động (AC-11). */
+	public static final String AUTH_LAST_ADMIN = "AUTH_LAST_ADMIN";
+
+	/** Đang dùng mật khẩu tạm, phải đổi trước khi gọi API khác (AC-13). */
+	public static final String AUTH_PASSWORD_CHANGE_REQUIRED = "AUTH_PASSWORD_CHANGE_REQUIRED";
+
+	public static final String AUTH_PASSWORD_CHANGE_REQUIRED_MESSAGE = "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.";
+
 	private AuthErrorCodes() {
 	}
 

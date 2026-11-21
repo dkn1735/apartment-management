@@ -92,6 +92,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tra cứu tài khoản
+         * @description Mới tạo trước. q tìm họ tên không dấu, số điện thoại, email, mã. BQL chỉ thấy tài khoản cư dân thuần.
+         *
+         *     Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY
+         */
+        get: operations["traCuuTaiKhoan"];
+        put?: never;
+        /**
+         * Tạo tài khoản
+         * @description Sinh mật khẩu tạm, chỉ hiện một lần; người dùng phải đổi ở lần đăng nhập đầu. BQL chỉ tạo tài khoản cư dân.
+         *
+         *     Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY
+         */
+        post: operations["taoTaiKhoan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/system/audit-logs": {
         parameters: {
             query?: never;
@@ -176,6 +204,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts/{maNguoiDung}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Chi tiết tài khoản
+         * @description Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY
+         */
+        get: operations["chiTietTaiKhoan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -244,6 +292,90 @@ export interface components {
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             /** Format: date-time */
             accessTokenHetHanLuc: string;
+        };
+        TaoTaiKhoanRequest: {
+            /** @example Nguyễn Văn An */
+            hoTen: string;
+            /** @example 0912345678 */
+            soDienThoai: string;
+            /** @example an.nguyen@example.com */
+            email: string;
+            vaiTro: components["schemas"]["VaiTroRequest"][];
+        };
+        VaiTroRequest: {
+            /**
+             * @example BAN_QUAN_LY
+             * @enum {string}
+             */
+            vaiTro: "QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN";
+            /** @description BAN_QUAN_LY */
+            chucVu?: string;
+            /** @description BAN_QUAN_LY */
+            boPhan?: string;
+            /** @description BAN_QUAN_TRI */
+            nhiemKy?: string;
+            /** @description BAN_QUAN_TRI, lưu vào cột vai_tro */
+            vaiTroBqt?: string;
+            /** @description KE_TOAN */
+            phamViPhuTrach?: string;
+            /** @description KY_THUAT */
+            chuyenMonKyThuat?: string;
+            /** @description BAO_VE */
+            viTriTruc?: string;
+            /** @description CU_DAN, 12 chữ số */
+            soCccd?: string;
+        };
+        ApiResponseTaoTaiKhoanResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["TaoTaiKhoanResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        TaiKhoanChiTietResponse: {
+            /** @example ND00000001 */
+            maNguoiDung: string;
+            hoTen: string;
+            soDienThoai: string;
+            email: string;
+            /** @enum {string} */
+            trangThaiTaiKhoan: "Hoạt động" | "Tạm khóa" | "Ngừng hoạt động";
+            phaiDoiMatKhau: boolean;
+            /** Format: date-time */
+            dangNhapCuoiLuc?: string;
+            /** Format: date-time */
+            doiMatKhauLuc?: string;
+            /** Format: date-time */
+            taoLuc: string;
+            /** Format: date-time */
+            capNhatLuc: string;
+            /** Format: int64 */
+            phienBan: number;
+            vaiTro: components["schemas"]["VaiTroTaiKhoan"][];
+        };
+        TaoTaiKhoanResponse: {
+            taiKhoan: components["schemas"]["TaiKhoanChiTietResponse"];
+            /**
+             * @description Mật khẩu tạm, chỉ hiện một lần
+             * @example XXXXXXXXXXXX
+             */
+            matKhauTam: string;
+        };
+        VaiTroTaiKhoan: {
+            /** @enum {string} */
+            vaiTro: "QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN";
+            /** @example BQL00000001 */
+            maVaiTro: string;
+            chucVu?: string;
+            boPhan?: string;
+            nhiemKy?: string;
+            vaiTroBqt?: string;
+            phamViPhuTrach?: string;
+            chuyenMonKyThuat?: string;
+            viTriTruc?: string;
+            soCccd?: string;
         };
         ApiResponsePageResponseNhatKyResponse: {
             success?: boolean;
@@ -382,6 +514,49 @@ export interface components {
         };
         VaiTroQuanTriVien: {
             maQuanTriVien: string;
+        };
+        ApiResponsePageResponseTaiKhoanTomTat: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseTaiKhoanTomTat"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseTaiKhoanTomTat: {
+            items: components["schemas"]["TaiKhoanTomTat"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        TaiKhoanTomTat: {
+            maNguoiDung: string;
+            hoTen: string;
+            soDienThoai: string;
+            email: string;
+            /** @enum {string} */
+            trangThaiTaiKhoan: "Hoạt động" | "Tạm khóa" | "Ngừng hoạt động";
+            phaiDoiMatKhau: boolean;
+            vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            /** Format: date-time */
+            dangNhapCuoiLuc?: string;
+            /** Format: date-time */
+            taoLuc: string;
+        };
+        ApiResponseTaiKhoanChiTietResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["TaiKhoanChiTietResponse"];
+            /** Format: date-time */
+            timestamp?: string;
         };
         ErrorResponse: {
             success?: boolean;
@@ -522,6 +697,99 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDangNhapResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    traCuuTaiKhoan: {
+        parameters: {
+            query?: {
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description taoLuc, cộng ,asc hoặc ,desc */
+                sort?: string;
+                /** @description Từ khóa, tối đa 100 ký tự */
+                q?: string;
+                /** @description Mã một vai trò */
+                vaiTro?: string;
+                /** @description Hoạt động, Tạm khóa hoặc Ngừng hoạt động */
+                trangThai?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseTaiKhoanTomTat"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    taoTaiKhoan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaoTaiKhoanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTaoTaiKhoanResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */
@@ -687,6 +955,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseHoSoResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    chiTietTaiKhoan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                maNguoiDung: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTaiKhoanChiTietResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

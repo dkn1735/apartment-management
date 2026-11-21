@@ -158,10 +158,10 @@ không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_
 ### 11. Quản lý tài khoản (Admin) · in-progress
 Admin hoặc BQL tạo tài khoản cho từng vai trò, gán vai trò, khóa và mở khóa (trangThaiTaiKhoan). Đây là cách duy nhất để có tài khoản, vì cư dân không tự đăng ký.
 **Done when:** Admin tìm, tạo, sửa, khóa và mở khóa tài khoản trên màn hình; trùng số điện thoại, email hoặc CCCD bị báo lỗi rõ; tài khoản bị khóa không đăng nhập được và mất phiên đang có; mọi thay đổi có nhật ký kiểm toán.
-spec [0008](../specs/0008-quan-ly-tai-khoan/index.md)
+spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `backend/src/main/resources/db/migration/V12__quan_ly_tai_khoan.sql`, `frontend/src/app/(app)/tai-khoan/`, `frontend/src/lib/tai-khoan.ts`
 - [x] Design it (spec): `/architect quản lý tài khoản (admin)`
 - [ ] Build it: `/develop quản lý tài khoản (admin)`
-  - [ ] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
+  - [x] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
   - [ ] Bắt đổi mật khẩu xuyên suốt: claim, interceptor, cấp lại access token, chuyển trang (AC-13, AC-14)
   - [ ] Chi tiết, sửa thông tin và vai trò: trùng thông tin, `phienBan`, gỡ vai trò bị chặn, trang chi tiết (AC-3, AC-6, AC-7, AC-8, AC-9, AC-16)
   - [ ] Trạng thái và đặt lại mật khẩu: thu hồi phiên, tự bảo vệ, Admin cuối, khóa dòng (AC-9, AC-10, AC-11, AC-12, AC-16)

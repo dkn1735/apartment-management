@@ -26,6 +26,15 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_REFRESH_INVALID: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.",
   // API-AUTH-04: đổi mật khẩu
   AUTH_OLD_PASSWORD_INCORRECT: "Mật khẩu hiện tại không đúng.",
+  // Spec 0008: quản lý tài khoản
+  AUTH_IDENTITY_TAKEN: "Thông tin đã được dùng cho tài khoản khác.",
+  AUTH_ROLE_IN_USE:
+    "Vai trò này đang gắn với dữ liệu khác nên không gỡ được. Nếu người này không còn làm việc, hãy chuyển tài khoản sang Ngừng hoạt động.",
+  AUTH_LAST_ROLE:
+    "Tài khoản phải có ít nhất một vai trò. Nếu người này không còn dùng hệ thống, hãy chuyển sang Ngừng hoạt động.",
+  AUTH_SELF_PROTECTED: "Bạn không thể tự gỡ vai trò quản trị, tự khóa hay tự đặt lại mật khẩu của mình.",
+  AUTH_LAST_ADMIN: "Hệ thống phải luôn còn ít nhất một quản trị viên đang hoạt động.",
+  AUTH_PASSWORD_CHANGE_REQUIRED: "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.",
 };
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */

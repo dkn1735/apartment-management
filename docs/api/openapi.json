@@ -167,6 +167,150 @@
         }
       }
     },
+    "/api/v1/accounts" : {
+      "get" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Tra cứu tài khoản",
+        "description" : "Mới tạo trước. q tìm họ tên không dấu, số điện thoại, email, mã. BQL chỉ thấy tài khoản cư dân thuần.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "traCuuTaiKhoan",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "taoLuc, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "taoLuc,desc"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Từ khóa, tối đa 100 ký tự",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 100
+          }
+        }, {
+          "name" : "vaiTro",
+          "in" : "query",
+          "description" : "Mã một vai trò",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "trangThai",
+          "in" : "query",
+          "description" : "Hoạt động, Tạm khóa hoặc Ngừng hoạt động",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseTaiKhoanTomTat"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Tạo tài khoản",
+        "description" : "Sinh mật khẩu tạm, chỉ hiện một lần; người dùng phải đổi ở lần đăng nhập đầu. BQL chỉ tạo tài khoản cư dân.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "taoTaiKhoan",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TaoTaiKhoanRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseTaoTaiKhoanResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/system/audit-logs" : {
       "get" : {
         "tags" : [ "Nhật ký hệ thống" ],
@@ -413,6 +557,54 @@
           }
         }
       }
+    },
+    "/api/v1/accounts/{maNguoiDung}" : {
+      "get" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Chi tiết tài khoản",
+        "description" : "Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "chiTietTaiKhoan",
+        "parameters" : [ {
+          "name" : "maNguoiDung",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseTaiKhoanChiTietResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -595,6 +787,211 @@
           }
         },
         "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "vaiTro" ]
+      },
+      "TaoTaiKhoanRequest" : {
+        "type" : "object",
+        "properties" : {
+          "hoTen" : {
+            "type" : "string",
+            "example" : "Nguyễn Văn An",
+            "maxLength" : 100
+          },
+          "soDienThoai" : {
+            "type" : "string",
+            "example" : "0912345678"
+          },
+          "email" : {
+            "type" : "string",
+            "example" : "an.nguyen@example.com",
+            "maxLength" : 150
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VaiTroRequest"
+            },
+            "maxItems" : 7,
+            "minItems" : 1
+          }
+        },
+        "required" : [ "email", "hoTen", "soDienThoai", "vaiTro" ]
+      },
+      "VaiTroRequest" : {
+        "type" : "object",
+        "properties" : {
+          "vaiTro" : {
+            "type" : "string",
+            "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ],
+            "example" : "BAN_QUAN_LY"
+          },
+          "chucVu" : {
+            "type" : "string",
+            "description" : "BAN_QUAN_LY",
+            "maxLength" : 100
+          },
+          "boPhan" : {
+            "type" : "string",
+            "description" : "BAN_QUAN_LY",
+            "maxLength" : 100
+          },
+          "nhiemKy" : {
+            "type" : "string",
+            "description" : "BAN_QUAN_TRI",
+            "maxLength" : 50
+          },
+          "vaiTroBqt" : {
+            "type" : "string",
+            "description" : "BAN_QUAN_TRI, lưu vào cột vai_tro",
+            "maxLength" : 100
+          },
+          "phamViPhuTrach" : {
+            "type" : "string",
+            "description" : "KE_TOAN",
+            "maxLength" : 150
+          },
+          "chuyenMonKyThuat" : {
+            "type" : "string",
+            "description" : "KY_THUAT",
+            "maxLength" : 150
+          },
+          "viTriTruc" : {
+            "type" : "string",
+            "description" : "BAO_VE",
+            "maxLength" : 150
+          },
+          "soCccd" : {
+            "type" : "string",
+            "description" : "CU_DAN, 12 chữ số",
+            "pattern" : "^[0-9]{12}$"
+          }
+        },
+        "required" : [ "vaiTro" ]
+      },
+      "ApiResponseTaoTaiKhoanResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/TaoTaiKhoanResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "TaiKhoanChiTietResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maNguoiDung" : {
+            "type" : "string",
+            "example" : "ND00000001"
+          },
+          "hoTen" : {
+            "type" : "string"
+          },
+          "soDienThoai" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "trangThaiTaiKhoan" : {
+            "type" : "string",
+            "enum" : [ "Hoạt động", "Tạm khóa", "Ngừng hoạt động" ]
+          },
+          "phaiDoiMatKhau" : {
+            "type" : "boolean"
+          },
+          "dangNhapCuoiLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "doiMatKhauLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "taoLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "capNhatLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "phienBan" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VaiTroTaiKhoan"
+            }
+          }
+        },
+        "required" : [ "capNhatLuc", "email", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "phienBan", "soDienThoai", "taoLuc", "trangThaiTaiKhoan", "vaiTro" ]
+      },
+      "TaoTaiKhoanResponse" : {
+        "type" : "object",
+        "properties" : {
+          "taiKhoan" : {
+            "$ref" : "#/components/schemas/TaiKhoanChiTietResponse"
+          },
+          "matKhauTam" : {
+            "type" : "string",
+            "description" : "Mật khẩu tạm, chỉ hiện một lần",
+            "example" : "XXXXXXXXXXXX"
+          }
+        },
+        "required" : [ "matKhauTam", "taiKhoan" ]
+      },
+      "VaiTroTaiKhoan" : {
+        "type" : "object",
+        "properties" : {
+          "vaiTro" : {
+            "type" : "string",
+            "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
+          },
+          "maVaiTro" : {
+            "type" : "string",
+            "example" : "BQL00000001"
+          },
+          "chucVu" : {
+            "type" : "string"
+          },
+          "boPhan" : {
+            "type" : "string"
+          },
+          "nhiemKy" : {
+            "type" : "string"
+          },
+          "vaiTroBqt" : {
+            "type" : "string"
+          },
+          "phamViPhuTrach" : {
+            "type" : "string"
+          },
+          "chuyenMonKyThuat" : {
+            "type" : "string"
+          },
+          "viTriTruc" : {
+            "type" : "string"
+          },
+          "soCccd" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maVaiTro", "vaiTro" ]
       },
       "ApiResponsePageResponseNhatKyResponse" : {
         "type" : "object",
@@ -978,6 +1375,118 @@
           }
         },
         "required" : [ "maQuanTriVien" ]
+      },
+      "ApiResponsePageResponseTaiKhoanTomTat" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseTaiKhoanTomTat"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PageResponseTaiKhoanTomTat" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TaiKhoanTomTat"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
+      },
+      "TaiKhoanTomTat" : {
+        "type" : "object",
+        "properties" : {
+          "maNguoiDung" : {
+            "type" : "string"
+          },
+          "hoTen" : {
+            "type" : "string"
+          },
+          "soDienThoai" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "trangThaiTaiKhoan" : {
+            "type" : "string",
+            "enum" : [ "Hoạt động", "Tạm khóa", "Ngừng hoạt động" ]
+          },
+          "phaiDoiMatKhau" : {
+            "type" : "boolean"
+          },
+          "vaiTro" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
+            }
+          },
+          "dangNhapCuoiLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "taoLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "email", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "soDienThoai", "taoLuc", "trangThaiTaiKhoan", "vaiTro" ]
+      },
+      "ApiResponseTaiKhoanChiTietResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/TaiKhoanChiTietResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
       },
       "ErrorResponse" : {
         "properties" : {
