@@ -116,7 +116,10 @@ class DoiMatKhauIntegrationTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("Đổi mật khẩu thành công"))
 			.andExpect(jsonPath("$.data.capNhatLuc").value(MutableClock.MAC_DINH.toString()))
-			.andExpect(result -> assertThat(AuthApi.setCookies(result)).isEmpty());
+			// Chỉ cấp lại access_token (spec 0008, AC-13); refresh_token và phien giữ
+			// nguyên
+			.andExpect(result -> assertThat(AuthApi.setCookies(result)).singleElement()
+				.satisfies((c) -> assertThat(c).startsWith("access_token=").contains("Path=/;").contains("HttpOnly")));
 
 		// Hash mới là bcrypt của mật khẩu mới, phien_ban tăng
 		String hashMoi = this.taiKhoan.hash(this.tk.maNguoiDung());

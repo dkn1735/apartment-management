@@ -2,6 +2,7 @@ package vn.edu.hust.chungcu.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -83,7 +84,7 @@ class NhatKyDangNhapLoiIntegrationTest {
 	@Test
 	void capTokenLoiThiKhongGhiThanhCong() throws Exception {
 		doThrow(new IllegalStateException("cấp token hỏng")).when(this.accessTokens)
-			.cap(eq(this.tk.maNguoiDung()), any(), any(), any());
+			.cap(eq(this.tk.maNguoiDung()), any(), any(), anyBoolean(), any());
 
 		dangNhapTra500();
 

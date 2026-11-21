@@ -22,6 +22,7 @@ import vn.edu.hust.chungcu.auth.dto.DoiMatKhauRequest;
 import vn.edu.hust.chungcu.auth.dto.DoiMatKhauResponse;
 import vn.edu.hust.chungcu.auth.dto.HoSoResponse;
 import vn.edu.hust.chungcu.auth.dto.LamMoiPhienResponse;
+import vn.edu.hust.chungcu.auth.phanquyen.ChoPhepKhiPhaiDoiMatKhau;
 import vn.edu.hust.chungcu.auth.phanquyen.CongKhai;
 import vn.edu.hust.chungcu.auth.phanquyen.DaDangNhap;
 import vn.edu.hust.chungcu.auth.service.DangNhapService;
@@ -106,6 +107,7 @@ public class AuthController {
 
 	@Operation(summary = "Hồ sơ của người đang đăng nhập")
 	@DaDangNhap
+	@ChoPhepKhiPhaiDoiMatKhau
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<HoSoResponse>> hoSo(@AuthenticationPrincipal Jwt jwt) {
 		return ApiResponse.ok(this.hoSoService.cua(jwt.getSubject()), "Lấy thông tin tài khoản thành công");
@@ -115,11 +117,20 @@ public class AuthController {
 			description = "Kiểm mật khẩu hiện tại, lưu mật khẩu mới, giữ phiên trên máy này và thu hồi mọi phiên "
 					+ "khác. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số, khác mật khẩu hiện tại.")
 	@DaDangNhap
+	@ChoPhepKhiPhaiDoiMatKhau
 	@PutMapping("/change-password")
 	public ResponseEntity<ApiResponse<DoiMatKhauResponse>> doiMatKhau(@AuthenticationPrincipal Jwt jwt,
 			@Valid @RequestBody DoiMatKhauRequest request) {
-		return ApiResponse.ok(this.doiMatKhauService.doi(jwt.getSubject(), hoPhien(jwt), request),
-				"Đổi mật khẩu thành công");
+		DoiMatKhauService.KetQuaDoiMatKhau ketQua = this.doiMatKhauService.doi(jwt.getSubject(), hoPhien(jwt), request);
+		ResponseEntity<ApiResponse<DoiMatKhauResponse>> ok = ApiResponse.ok(ketQua.data(), "Đổi mật khẩu thành công");
+		if (ketQua.accessToken() == null) {
+			return ok;
+		}
+		// Access token mới mang claim phaiDoiMatKhau = false, nên request kế tiếp chạy
+		// ngay (spec 0008, AC-13)
+		return ResponseEntity.status(ok.getStatusCode())
+			.headers(this.cookies.datAccessToken(ketQua.accessToken()))
+			.body(ok.getBody());
 	}
 
 	/** Claim {@code sid} của access token; thiếu hay sai dạng thì không giữ họ nào. */

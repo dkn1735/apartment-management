@@ -1,4 +1,5 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import { duongDoiMatKhau, TRANG_DOI_MAT_KHAU } from "@/lib/auth/bat-doi-mat-khau";
 import { safeNext, TRANG_DANG_NHAP } from "@/lib/auth/safe-next";
 import { ApiError } from "./api";
 import { dangDangXuat } from "./refresh";
@@ -44,7 +45,8 @@ function laTrangKhongChuyen(pathname: string): boolean {
 /**
  * Lỗi xác thực ở bất kỳ lời gọi API nào thì về trang đăng nhập (spec 0004, AC-15):
  * 401 `UNAUTHENTICATED` hoặc `AUTH_REFRESH_INVALID` (làm mới thất bại, spec 0005 AC-11) kèm `next`
- * và `ly-do=het-phien`; 403 `AUTH_ACCOUNT_LOCKED` kèm `ly-do=khoa`. Đang đăng xuất thì bỏ qua mọi lỗi.
+ * và `ly-do=het-phien`; 403 `AUTH_ACCOUNT_LOCKED` kèm `ly-do=khoa`. 403 `AUTH_PASSWORD_CHANGE_REQUIRED` thì sang
+ * trang đổi mật khẩu kèm `next` (spec 0008, AC-14). Đang đăng xuất thì bỏ qua mọi lỗi.
  */
 export function handleAuthError(error: unknown, boQua = false): void {
   if (boQua || dangChuyenTrang || dangDangXuat() || typeof window === "undefined" || !(error instanceof ApiError)) {
@@ -60,6 +62,8 @@ export function handleAuthError(error: unknown, boQua = false): void {
     dich = `${TRANG_DANG_NHAP}?next=${next}&ly-do=het-phien`;
   } else if (error.errorCode === "AUTH_ACCOUNT_LOCKED") {
     dich = `${TRANG_DANG_NHAP}?ly-do=khoa`;
+  } else if (error.errorCode === "AUTH_PASSWORD_CHANGE_REQUIRED" && pathname !== TRANG_DOI_MAT_KHAU) {
+    dich = duongDoiMatKhau(pathname + search);
   }
   if (dich) {
     dangChuyenTrang = true;

@@ -128,7 +128,8 @@ class ToaNhaIntegrationTest {
 	void vaiTroLayTuTokenKhongDocDb() throws Exception {
 		String maBql = this.jdbc.queryForObject(
 				"SELECT ma_nguoi_dung FROM nguoi_dung_he_thong WHERE so_dien_thoai = '0900000002'", String.class);
-		String token = this.accessTokens.cap(maBql, UUID.randomUUID(), List.of(VaiTro.CU_DAN), Instant.now()).value();
+		String token = this.accessTokens.cap(maBql, UUID.randomUUID(), List.of(VaiTro.CU_DAN), false, Instant.now())
+			.value();
 		expectForbidden(this.mockMvc.perform(buildings(token, "")).andReturn());
 	}
 

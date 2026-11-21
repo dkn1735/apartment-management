@@ -1,7 +1,8 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { CircleCheck } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CircleCheck, Info } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import * as z from "zod";
 import { FormAlert } from "@/components/form/form-alert";
@@ -14,6 +15,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { FieldGroup } from "@/components/ui/field";
 import { api, ApiError, client } from "@/lib/api/api";
+import { safeNext } from "@/lib/auth/safe-next";
+import { HO_SO_QUERY_KEY, useHoSo } from "@/lib/auth/use-ho-so";
 
 /** Quy tắc độ mạnh của API-AUTH-04; backend kiểm lại, đây chỉ để báo sớm. */
 export const QUY_TAC_MAT_KHAU = "Ít nhất 8 ký tự, có cả chữ và số, khác mật khẩu hiện tại.";
@@ -42,10 +45,15 @@ const RONG: Values = { matKhauCu: "", matKhauMoi: "", xacNhan: "" };
 
 /**
  * Trang đổi mật khẩu (API-AUTH-04). Thành công thì giữ phiên trên máy này, các máy khác phải đăng nhập lại;
- * form được xóa trắng và một thông báo thành công hiện ở đầu form.
+ * form được xóa trắng và một thông báo thành công hiện ở đầu form. Đang dùng mật khẩu tạm (spec 0008, AC-14) thì
+ * form có thông báo ở đầu, và đổi xong thì làm mới hồ sơ rồi chuyển tới `next`.
  */
 export function DoiMatKhauForm() {
   const form = useApiForm({ schema, defaultValues: RONG });
+  const phaiDoi = useHoSo().data?.phaiDoiMatKhau === true;
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [thanhCong, setThanhCong] = useState(false);
   const mutation = useMutation({
     mutationFn: ({ matKhauCu, matKhauMoi }: Values) =>
@@ -64,6 +72,11 @@ export function DoiMatKhauForm() {
       throw error;
     }
     form.reset(RONG);
+    if (phaiDoi) {
+      await queryClient.invalidateQueries({ queryKey: HO_SO_QUERY_KEY });
+      router.replace(safeNext(searchParams.get("next")));
+      return;
+    }
     setThanhCong(true);
   });
 
@@ -83,7 +96,19 @@ export function DoiMatKhauForm() {
               </Alert>
             )}
           </div>
-          <form onSubmit={onSubmit} noValidate aria-label="Đổi mật khẩu" className="flex flex-col gap-5">
+          {phaiDoi && (
+            <Alert tone="info" id="thong-bao-mat-khau-tam">
+              <Info aria-hidden="true" />
+              <AlertDescription>Bạn đang dùng mật khẩu tạm. Hãy đặt mật khẩu mới để tiếp tục.</AlertDescription>
+            </Alert>
+          )}
+          <form
+            onSubmit={onSubmit}
+            noValidate
+            aria-label="Đổi mật khẩu"
+            aria-describedby={phaiDoi ? "thong-bao-mat-khau-tam" : undefined}
+            className="flex flex-col gap-5"
+          >
             <FormAlert error={form.formError} focusKey={form.formErrorKey} />
             <FieldGroup>
               <FormField

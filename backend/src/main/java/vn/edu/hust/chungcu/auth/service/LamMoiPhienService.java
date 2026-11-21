@@ -177,9 +177,10 @@ public class LamMoiPhienService {
 	private KetQuaLamMoi ketQua(boolean lamMoi, NguoiDungHeThong tk, UUID maHoPhien, String refreshToken,
 			Duration refreshMaxAge, Instant now) {
 		List<VaiTro> vaiTro = this.vaiTroQuery.cua(tk.getMaNguoiDung()).vaiTro();
-		AccessTokenService.AccessToken accessToken = this.accessTokens.cap(tk.getMaNguoiDung(), maHoPhien, vaiTro, now);
+		AccessTokenService.AccessToken accessToken = this.accessTokens.cap(tk.getMaNguoiDung(), maHoPhien, vaiTro,
+				tk.isPhaiDoiMatKhau(), now);
 		LamMoiPhienResponse data = new LamMoiPhienResponse(lamMoi, tk.getMaNguoiDung(), tk.getHoTen(), vaiTro,
-				accessToken.hetHanLuc());
+				tk.isPhaiDoiMatKhau(), accessToken.hetHanLuc());
 		return new KetQuaLamMoi(data, accessToken.value(), refreshToken, refreshMaxAge);
 	}
 

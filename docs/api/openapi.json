@@ -699,12 +699,16 @@
               "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
             }
           },
+          "phaiDoiMatKhau" : {
+            "type" : "boolean",
+            "description" : "Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008)"
+          },
           "accessTokenHetHanLuc" : {
             "type" : "string",
             "format" : "date-time"
           }
         },
-        "required" : [ "accessTokenHetHanLuc", "hoTen", "lamMoi", "maNguoiDung", "vaiTro" ]
+        "required" : [ "accessTokenHetHanLuc", "hoTen", "lamMoi", "maNguoiDung", "phaiDoiMatKhau", "vaiTro" ]
       },
       "ApiResponseVoid" : {
         "type" : "object",
@@ -781,12 +785,16 @@
               "enum" : [ "QUAN_TRI_VIEN", "BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT", "BAO_VE", "CU_DAN" ]
             }
           },
+          "phaiDoiMatKhau" : {
+            "type" : "boolean",
+            "description" : "Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008)"
+          },
           "accessTokenHetHanLuc" : {
             "type" : "string",
             "format" : "date-time"
           }
         },
-        "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "vaiTro" ]
+        "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "vaiTro" ]
       },
       "TaoTaiKhoanRequest" : {
         "type" : "object",
@@ -1258,6 +1266,10 @@
             "type" : "string",
             "example" : "Hoạt động"
           },
+          "phaiDoiMatKhau" : {
+            "type" : "boolean",
+            "description" : "Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008)"
+          },
           "vaiTro" : {
             "type" : "array",
             "items" : {
@@ -1272,7 +1284,7 @@
             "$ref" : "#/components/schemas/ChiTietVaiTro"
           }
         },
-        "required" : [ "chiTietVaiTro", "email", "hoTen", "maNguoiDung", "phamVi", "soDienThoai", "trangThaiTaiKhoan", "vaiTro" ]
+        "required" : [ "chiTietVaiTro", "email", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "phamVi", "soDienThoai", "trangThaiTaiKhoan", "vaiTro" ]
       },
       "PhamVi" : {
         "type" : "object",

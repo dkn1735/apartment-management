@@ -47,11 +47,12 @@ public interface NguoiDungHeThongRepository extends JpaRepository<NguoiDungHeTho
 
 	/**
 	 * Đổi mật khẩu có điều kiện (API-AUTH-04): hash trong DB phải còn là hash đã dùng để
-	 * kiểm mật khẩu cũ. Tăng {@code phien_ban} như mọi lần sửa dữ liệu của người dùng.
+	 * kiểm mật khẩu cũ. Tăng {@code phien_ban} như mọi lần sửa dữ liệu của người dùng, và
+	 * tắt cờ bắt đổi mật khẩu tạm (spec 0008, AC-13).
 	 */
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
-	@Query("update NguoiDungHeThong n set n.matKhauHash = :hashMoi, n.capNhatLuc = :luc, n.phienBan = n.phienBan + 1 "
-			+ "where n.maNguoiDung = :ma and n.matKhauHash = :hashCu")
+	@Query("update NguoiDungHeThong n set n.matKhauHash = :hashMoi, n.capNhatLuc = :luc, n.phienBan = n.phienBan + 1, "
+			+ "n.phaiDoiMatKhau = false " + "where n.maNguoiDung = :ma and n.matKhauHash = :hashCu")
 	int doiMatKhauHash(String ma, String hashCu, String hashMoi, Instant luc);
 
 }

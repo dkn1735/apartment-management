@@ -260,6 +260,8 @@ export interface components {
             maNguoiDung: string;
             hoTen: string;
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            /** @description Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008) */
+            phaiDoiMatKhau: boolean;
             /** Format: date-time */
             accessTokenHetHanLuc: string;
         };
@@ -290,6 +292,8 @@ export interface components {
             maNguoiDung: string;
             hoTen: string;
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
+            /** @description Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008) */
+            phaiDoiMatKhau: boolean;
             /** Format: date-time */
             accessTokenHetHanLuc: string;
         };
@@ -479,6 +483,8 @@ export interface components {
             email: string;
             /** @example Hoạt động */
             trangThaiTaiKhoan: string;
+            /** @description Đang dùng mật khẩu tạm, phải đổi trước khi dùng chức năng khác (spec 0008) */
+            phaiDoiMatKhau: boolean;
             vaiTro: ("QUAN_TRI_VIEN" | "BAN_QUAN_LY" | "BAN_QUAN_TRI" | "KE_TOAN" | "KY_THUAT" | "BAO_VE" | "CU_DAN")[];
             phamVi: components["schemas"]["PhamVi"];
             chiTietVaiTro: components["schemas"]["ChiTietVaiTro"];

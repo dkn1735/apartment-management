@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { api, client } from "@/lib/api/api";
 import { ERROR_MESSAGES } from "@/lib/api/error-messages";
 import { BO_QUA_CHUYEN_TRANG } from "@/lib/api/query-client";
+import { duongDoiMatKhau } from "@/lib/auth/bat-doi-mat-khau";
 import { safeNext } from "@/lib/auth/safe-next";
 
 const schema = z.object({
@@ -52,8 +53,10 @@ export function LoginForm() {
   const lyDo = laLyDo(lyDoParam) ? LY_DO[lyDoParam] : null;
 
   const onSubmit = form.submitWith(async (values) => {
+    let phaiDoiMatKhau = false;
     try {
-      await mutation.mutateAsync(values);
+      const data = (await mutation.mutateAsync(values)) as { phaiDoiMatKhau?: boolean } | undefined;
+      phaiDoiMatKhau = data?.phaiDoiMatKhau === true;
     } catch (error) {
       // Giữ ô tài khoản, xóa ô mật khẩu để gõ lại
       form.setValue("matKhau", "");
@@ -61,7 +64,8 @@ export function LoginForm() {
     }
     // Bỏ dữ liệu của tài khoản trước (nếu có) trước khi vào trang của tài khoản mới
     queryClient.clear();
-    router.replace(safeNext(searchParams.get("next")));
+    // Mật khẩu tạm: đổi mật khẩu trước, rồi mới tới trang định vào (spec 0008, AC-14)
+    router.replace(phaiDoiMatKhau ? duongDoiMatKhau(searchParams.get("next")) : safeNext(searchParams.get("next")));
   });
 
   return (

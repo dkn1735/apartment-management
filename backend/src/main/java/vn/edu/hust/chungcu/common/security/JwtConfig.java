@@ -34,6 +34,9 @@ public class JwtConfig {
 
 	public static final String CLAIM_SID = "sid";
 
+	/** Đang dùng mật khẩu tạm, phải đổi trước khi gọi API khác (spec 0008, AC-13). */
+	public static final String CLAIM_PHAI_DOI_MAT_KHAU = "phaiDoiMatKhau";
+
 	private static final Duration CLOCK_SKEW = Duration.ofSeconds(30);
 
 	@Bean

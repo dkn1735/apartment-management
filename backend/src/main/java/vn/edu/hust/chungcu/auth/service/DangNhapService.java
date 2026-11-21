@@ -99,9 +99,10 @@ public class DangNhapService {
 				thietBi.userAgent(), tk.getMatKhauHash(), hashMoi));
 
 		List<VaiTro> vaiTro = this.vaiTroQuery.cua(tk.getMaNguoiDung()).vaiTro();
-		AccessTokenService.AccessToken accessToken = this.accessTokens.cap(tk.getMaNguoiDung(), maHoPhien, vaiTro, now);
+		AccessTokenService.AccessToken accessToken = this.accessTokens.cap(tk.getMaNguoiDung(), maHoPhien, vaiTro,
+				tk.isPhaiDoiMatKhau(), now);
 		log.info("Đăng nhập thành công: maNguoiDung={}", tk.getMaNguoiDung());
-		DangNhapResponse data = new DangNhapResponse(tk.getMaNguoiDung(), tk.getHoTen(), vaiTro,
+		DangNhapResponse data = new DangNhapResponse(tk.getMaNguoiDung(), tk.getHoTen(), vaiTro, tk.isPhaiDoiMatKhau(),
 				accessToken.hetHanLuc());
 		// Không có transaction đang chạy (phiên đã commit trong taoPhien), nên ghi ngay
 		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_DANG_NHAP_THANH_CONG, tk.getMaNguoiDung(),

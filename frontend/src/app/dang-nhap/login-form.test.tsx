@@ -102,6 +102,16 @@ describe("Form đăng nhập (AC-12)", () => {
     await dienVaGui(user);
     await waitFor(() => expect(nav.replace).toHaveBeenCalledWith(expected));
   });
+
+  it.each([
+    ["next=%2Fho-so", "/doi-mat-khau?next=%2Fho-so"],
+    ["next=%2F%2Fevil.com", "/doi-mat-khau?next=%2F"],
+  ])("mật khẩu tạm với %s thì chuyển tới %s (spec 0008, AC-14)", async (query, expected) => {
+    apiMock.mockResolvedValue({ maNguoiDung: "ND00000020", phaiDoiMatKhau: true });
+    const { user } = setup(query);
+    await dienVaGui(user);
+    await waitFor(() => expect(nav.replace).toHaveBeenCalledWith(expected));
+  });
 });
 
 describe("Thông báo lý do (AC-15)", () => {

@@ -5,10 +5,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/lib/api/api";
 import { createQueryClient } from "@/lib/api/query-client";
 import { expectNoA11yViolations } from "@/test/axe";
+import { mockReplace, mockSearchParams } from "@/test/next-navigation";
 import { DoiMatKhauForm } from "./doi-mat-khau-form";
 
 const apiMock = vi.hoisted(() => vi.fn());
 const putMock = vi.hoisted(() => vi.fn((..._args: unknown[]) => Promise.resolve({})));
+
+const hoSo = vi.hoisted(() => ({ phaiDoiMatKhau: false }));
+
+vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/use-ho-so")>()),
+  useHoSo: () => ({ data: { phaiDoiMatKhau: hoSo.phaiDoiMatKhau } }),
+}));
 
 vi.mock("@/lib/api/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/api")>();
@@ -40,6 +48,9 @@ async function dienVaGui(user: ReturnType<typeof userEvent.setup>, cu: string, m
 beforeEach(() => {
   apiMock.mockReset();
   putMock.mockClear();
+  mockReplace.mockClear();
+  mockSearchParams.mockReturnValue(new URLSearchParams());
+  hoSo.phaiDoiMatKhau = false;
 });
 
 describe("Form đổi mật khẩu (API-AUTH-04)", () => {
@@ -129,5 +140,34 @@ describe("Form đổi mật khẩu (API-AUTH-04)", () => {
     expect(
       await screen.findByText("Dữ liệu vừa được người khác thay đổi, vui lòng tải lại và thử lại."),
     ).toBeInTheDocument();
+  });
+});
+
+describe("Đổi mật khẩu tạm (spec 0008, AC-14)", () => {
+  it("hiện thông báo mật khẩu tạm gắn với form, axe sạch", async () => {
+    hoSo.phaiDoiMatKhau = true;
+    const { container } = setup();
+    expect(screen.getByRole("form", { name: "Đổi mật khẩu" })).toHaveAccessibleDescription(
+      "Bạn đang dùng mật khẩu tạm. Hãy đặt mật khẩu mới để tiếp tục.",
+    );
+    await expectNoA11yViolations(container);
+  });
+
+  it("đổi xong thì chuyển tới next", async () => {
+    hoSo.phaiDoiMatKhau = true;
+    mockSearchParams.mockReturnValue(new URLSearchParams("next=%2Ftai-khoan"));
+    apiMock.mockResolvedValue({ capNhatLuc: "2026-11-16T01:00:00Z" });
+    const { user } = setup();
+    await dienVaGui(user, "Ab3dEf7hJk9m", "MatKhauMoi2026");
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith("/tai-khoan"));
+  });
+
+  it("không bị bắt đổi thì không có thông báo và không chuyển trang", async () => {
+    apiMock.mockResolvedValue({ capNhatLuc: "2026-11-16T01:00:00Z" });
+    const { user } = setup();
+    expect(screen.queryByText(/mật khẩu tạm/)).not.toBeInTheDocument();
+    await dienVaGui(user, "ChungCu@2026", "MatKhauMoi2026");
+    expect(await screen.findByText(/Đã đổi mật khẩu/)).toBeInTheDocument();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });
