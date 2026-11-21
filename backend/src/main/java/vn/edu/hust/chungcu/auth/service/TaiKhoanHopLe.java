@@ -147,6 +147,24 @@ final class TaiKhoanHopLe {
 		return giaTri;
 	}
 
+	static final String THIEU_PHIEN_BAN = "Thiếu phiên bản dữ liệu, vui lòng tải lại";
+
+	/** {@code phienBan} bắt buộc, là số nguyên không âm (AC-4). */
+	static void kiemPhienBan(Long phienBan, List<FieldError> loi) {
+		if (phienBan == null || phienBan < 0) {
+			loi.add(new FieldError("phienBan", THIEU_PHIEN_BAN));
+		}
+	}
+
+	/** {@code phienBan} trên query string; sai thì thêm lỗi và trả {@code null}. */
+	static Long docPhienBan(String raw, List<FieldError> loi) {
+		if (raw != null && raw.matches("[0-9]{1,18}")) {
+			return Long.parseLong(raw);
+		}
+		loi.add(new FieldError("phienBan", THIEU_PHIEN_BAN));
+		return null;
+	}
+
 	/** Mã vai trò hợp lệ, hoặc {@code null}. */
 	static VaiTro docVaiTro(String ma) {
 		if (ma == null) {

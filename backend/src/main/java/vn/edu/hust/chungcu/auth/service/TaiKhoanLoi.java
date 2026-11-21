@@ -42,6 +42,24 @@ final class TaiKhoanLoi {
 				truongTrung.stream().map((t) -> new FieldError(t, CAU_TRUNG.get(t))).toList());
 	}
 
+	static final String TU_BAO_VE = "Bạn không thể tự gỡ vai trò quản trị hoặc tự khóa tài khoản của mình.";
+
+	static final String ADMIN_CUOI = "Hệ thống phải luôn còn ít nhất một quản trị viên đang hoạt động.";
+
+	/** 422 {@code AUTH_SELF_PROTECTED} (AC-9, AC-11). */
+	static ApiException tuBaoVe() {
+		return tuBaoVe(TU_BAO_VE);
+	}
+
+	static ApiException tuBaoVe(String message) {
+		return new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, AuthErrorCodes.AUTH_SELF_PROTECTED, message);
+	}
+
+	/** 422 {@code AUTH_LAST_ADMIN} (AC-11). */
+	static ApiException adminCuoi() {
+		return new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, AuthErrorCodes.AUTH_LAST_ADMIN, ADMIN_CUOI);
+	}
+
 	static ApiException lechPhienBan() {
 		return new ApiException(HttpStatus.CONFLICT, ErrorCodes.CONCURRENT_MODIFICATION, LECH_PHIEN_BAN);
 	}

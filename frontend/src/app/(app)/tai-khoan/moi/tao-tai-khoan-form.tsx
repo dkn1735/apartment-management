@@ -283,7 +283,7 @@ export function TaoTaiKhoanForm() {
           const ma = ketQua?.ma;
           setKetQua(null);
           notifySuccess("Đã tạo tài khoản");
-          if (ma) router.push("/tai-khoan");
+          if (ma) router.push(`/tai-khoan/${ma}`);
         }}
       />
     </>

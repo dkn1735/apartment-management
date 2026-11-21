@@ -79,6 +79,30 @@ public class TaiKhoanQuery {
 			.optional();
 	}
 
+	/**
+	 * Đọc và khóa dòng tài khoản tới hết transaction ({@code FOR UPDATE}), để mọi thao
+	 * tác ghi lên cùng tài khoản chạy lần lượt (spec 0008, AC-15). Phải gọi trong
+	 * transaction.
+	 */
+	public Optional<DongTaiKhoan> khoa(String maNguoiDung) {
+		return this.jdbc
+			.sql("SELECT " + COT_CHUNG + " FROM nguoi_dung_he_thong n WHERE n.ma_nguoi_dung = :ma FOR UPDATE")
+			.param("ma", maNguoiDung)
+			.query((rs, rowNum) -> dong(rs))
+			.optional();
+	}
+
+	/** Số Admin đang hoạt động, không tính {@code ngoaiTru} (spec 0008, AC-11). */
+	public long demAdminHoatDongTru(String ngoaiTru) {
+		return this.jdbc.sql("""
+				SELECT count(*) FROM quan_tri_vien q
+				JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = q.ma_nguoi_dung
+				WHERE n.trang_thai_tai_khoan = 'Hoạt động' AND n.ma_nguoi_dung <> :ma""")
+			.param("ma", ngoaiTru)
+			.query(Long.class)
+			.single();
+	}
+
 	public long dem(BoLocTaiKhoan boLoc) {
 		DieuKien dk = DieuKien.tu(boLoc);
 		return this.jdbc.sql("SELECT count(*) FROM nguoi_dung_he_thong n " + dk.where())

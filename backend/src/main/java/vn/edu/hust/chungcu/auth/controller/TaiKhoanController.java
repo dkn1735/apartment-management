@@ -10,21 +10,27 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vn.edu.hust.chungcu.auth.dto.CapNhatTaiKhoanRequest;
 import vn.edu.hust.chungcu.auth.dto.TaiKhoanChiTietResponse;
 import vn.edu.hust.chungcu.auth.dto.TaiKhoanTomTat;
 import vn.edu.hust.chungcu.auth.dto.TaoTaiKhoanRequest;
 import vn.edu.hust.chungcu.auth.dto.TaoTaiKhoanResponse;
+import vn.edu.hust.chungcu.auth.dto.VaiTroCapNhatRequest;
 import vn.edu.hust.chungcu.auth.phanquyen.ChoPhep;
+import vn.edu.hust.chungcu.auth.service.CapNhatTaiKhoanService;
 import vn.edu.hust.chungcu.auth.service.NguoiQuanLy;
 import vn.edu.hust.chungcu.auth.service.TaiKhoanTraCuuService;
 import vn.edu.hust.chungcu.auth.service.TaoTaiKhoanService;
+import vn.edu.hust.chungcu.auth.service.VaiTroTaiKhoanService;
 import vn.edu.hust.chungcu.common.api.ApiResponse;
 import vn.edu.hust.chungcu.common.api.PageResponse;
 
@@ -41,9 +47,16 @@ public class TaiKhoanController {
 
 	private final TaoTaiKhoanService tao;
 
-	public TaiKhoanController(TaiKhoanTraCuuService traCuu, TaoTaiKhoanService tao) {
+	private final CapNhatTaiKhoanService capNhat;
+
+	private final VaiTroTaiKhoanService vaiTro;
+
+	public TaiKhoanController(TaiKhoanTraCuuService traCuu, TaoTaiKhoanService tao, CapNhatTaiKhoanService capNhat,
+			VaiTroTaiKhoanService vaiTro) {
 		this.traCuu = traCuu;
 		this.tao = tao;
+		this.capNhat = capNhat;
+		this.vaiTro = vaiTro;
 	}
 
 	@Operation(operationId = "traCuuTaiKhoan", summary = "Tra cứu tài khoản",
@@ -88,6 +101,40 @@ public class TaiKhoanController {
 			@PathVariable String maNguoiDung) {
 		return ApiResponse.ok(this.traCuu.chiTiet(NguoiQuanLy.tu(authentication), maNguoiDung),
 				"Lấy thông tin tài khoản thành công");
+	}
+
+	@Operation(operationId = "capNhatTaiKhoan", summary = "Sửa họ tên, số điện thoại, email",
+			description = "Gửi lại phienBan nhận ở chi tiết; lệch thì 409 CONCURRENT_MODIFICATION.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@PutMapping("/{maNguoiDung}")
+	public ResponseEntity<ApiResponse<TaiKhoanChiTietResponse>> capNhat(Authentication authentication,
+			@PathVariable String maNguoiDung, @RequestBody CapNhatTaiKhoanRequest request) {
+		return ApiResponse.ok(this.capNhat.capNhat(NguoiQuanLy.tu(authentication), maNguoiDung, request),
+				"Cập nhật tài khoản thành công");
+	}
+
+	@Operation(operationId = "datVaiTroTaiKhoan", summary = "Thêm hoặc sửa một vai trò",
+			description = "Chưa có vai trò thì thêm, đã có thì sửa trường của nó. BQL chỉ sửa được CU_DAN.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@PutMapping("/{maNguoiDung}/roles/{vaiTro}")
+	public ResponseEntity<ApiResponse<TaiKhoanChiTietResponse>> datVaiTro(Authentication authentication,
+			@PathVariable String maNguoiDung, @Parameter(description = "Mã vai trò") @PathVariable String vaiTro,
+			@RequestBody VaiTroCapNhatRequest request) {
+		return ApiResponse.ok(this.vaiTro.dat(NguoiQuanLy.tu(authentication), maNguoiDung, vaiTro, request),
+				"Cập nhật vai trò thành công");
+	}
+
+	@Operation(operationId = "goVaiTroTaiKhoan", summary = "Gỡ một vai trò",
+			description = "Chỉ Admin. Vai trò cuối hoặc vai trò đang bị dữ liệu khác tham chiếu thì không gỡ được.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@DeleteMapping("/{maNguoiDung}/roles/{vaiTro}")
+	public ResponseEntity<ApiResponse<TaiKhoanChiTietResponse>> goVaiTro(Authentication authentication,
+			@PathVariable String maNguoiDung, @Parameter(description = "Mã vai trò") @PathVariable String vaiTro,
+			@Parameter(description = "phienBan nhận ở chi tiết tài khoản", required = true,
+					schema = @Schema(type = "integer", minimum = "0")) @RequestParam(
+							required = false) String phienBan) {
+		return ApiResponse.ok(this.vaiTro.go(NguoiQuanLy.tu(authentication), maNguoiDung, vaiTro, phienBan),
+				"Gỡ vai trò thành công");
 	}
 
 	/** Response có mật khẩu tạm không được lưu ở bất kỳ cache nào (AC-1, AC-12). */

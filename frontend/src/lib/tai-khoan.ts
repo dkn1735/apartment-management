@@ -70,3 +70,15 @@ export function doiTenTruongLoi(error: unknown): unknown {
     }),
   });
 }
+
+/** Khóa query chi tiết một tài khoản; danh sách dùng tiền tố `["tai-khoan"]` chung. */
+export function khoaChiTiet(maNguoiDung: string) {
+  return ["tai-khoan", "chi-tiet", maNguoiDung] as const;
+}
+
+/** Câu báo khi phiên bản lệch (spec 0008, AC-17); trang tải lại chi tiết ngay sau đó. */
+export const CAU_LECH_PHIEN_BAN = "Tài khoản vừa được thay đổi ở nơi khác, đã tải lại dữ liệu mới nhất.";
+
+export function laLechPhienBan(error: unknown): boolean {
+  return error instanceof ApiError && error.errorCode === "CONCURRENT_MODIFICATION";
+}

@@ -13,6 +13,9 @@ final class LoiCoSoDuLieu {
 	/** Vi phạm khóa ngoại. */
 	static final String KHOA_NGOAI = "23503";
 
+	/** Vi phạm khóa ngoại {@code ON DELETE RESTRICT}. */
+	static final String RANG_BUOC_RESTRICT = "23001";
+
 	/** Vi phạm UNIQUE. */
 	static final String TRUNG_KHOA = "23505";
 
