@@ -23,7 +23,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
 | 10 | Đổi mật khẩu | Slice 6 | in-progress |
-| 11 | Quản lý tài khoản (Admin) | Slice 7 | planned |
+| 11 | Quản lý tài khoản (Admin) | Slice 7 | in-progress |
 | 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | planned |
 | 13 | Quên mật khẩu qua email | Slice 9 | planned |
 
@@ -155,10 +155,19 @@ không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_
 
 ## Slice 7: Quản lý tài khoản (Admin)
 
-### 11. Quản lý tài khoản (Admin) · needs a decision
+### 11. Quản lý tài khoản (Admin) · in-progress
 Admin hoặc BQL tạo tài khoản cho từng vai trò, gán vai trò, khóa và mở khóa (trangThaiTaiKhoan). Đây là cách duy nhất để có tài khoản, vì cư dân không tự đăng ký.
 **Done when:** Admin tìm, tạo, sửa, khóa và mở khóa tài khoản trên màn hình; trùng số điện thoại, email hoặc CCCD bị báo lỗi rõ; tài khoản bị khóa không đăng nhập được và mất phiên đang có; mọi thay đổi có nhật ký kiểm toán.
-- [ ] Design it (spec): `/architect quản lý tài khoản (admin)`
+spec [0008](../specs/0008-quan-ly-tai-khoan/index.md)
+- [x] Design it (spec): `/architect quản lý tài khoản (admin)`
+- [ ] Build it: `/develop quản lý tài khoản (admin)`
+  - [ ] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
+  - [ ] Bắt đổi mật khẩu xuyên suốt: claim, interceptor, cấp lại access token, chuyển trang (AC-13, AC-14)
+  - [ ] Chi tiết, sửa thông tin và vai trò: trùng thông tin, `phienBan`, gỡ vai trò bị chặn, trang chi tiết (AC-3, AC-6, AC-7, AC-8, AC-9, AC-16)
+  - [ ] Trạng thái và đặt lại mật khẩu: thu hồi phiên, tự bảo vệ, Admin cuối, khóa dòng (AC-9, AC-10, AC-11, AC-12, AC-16)
+  - [ ] Phạm vi BQL, tìm kiếm đủ, khóa lại: cư dân thuần, `unaccent`, a11y, `verify.md` (AC-5, AC-15, AC-16, AC-17)
+- [ ] Verify it: `/check verify quản lý tài khoản (admin)`
+- [ ] Test it: `/test quản lý tài khoản (admin)`
 
 ## Slice 8: Khóa tạm khi đăng nhập sai nhiều lần
 
