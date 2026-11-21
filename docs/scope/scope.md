@@ -130,8 +130,8 @@ spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `bac
   - [x] Đường mỏng: V11, `NhatKyService.ghi` trong transaction riêng, gắn đăng nhập thành công và thất bại (AC-1, AC-2, AC-3, AC-10)
   - [x] Ghi sau commit: đăng xuất và phát hiện dùng lại token (AC-4, AC-5, AC-6)
   - [x] Chịu lỗi và giữ bí mật: log ERROR, chặn tên khóa nhạy cảm, test quét, trigger và CHECK (AC-7, AC-8, AC-9)
-- [ ] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
-- [ ] Test it: `/test ghi nhật ký kiểm toán dùng chung`
+- [x] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
+- [x] Test it: `/test ghi nhật ký kiểm toán dùng chung`
 
 ## Slice 5: Màn hình tra cứu nhật ký kiểm toán
 

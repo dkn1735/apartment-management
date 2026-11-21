@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/lib/api/api";
 import { createQueryClient } from "@/lib/api/query-client";
 import { expectNoA11yViolations } from "@/test/axe";
-import { mockPathname, mockReplace, mockSearchParams } from "@/test/next-navigation";
+import { mockPathname, mockPush, mockReplace, mockSearchParams } from "@/test/next-navigation";
 import { NhatKyView, tomTatChiTiet, type NhatKy } from "./nhat-ky-view";
 
 const get = vi.hoisted(() => vi.fn());
@@ -68,6 +68,7 @@ describe("Trang Nhật ký hệ thống (spec 0007, AC-11, AC-12, AC-14)", () =>
   beforeEach(() => {
     get.mockReset();
     mockReplace.mockReset();
+    mockPush.mockReset();
     mockPathname.mockReturnValue("/nhat-ky");
   });
 
@@ -106,16 +107,31 @@ describe("Trang Nhật ký hệ thống (spec 0007, AC-11, AC-12, AC-14)", () =>
     expect(screen.getByLabelText("Mã người dùng")).toHaveValue("ND00000001");
   });
 
-  it("áp dụng bộ lọc thì ghi lên URL và về trang 1", async () => {
+  it("áp dụng bộ lọc thì ghi lên URL thành một mục lịch sử mới và về trang 1", async () => {
     traVe(() => Promise.resolve(trang(DONG)));
     const user = userEvent.setup();
     hienThi("page=3");
     await user.type(screen.getByLabelText("Mã người dùng"), "ND00000007");
     await user.type(screen.getByLabelText("Từ ngày"), "2026-03-01");
     await user.click(screen.getByRole("button", { name: "Lọc" }));
-    expect(mockReplace).toHaveBeenCalledWith("/nhat-ky?maNguoiDung=ND00000007&tuNgay=2026-03-01", {
+    // push, không phải replace: nút Back của trình duyệt phải trả lại bộ lọc cũ
+    expect(mockPush).toHaveBeenCalledWith("/nhat-ky?maNguoiDung=ND00000007&tuNgay=2026-03-01", {
       scroll: false,
     });
+    // DataTable vẫn được replace để sửa page=3 vượt trang cuối; chỉ URL có bộ lọc là không được replace
+    expect(mockReplace).not.toHaveBeenCalledWith(expect.stringContaining("maNguoiDung"), expect.anything());
+  });
+
+  it("đổi sắp xếp thì thay URL tại chỗ, không thêm mục lịch sử", async () => {
+    traVe(() => Promise.resolve(trang(DONG)));
+    const user = userEvent.setup();
+    hienThi("maNguoiDung=ND00000001");
+    await screen.findByRole("cell", { name: /Nguyễn Quản Trị/ });
+    await user.click(screen.getByRole("button", { name: "Thời gian" }));
+    expect(mockReplace).toHaveBeenCalledWith("/nhat-ky?maNguoiDung=ND00000001&sort=thoiGianGhi%2Casc", {
+      scroll: false,
+    });
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it("báo lỗi dưới ô và không đổi URL khi bộ lọc sai", async () => {
@@ -129,6 +145,7 @@ describe("Trang Nhật ký hệ thống (spec 0007, AC-11, AC-12, AC-14)", () =>
     expect(await screen.findByText("Mã người dùng không đúng định dạng")).toBeInTheDocument();
     expect(screen.getByText("Đến ngày phải bằng hoặc sau từ ngày")).toBeInTheDocument();
     expect(screen.getByLabelText("Mã người dùng")).toHaveAttribute("aria-invalid", "true");
+    expect(mockPush).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
     await expectNoA11yViolations(container);
   });
@@ -139,7 +156,7 @@ describe("Trang Nhật ký hệ thống (spec 0007, AC-11, AC-12, AC-14)", () =>
     hienThi("loaiThaoTac=AUTH_DANG_NHAP_THANH_CONG");
     expect(await screen.findByText("Không có dòng nhật ký nào khớp bộ lọc")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Xóa bộ lọc" }));
-    expect(mockReplace).toHaveBeenCalledWith("/nhat-ky", { scroll: false });
+    expect(mockPush).toHaveBeenCalledWith("/nhat-ky", { scroll: false });
   });
 
   it("rỗng khi không lọc", async () => {
@@ -159,10 +176,16 @@ describe("Trang Nhật ký hệ thống (spec 0007, AC-11, AC-12, AC-14)", () =>
         }),
       ),
     );
+    const user = userEvent.setup();
     hienThi("tuNgay=hom-qua");
     expect(await screen.findByText("Bộ lọc trên địa chỉ trang không hợp lệ")).toBeInTheDocument();
     expect(screen.getByText("Ngày phải có dạng yyyy-MM-dd")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    const canhBao = screen
+      .getByText("Bộ lọc trên địa chỉ trang không hợp lệ")
+      .closest("[role=alert], [data-slot=alert]");
+    await user.click(within(canhBao as HTMLElement).getByRole("button", { name: "Xóa bộ lọc" }));
+    expect(mockPush).toHaveBeenCalledWith("/nhat-ky", { scroll: false });
   });
 
   it("lỗi khác thì hiện trạng thái lỗi có Thử lại", async () => {

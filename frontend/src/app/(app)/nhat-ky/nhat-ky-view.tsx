@@ -79,7 +79,10 @@ export function NhatKyView() {
   });
 
   function apDung(moi: BoLoc) {
-    capNhatUrl({ ...Object.fromEntries(THAM_SO_LOC.map((ten) => [ten, moi[ten]])), page: undefined });
+    capNhatUrl(
+      { ...Object.fromEntries(THAM_SO_LOC.map((ten) => [ten, moi[ten]])), page: undefined },
+      { themLichSu: true },
+    );
   }
 
   const dangLoc = THAM_SO_LOC.some((ten) => boLoc[ten]);
@@ -106,7 +109,13 @@ export function NhatKyView() {
                   <li key={`${loi.field}-${loi.message}`}>{loi.message}</li>
                 ))}
               </ul>
-              <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => capNhatUrl(xoaHet())}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => capNhatUrl(xoaHet(), { themLichSu: true })}
+              >
                 Xóa bộ lọc
               </Button>
             </AlertDescription>
