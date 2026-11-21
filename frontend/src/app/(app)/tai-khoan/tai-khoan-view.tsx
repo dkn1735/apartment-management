@@ -127,7 +127,7 @@ export function TaiKhoanView() {
           aria-label="Lọc tài khoản"
           className="grid gap-4 rounded-md border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <OTim key={boLoc.q ?? ""} giaTri={boLoc.q ?? ""} onTim={(q) => loc("q", q.trim())} />
+          <OTim giaTri={boLoc.q ?? ""} onTim={(q) => loc("q", q.trim())} />
           {laAdmin && (
             <ChonLoc
               nhan="Vai trò"
@@ -203,16 +203,38 @@ export function TaiKhoanView() {
   );
 }
 
-/** Ô tìm: gửi sau 300 ms ngừng gõ, hoặc ngay khi nhấn Enter. Trang đặt `key` theo URL để lấy lại giá trị khi Back. */
+/**
+ * Ô tìm: gửi sau 300 ms ngừng gõ, hoặc ngay khi nhấn Enter. Ô không bị dựng lại khi URL đổi, để không mất focus
+ * lúc đang gõ; chỉ lấy giá trị từ URL khi nó đổi từ bên ngoài (Back, Xóa bộ lọc), không phải do chính ô vừa gửi.
+ */
 function OTim({ giaTri, onTim }: { giaTri: string; onTim(q: string): void }) {
   const id = useId();
   const [nhap, setNhap] = useState(giaTri);
+  const [daGui, setDaGui] = useState(giaTri);
+  const [giaTriTruoc, setGiaTriTruoc] = useState(giaTri);
+
+  // Đồng bộ trong lúc render khi prop đổi (mẫu "lưu prop trước đó" của React), không dùng effect
+  if (giaTri !== giaTriTruoc) {
+    setGiaTriTruoc(giaTri);
+    if (giaTri !== daGui.trim()) {
+      setNhap(giaTri);
+      setDaGui(giaTri);
+    }
+  }
+
+  function gui(q: string) {
+    setDaGui(q);
+    onTim(q);
+  }
 
   useEffect(() => {
-    if (nhap.trim() === giaTri.trim()) return;
-    const hen = setTimeout(() => onTim(nhap), CHO_GO_MS);
+    if (nhap.trim() === daGui.trim()) return;
+    const hen = setTimeout(() => {
+      setDaGui(nhap);
+      onTim(nhap);
+    }, CHO_GO_MS);
     return () => clearTimeout(hen);
-  }, [nhap, giaTri, onTim]);
+  }, [nhap, daGui, onTim]);
 
   return (
     <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
@@ -233,7 +255,7 @@ function OTim({ giaTri, onTim }: { giaTri: string; onTim(q: string): void }) {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              onTim(nhap);
+              gui(nhap);
             }
           }}
         />

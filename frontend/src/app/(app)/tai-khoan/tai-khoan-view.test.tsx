@@ -81,6 +81,30 @@ describe("Danh sách tài khoản (spec 0008, AC-5, AC-17)", () => {
     expect(url).not.toContain("page=");
   });
 
+  it("ô tìm giữ focus khi URL cập nhật theo chính nó, nhưng nhận giá trị mới khi URL đổi từ ngoài", async () => {
+    const user = userEvent.setup();
+    const { rerender } = hienThi();
+    const o = screen.getByRole("searchbox", { name: "Tìm tài khoản" });
+    await user.type(o, "an");
+    await waitFor(() => expect(mockPush).toHaveBeenCalled());
+    const ve = (url: string) => {
+      mockSearchParams.mockReturnValue(new URLSearchParams(url));
+      rerender(
+        <QueryClientProvider client={createQueryClient()}>
+          <TaiKhoanView />
+        </QueryClientProvider>,
+      );
+    };
+    ve("q=an");
+    const sau = screen.getByRole("searchbox", { name: "Tìm tài khoản" });
+    expect(sau).toBe(o);
+    expect(sau).toHaveFocus();
+    expect(sau).toHaveValue("an");
+    // Xóa bộ lọc (URL đổi từ ngoài) thì ô trống lại
+    ve("");
+    expect(screen.getByRole("searchbox", { name: "Tìm tài khoản" })).toHaveValue("");
+  });
+
   it("BQL không có ô lọc vai trò", async () => {
     hoSo.vaiTro = ["BAN_QUAN_LY"];
     hienThi();

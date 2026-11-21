@@ -31,6 +31,8 @@ type DoiTrangThaiDialogProps = {
   description: string;
   confirmLabel: string;
   tone?: "default" | "destructive";
+  /** Gọi sau khi đổi thành công; nút mở hộp thoại đã biến mất nên nơi gọi chọn chỗ đặt focus. */
+  onFocusSauKhiDoi?: () => void;
 };
 
 /**
@@ -45,6 +47,7 @@ export function DoiTrangThaiDialog({
   description,
   confirmLabel,
   tone = "default",
+  onFocusSauKhiDoi,
 }: DoiTrangThaiDialogProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -73,6 +76,8 @@ export function DoiTrangThaiDialog({
     void queryClient.invalidateQueries({ queryKey: ["tai-khoan", "danh-sach"] });
     notifySuccess(`Tài khoản đã chuyển sang ${trangThaiMoi}`);
     setOpen(false);
+    // Trạng thái mới làm nút mở hộp thoại này biến mất (cả hộp thoại cũng gỡ khỏi cây), nên nơi gọi đặt focus
+    onFocusSauKhiDoi?.();
   });
 
   return (

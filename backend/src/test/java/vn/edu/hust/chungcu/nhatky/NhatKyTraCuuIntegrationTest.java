@@ -95,7 +95,9 @@ class NhatKyTraCuuIntegrationTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("Lấy danh mục loại thao tác thành công"))
 			.andExpect(jsonPath("$.data[*].ma").value(contains("AUTH_DANG_NHAP_THANH_CONG", "AUTH_DANG_NHAP_THAT_BAI",
-					"AUTH_DANG_XUAT", "AUTH_PHAT_HIEN_DUNG_LAI_TOKEN", "AUTH_DOI_MAT_KHAU")))
+					"AUTH_DANG_XUAT", "AUTH_PHAT_HIEN_DUNG_LAI_TOKEN", "AUTH_DOI_MAT_KHAU", "AUTH_TAO_TAI_KHOAN",
+					"AUTH_CAP_NHAT_TAI_KHOAN", "AUTH_GAN_VAI_TRO", "AUTH_CAP_NHAT_VAI_TRO", "AUTH_GO_VAI_TRO",
+					"AUTH_KHOA_TAI_KHOAN", "AUTH_MO_KHOA_TAI_KHOAN", "AUTH_DAT_LAI_MAT_KHAU")))
 			.andExpect(jsonPath("$.data[0].nhan").value("Đăng nhập thành công"));
 	}
 

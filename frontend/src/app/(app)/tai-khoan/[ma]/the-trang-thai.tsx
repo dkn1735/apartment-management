@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { KeyValueList } from "@/components/data/key-value-list";
 import { StatusBadge } from "@/components/data/status-badge";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
@@ -26,6 +26,9 @@ type TheTrangThaiProps = { taiKhoan: TaiKhoanChiTiet; laAdmin: boolean; laChinhM
 export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiProps) {
   const queryClient = useQueryClient();
   const [matKhauTam, setMatKhauTam] = useState<string | null>(null);
+  const nhomNut = useRef<HTMLDivElement>(null);
+  // Nút vừa bấm đã biến mất sau khi đổi trạng thái: đưa focus tới nút đầu tiên còn lại (thường là nút mới hiện ra)
+  const focusNutDau = () => requestAnimationFrame(() => nhomNut.current?.querySelector("button")?.focus());
   const trangThai = taiKhoan.trangThaiTaiKhoan;
   const doiDuoc = !laChinhMinh && (laAdmin || trangThai !== "Ngừng hoạt động");
   const datLai = useMutation({
@@ -58,7 +61,7 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
           Đây là tài khoản của bạn. Hãy đổi mật khẩu ở trang Đổi mật khẩu.
         </p>
       ) : (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div ref={nhomNut} className="mt-4 flex flex-wrap gap-2">
           {doiDuoc && trangThai === "Hoạt động" && (
             <DoiTrangThaiDialog
               taiKhoan={taiKhoan}
@@ -67,6 +70,7 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
               description="Người dùng bị đăng xuất khỏi mọi thiết bị và không đăng nhập được cho tới khi được mở lại."
               confirmLabel="Tạm khóa"
               tone="destructive"
+              onFocusSauKhiDoi={focusNutDau}
               trigger={
                 <Button type="button" variant="outline">
                   Tạm khóa
@@ -81,6 +85,7 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
               title="Mở lại tài khoản này?"
               description="Người dùng đăng nhập lại được; số lần đăng nhập sai được đặt về 0."
               confirmLabel="Mở lại"
+              onFocusSauKhiDoi={focusNutDau}
               trigger={<Button type="button">Mở lại</Button>}
             />
           )}
@@ -95,6 +100,7 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
                   : "Dùng khi cư dân đã chuyển đi. Sau đó chỉ quản trị viên mở lại được."
               }
               confirmLabel="Ngừng hoạt động"
+              onFocusSauKhiDoi={focusNutDau}
               tone="destructive"
               trigger={
                 <Button type="button" variant="outline">

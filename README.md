@@ -48,6 +48,14 @@ Mở http://localhost:3000, trang được bảo vệ sẽ chuyển về `/dang-
 - `COOKIE_SECURE`: cookie có cờ `Secure` theo mặc định (prod), dev tắt sẵn. Chạy bản demo qua `http://` trên một máy khác `localhost` (ví dụ mạng LAN) thì đặt `COOKIE_SECURE=false` trong `.env`, nếu không trình duyệt bỏ cookie và bạn không đăng nhập được.
 - Mọi request `POST`, `PUT`, `PATCH`, `DELETE` tới `/api/**` cần header `X-Requested-With: XMLHttpRequest` (chống CSRF). Hàm `api` ở frontend tự gắn. Trong Swagger, bấm **Authorize**, nhập `XMLHttpRequest` vào `csrfHeader` một lần trước khi thử. Gọi bằng curl hay Postman thì tự thêm header này.
 
+## Quản lý tài khoản
+
+Đăng nhập bằng `0900000001` (Admin) rồi mở **Tài khoản** ở menu (`/tai-khoan`). Admin tạo, tìm, sửa, khóa, mở lại tài khoản của mọi vai trò và đặt lại mật khẩu; `0900000002` (Ban quản lý) chỉ thấy và quản lý tài khoản cư dân. Cách hoạt động nằm ở [spec 0008](docs/specs/0008-quan-ly-tai-khoan/index.md).
+
+- Tạo tài khoản hoặc đặt lại mật khẩu thì hệ thống sinh một **mật khẩu tạm** và chỉ hiện nó một lần. Người dùng đăng nhập bằng mật khẩu tạm sẽ được đưa thẳng tới `/doi-mat-khau`; mọi API khác trả 403 `AUTH_PASSWORD_CHANGE_REQUIRED` cho tới khi đổi xong.
+- Khóa, ngừng hoạt động hay đặt lại mật khẩu thì người dùng bị đăng xuất khỏi mọi thiết bị khi phiên làm mới (access token đang cầm còn dùng được tối đa 15 phút).
+- Không xóa được tài khoản; người đã nghỉ hoặc chuyển đi thì chuyển sang `Ngừng hoạt động`. Hệ thống luôn giữ ít nhất một Admin đang hoạt động, và không ai tự khóa hay tự đặt lại mật khẩu của chính mình ở màn này.
+
 ## Đồng bộ kiểu API
 
 1. `cd backend` rồi `mvnw.cmd verify` (cần Docker đang chạy): test `OpenApiExportTest` ghi `docs/api/openapi.json`

@@ -162,15 +162,22 @@ describe("Chi tiết tài khoản (spec 0008, AC-6 đến AC-9, AC-17)", () => {
 });
 
 describe("Thẻ Trạng thái và bảo mật (spec 0008, AC-10, AC-12, AC-17)", () => {
-  it("tạm khóa cần lý do rồi gửi trạng thái và lý do", async () => {
-    put.mockResolvedValue({ ...TK, trangThaiTaiKhoan: "Tạm khóa", phienBan: 4 });
-    const { user, container } = hienThi();
+  it("tạm khóa trống lý do thì báo lỗi dưới ô, không gửi; axe sạch", async () => {
+    const { user } = hienThi();
     await user.click(await screen.findByRole("button", { name: "Tạm khóa" }));
     const dialog = await screen.findByRole("dialog", { name: "Tạm khóa tài khoản này?" });
     await user.click(within(dialog).getByRole("button", { name: "Tạm khóa" }));
     expect(await within(dialog).findByText("Vui lòng nhập lý do")).toBeInTheDocument();
+    expect(within(dialog).getByLabelText(/^Lý do/)).toHaveAttribute("aria-invalid", "true");
     expect(put).not.toHaveBeenCalled();
-    await expectNoA11yViolations(container);
+    await expectNoA11yViolations(document.body);
+  });
+
+  it("tạm khóa gửi trạng thái và lý do, rồi đưa focus sang nút Mở lại", async () => {
+    put.mockResolvedValue({ ...TK, trangThaiTaiKhoan: "Tạm khóa", phienBan: 4 });
+    const { user } = hienThi();
+    await user.click(await screen.findByRole("button", { name: "Tạm khóa" }));
+    const dialog = await screen.findByRole("dialog", { name: "Tạm khóa tài khoản này?" });
     await user.type(within(dialog).getByLabelText(/^Lý do/), "Nợ phí");
     await user.click(within(dialog).getByRole("button", { name: "Tạm khóa" }));
     await waitFor(() =>
@@ -180,6 +187,8 @@ describe("Thẻ Trạng thái và bảo mật (spec 0008, AC-10, AC-12, AC-17)",
       }),
     );
     expect(notify.success).toHaveBeenCalledWith("Tài khoản đã chuyển sang Tạm khóa");
+    // Nút Tạm khóa đã biến mất: focus sang nút đầu tiên còn lại (Mở lại), không rơi về body
+    await waitFor(() => expect(screen.getByRole("button", { name: "Mở lại" })).toHaveFocus());
   });
 
   it("đặt lại mật khẩu thì hiện mật khẩu tạm một lần", async () => {
