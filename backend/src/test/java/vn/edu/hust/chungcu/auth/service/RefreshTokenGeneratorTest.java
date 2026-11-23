@@ -51,7 +51,9 @@ class RefreshTokenGeneratorTest {
 	private static AppProperties cauHinh(String jwtSecret) {
 		return new AppProperties(ZoneId.of("Asia/Ho_Chi_Minh"),
 				new AppProperties.Security(jwtSecret, Duration.ofMinutes(15), Duration.ofDays(7), 12, true,
-						Duration.ofDays(30), Duration.ofSeconds(30), Duration.ofDays(30), "0 0 3 * * *"));
+						Duration.ofDays(30), Duration.ofSeconds(30), Duration.ofDays(30), "0 0 3 * * *",
+						Duration.ofMinutes(30)),
+				"http://localhost:3000", new AppProperties.Mail("chungcu@localhost"));
 	}
 
 }

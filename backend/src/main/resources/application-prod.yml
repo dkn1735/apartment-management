@@ -1,3 +1,17 @@
+spring:
+  mail:
+    # Không có giá trị mặc định: thiếu spring.mail.host thì Spring Boot lặng lẽ không tạo
+    # JavaMailSender, nên để placeholder hỏng làm backend dừng lúc khởi động (spec 0010, AC-14)
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 springdoc:
   api-docs:
     enabled: false

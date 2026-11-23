@@ -35,6 +35,23 @@ spring:
   threads:
     virtual:
       enabled: true
+  task:
+    execution:
+      # Bean emailExecutor (spec 0010) không được làm mất executor mặc định của Spring
+      mode: force
+  # Gửi email qua SMTP (spec 0010). Máy chủ đặt theo profile: dev là Mailpit, prod bắt buộc
+  # MAIL_HOST.
+  mail:
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
 
 server:
   port: 8080
@@ -49,6 +66,10 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    mail:
+      # Không mở kết nối SMTP (Gmail) mỗi lần kiểm health; lỗi gửi đã có log riêng
+      enabled: false
 
 springdoc:
   swagger-ui:
@@ -56,6 +77,10 @@ springdoc:
 
 app:
   timezone: ${APP_TIMEZONE:Asia/Ho_Chi_Minh}
+  # URL gốc của frontend để dựng link trong email; backend không đọc header Host
+  public-url: ${APP_PUBLIC_URL:}
+  mail:
+    from: ${MAIL_FROM:}
   security:
     # Không có giá trị mặc định: thiếu JWT_SECRET thì backend dừng lúc khởi động
     jwt-secret: ${JWT_SECRET:}
@@ -74,3 +99,5 @@ app:
     # Phải không nhỏ hơn session-max-lifetime
     session-retention: P30D
     session-cleanup-cron: "0 0 3 * * *"
+    # Link đặt lại mật khẩu qua email (spec 0010); trang quên mật khẩu ghi cùng số phút
+    password-reset-ttl: PT30M

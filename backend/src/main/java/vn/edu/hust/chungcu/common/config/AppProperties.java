@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZoneId;
@@ -19,7 +20,34 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties("app")
 public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ cho quy tắc theo ngày)") ZoneId timezone,
-		@Valid @NotNull Security security) {
+		@Valid @NotNull Security security,
+		@NotBlank(message = "Thiếu APP_PUBLIC_URL (URL gốc của frontend, dùng để dựng link trong email)") @Pattern(
+				regexp = "^https?://.+",
+				message = "APP_PUBLIC_URL phải bắt đầu bằng http:// hoặc https://") String publicUrl,
+		@Valid @NotNull(message = "Thiếu MAIL_FROM (địa chỉ người gửi email)") Mail mail) {
+
+	/**
+	 * Bỏ dấu {@code /} ở cuối {@code publicUrl}, để link dựng bằng cách nối chuỗi không
+	 * có hai dấu {@code /} (spec 0010, AC-14).
+	 */
+	public AppProperties {
+		if (publicUrl != null) {
+			publicUrl = publicUrl.strip();
+			while (publicUrl.endsWith("/")) {
+				publicUrl = publicUrl.substring(0, publicUrl.length() - 1);
+			}
+		}
+	}
+
+	/**
+	 * Cấu hình gửi email (spec 0010).
+	 *
+	 * @param from địa chỉ người gửi, có thể kèm tên hiển thị; với Gmail phải trùng
+	 * {@code MAIL_USERNAME}
+	 */
+	public record Mail(@NotBlank(message = "Thiếu MAIL_FROM (địa chỉ người gửi email)") String from) {
+
+	}
 
 	/**
 	 * Cấu hình xác thực (spec 0004, mục Configuration required).
@@ -36,6 +64,8 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 	 * @param sessionRetention giữ dòng đã hết hạn hoặc thu hồi bao lâu trước khi xóa;
 	 * phải không nhỏ hơn {@code sessionMaxLifetime}
 	 * @param sessionCleanupCron lịch job dọn dẹp phiên, theo {@code app.timezone}
+	 * @param passwordResetTtl thời gian sống của link đặt lại mật khẩu qua email (spec
+	 * 0010)
 	 */
 	public record Security(@NotBlank(message = "Thiếu JWT_SECRET (khóa ký access token)") String jwtSecret,
 			@NotNull(message = "Thiếu app.security.access-token-ttl") Duration accessTokenTtl,
@@ -46,7 +76,8 @@ public record AppProperties(@NotNull(message = "Thiếu APP_TIMEZONE (múi giờ
 			@NotNull(message = "Thiếu app.security.session-max-lifetime") Duration sessionMaxLifetime,
 			@NotNull(message = "Thiếu app.security.refresh-reuse-grace") Duration refreshReuseGrace,
 			@NotNull(message = "Thiếu app.security.session-retention") Duration sessionRetention,
-			@NotBlank(message = "Thiếu app.security.session-cleanup-cron") String sessionCleanupCron) {
+			@NotBlank(message = "Thiếu app.security.session-cleanup-cron") String sessionCleanupCron,
+			@NotNull(message = "Thiếu app.security.password-reset-ttl") Duration passwordResetTtl) {
 
 		/** Chuỗi mẫu trong {@code backend/.env.example}; backend không đọc file đó. */
 		public static final String JWT_SECRET_MAU = "doi-thanh-chuoi-ngau-nhien-du-dai";

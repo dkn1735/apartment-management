@@ -1,12 +1,19 @@
 # Profile cho mọi test (bật cùng dev): khóa ký chỉ dùng trong test, bcrypt cost thấp cho nhanh.
 # Test nâng hash tự đặt bcrypt-cost cụ thể.
 app:
+  # Test chỉ bật profile test (không có dev) vẫn khởi động được; link trong email trỏ về đây
+  public-url: http://localhost:3000
+  mail:
+    from: Chung cư (test) <no-reply@chungcu.test>
   security:
     jwt-secret: test-only-secret-not-for-real-use-0123456789
     bcrypt-cost: 4
 # Mỗi Spring context được cache giữ pool riêng; mặc định Hikari giữ sẵn đủ 20 kết nối
 # (spec 0007), nhiều context cộng lại vượt max_connections 100 của container.
 spring:
+  # Có máy chủ SMTP để JavaMailSender được tạo; test gửi email thật đặt cổng GreenMail
+  mail:
+    host: localhost
   datasource:
     hikari:
       minimum-idle: 2

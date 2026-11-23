@@ -12,7 +12,7 @@ Java 25, Node.js 24, pnpm 12.17.0 (`npm i -g pnpm@12.17.0`), Docker Desktop.
    - `.env.example` → `.env`
    - `backend/.env.example` → `backend/.env` (mật khẩu DB phải trùng `POSTGRES_PASSWORD`)
    - `frontend/.env.example` → `frontend/.env.local`
-2. Bật PostgreSQL (cổng 5433 trên máy): `docker compose up -d`
+2. Bật PostgreSQL (cổng 5433 trên máy) và Mailpit: `docker compose up -d`. Mailpit là hộp thư giả cho dev: email đặt lại mật khẩu gửi tới đây, xem ở http://localhost:8025
 3. Chạy backend: `cd backend` rồi `mvnw.cmd spring-boot:run` (http://localhost:8080, Swagger ở `/swagger-ui.html`)
 4. Chạy frontend: `cd frontend`, `pnpm install`, rồi `pnpm dev` (http://localhost:3000)
 
