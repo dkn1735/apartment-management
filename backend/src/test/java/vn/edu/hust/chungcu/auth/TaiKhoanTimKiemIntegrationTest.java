@@ -99,8 +99,9 @@ class TaiKhoanTimKiemIntegrationTest {
 		assertThat(tim(this.admin, "q", "duc tim", "vaiTro", "BAO_VE", "trangThai", "Hoạt động")).contains(ma);
 		assertThat(tim(this.admin, "q", "duc tim", "vaiTro", "KE_TOAN")).doesNotContain(ma);
 		assertThat(tim(this.admin, "q", "duc tim", "trangThai", "Tạm khóa")).doesNotContain(ma);
-		// Mã seed theo thứ tự mới tạo trước
-		List<String> tatCa = tim(this.admin);
+		// Mã seed theo thứ tự mới tạo trước; lọc theo dải số seed để test khác thêm tài
+		// khoản vào database dùng chung không đẩy chúng sang trang sau
+		List<String> tatCa = tim(this.admin, "q", "09000000");
 		assertThat(tatCa.indexOf(TaiKhoanApi.maTheoSo(this.jdbc, "0900000008")))
 			.isLessThan(tatCa.indexOf(TaiKhoanApi.maTheoSo(this.jdbc, "0900000001")));
 	}
