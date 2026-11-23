@@ -43,6 +43,7 @@ class NangCapHashIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.taiKhoanThu = new TaiKhoanThu(this.jdbc);
 	}
 

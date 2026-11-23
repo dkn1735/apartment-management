@@ -34,6 +34,9 @@ public class NguoiDungHeThong {
 
 	private Instant dangNhapCuoiLuc;
 
+	/** Đang dùng mật khẩu tạm, phải đổi ở lần đăng nhập tới (spec 0008, AC-13). */
+	private boolean phaiDoiMatKhau;
+
 	private Instant capNhatLuc;
 
 	@Version
@@ -68,6 +71,10 @@ public class NguoiDungHeThong {
 
 	public boolean dangHoatDong() {
 		return HOAT_DONG.equals(this.trangThaiTaiKhoan);
+	}
+
+	public boolean isPhaiDoiMatKhau() {
+		return this.phaiDoiMatKhau;
 	}
 
 	public Instant getDangNhapCuoiLuc() {

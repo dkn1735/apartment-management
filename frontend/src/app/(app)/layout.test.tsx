@@ -3,11 +3,11 @@ import { render as rtlRender, screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createQueryClient } from "@/lib/api/query-client";
-import { mockPathname } from "@/test/next-navigation";
+import { mockPathname, mockReplace } from "@/test/next-navigation";
 import AppLayout from "./layout";
 
 const state = vi.hoisted(() => ({
-  current: {} as { data?: { hoTen: string; vaiTro: string[] }; isPending?: boolean },
+  current: {} as { data?: { hoTen: string; vaiTro: string[]; phaiDoiMatKhau?: boolean }; isPending?: boolean },
 }));
 
 vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
@@ -22,6 +22,7 @@ const render = (ui: ReactElement) =>
 beforeEach(() => {
   state.current = {};
   mockPathname.mockReturnValue("/ho-so");
+  mockReplace.mockClear();
 });
 
 describe("Layout (app) (AC-14)", () => {
@@ -56,5 +57,26 @@ describe("Layout (app) (AC-14)", () => {
     render(<AppLayout>nội dung</AppLayout>);
     expect(screen.queryByRole("navigation", { name: "Menu chính" })).not.toBeInTheDocument();
     expect(screen.getAllByText("Đang tải menu").length).toBeGreaterThan(0);
+  });
+});
+
+describe("Mật khẩu tạm (spec 0008, AC-14)", () => {
+  it("trang khác thì chuyển sang /doi-mat-khau kèm next, ẩn menu điều hướng và nội dung", () => {
+    state.current = { data: { hoTen: "Người Mới", vaiTro: ["QUAN_TRI_VIEN"], phaiDoiMatKhau: true } };
+    mockPathname.mockReturnValue("/tai-khoan");
+    render(<AppLayout>nội dung</AppLayout>);
+    expect(mockReplace).toHaveBeenCalledWith("/doi-mat-khau?next=%2Ftai-khoan");
+    expect(screen.queryByText("nội dung")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Tài khoản" })).not.toBeInTheDocument();
+    // Menu người dùng (đăng xuất) vẫn còn
+    expect(screen.getByRole("banner")).toHaveTextContent("Người Mới");
+  });
+
+  it("ở trang đổi mật khẩu thì hiện nội dung, không chuyển", () => {
+    state.current = { data: { hoTen: "Người Mới", vaiTro: ["QUAN_TRI_VIEN"], phaiDoiMatKhau: true } };
+    mockPathname.mockReturnValue("/doi-mat-khau");
+    render(<AppLayout>nội dung</AppLayout>);
+    expect(screen.getByText("nội dung")).toBeInTheDocument();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });

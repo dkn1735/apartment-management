@@ -47,6 +47,16 @@ public class AuthCookies {
 		return headers;
 	}
 
+	/**
+	 * Chỉ đặt lại cookie {@code access_token}, giữ nguyên {@code refresh_token} và
+	 * {@code phien} (spec 0008, AC-13: đổi mật khẩu cấp access token mới).
+	 */
+	public HttpHeaders datAccessToken(String accessToken) {
+		HttpHeaders headers = new HttpHeaders();
+		add(headers, ACCESS_TOKEN, accessToken, PATH_GOC, this.accessTtl);
+		return headers;
+	}
+
 	public HttpHeaders xoa() {
 		HttpHeaders headers = new HttpHeaders();
 		add(headers, ACCESS_TOKEN, "", PATH_GOC, Duration.ZERO);

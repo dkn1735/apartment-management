@@ -62,6 +62,7 @@ export function useApiForm<TSchema extends z.ZodType<FieldValues, FieldValues>>(
           message: error.message,
           errors: unmatched,
           requestId: error.requestId,
+          retryAfter: error.retryAfter,
         }),
       );
     }

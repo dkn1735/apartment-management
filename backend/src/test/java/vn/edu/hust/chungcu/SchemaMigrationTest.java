@@ -197,6 +197,7 @@ class SchemaMigrationTest {
 		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(3);
 		assertThat(count("""
 				SELECT count(*) FROM cu_dan c
+				JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = c.ma_nguoi_dung AND n.so_dien_thoai LIKE '09000000%'
 				WHERE NOT EXISTS (
 					SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_cu_dan = c.ma_cu_dan AND h.trang_thai_ho_so = 'Hợp lệ')"""))
 			.isZero();
@@ -218,6 +219,19 @@ class SchemaMigrationTest {
 		assertThat(soDongMoiBang()).isEqualTo(truoc);
 	}
 
+	// Spec 0008, AC-18
+	@Test
+	void v12CoCotPhaiDoiMatKhauVaExtensionUnaccent() {
+		assertThat(this.jdbc.queryForObject("""
+				SELECT data_type || ' ' || is_nullable || ' ' || column_default FROM information_schema.columns
+				WHERE table_name = 'nguoi_dung_he_thong' AND column_name = 'phai_doi_mat_khau'""", String.class))
+			.isEqualTo("boolean NO false");
+		assertThat(count("SELECT count(*) FROM nguoi_dung_he_thong WHERE so_dien_thoai LIKE '09000000%' "
+				+ "AND phai_doi_mat_khau"))
+			.isZero();
+		assertThat(this.jdbc.queryForObject("SELECT unaccent('Đặng Nguyễn')", String.class)).isEqualTo("Dang Nguyen");
+	}
+
 	// AC-7
 	@Test
 	void boProfileSeedTrenDatabaseDaSeedVanMigrateDuoc() {
@@ -231,12 +245,13 @@ class SchemaMigrationTest {
 		flyway.migrate();
 	}
 
-	// AC-1, AC-3
+	// AC-1, AC-3; spec 0009 thêm dang_nhap_sai_dinh_danh
 	@Test
-	void flywayTaoDuBonMuoiHaiBang() {
+	void flywayTaoDuBonMuoiBaBang() {
 		List<String> bang = tenCacBang();
-		assertThat(bang).hasSize(42)
-			.contains("quan_tri_vien", "nhan_vien_bao_ve", "phien_dang_nhap", "yeu_cau_dat_lai_mat_khau");
+		assertThat(bang).hasSize(43)
+			.contains("quan_tri_vien", "nhan_vien_bao_ve", "phien_dang_nhap", "yeu_cau_dat_lai_mat_khau",
+					"dang_nhap_sai_dinh_danh");
 	}
 
 	// AC-3

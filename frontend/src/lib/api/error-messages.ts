@@ -24,7 +24,29 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_ACCOUNT_LOCKED: "Tài khoản đang bị khóa hoặc đã ngừng hoạt động. Vui lòng liên hệ ban quản lý.",
   // Spec 0005: mọi lý do làm mới thất bại dùng chung câu này
   AUTH_REFRESH_INVALID: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.",
+  // API-AUTH-04: đổi mật khẩu
+  AUTH_OLD_PASSWORD_INCORRECT: "Mật khẩu hiện tại không đúng.",
+  // Spec 0008: quản lý tài khoản
+  AUTH_IDENTITY_TAKEN: "Thông tin đã được dùng cho tài khoản khác.",
+  AUTH_ROLE_IN_USE:
+    "Vai trò này đang gắn với dữ liệu khác nên không gỡ được. Nếu người này không còn làm việc, hãy chuyển tài khoản sang Ngừng hoạt động.",
+  AUTH_LAST_ROLE:
+    "Tài khoản phải có ít nhất một vai trò. Nếu người này không còn dùng hệ thống, hãy chuyển sang Ngừng hoạt động.",
+  AUTH_SELF_PROTECTED: "Bạn không thể tự gỡ vai trò quản trị, tự khóa hay tự đặt lại mật khẩu của mình.",
+  AUTH_LAST_ADMIN: "Hệ thống phải luôn còn ít nhất một quản trị viên đang hoạt động.",
+  AUTH_PASSWORD_CHANGE_REQUIRED: "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.",
+  // Spec 0009: khóa tạm đăng nhập; có Retry-After thì dùng thongBaoKhoaTam để nêu số phút
+  AUTH_TOO_MANY_ATTEMPTS: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.",
 };
+
+/** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */
+export function thongBaoKhoaTam(retryAfter: number | undefined): string {
+  if (retryAfter === undefined || !Number.isFinite(retryAfter) || retryAfter <= 0) {
+    return ERROR_MESSAGES.AUTH_TOO_MANY_ATTEMPTS;
+  }
+  const phut = Math.max(1, Math.ceil(retryAfter / 60));
+  return `Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ${phut} phút hoặc liên hệ ban quản lý.`;
+}
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */
 function messageForStatus(status: number): string {
@@ -49,6 +71,7 @@ function messageForStatus(status: number): string {
 
 /** Câu thông báo chung cho một lỗi API. Không bao giờ dùng `error.message` của response. */
 export function messageFor(error: ApiError): string {
+  if (error.errorCode === "AUTH_TOO_MANY_ATTEMPTS") return thongBaoKhoaTam(error.retryAfter);
   return Object.hasOwn(ERROR_MESSAGES, error.errorCode)
     ? ERROR_MESSAGES[error.errorCode]
     : messageForStatus(error.status);

@@ -48,7 +48,7 @@ public class HoSoService {
 		}
 		VaiTroNguoiDung vaiTro = this.vaiTroQuery.cua(maNguoiDung);
 		return new HoSoResponse(tk.getMaNguoiDung(), tk.getHoTen(), tk.getSoDienThoai(), tk.getEmail(),
-				tk.getTrangThaiTaiKhoan(), vaiTro.vaiTro(), phamVi(vaiTro), vaiTro.chiTiet());
+				tk.getTrangThaiTaiKhoan(), tk.isPhaiDoiMatKhau(), vaiTro.vaiTro(), phamVi(vaiTro), vaiTro.chiTiet());
 	}
 
 	// Cùng quy tắc với PhamViTruyCapService, chỉ khác nguồn vai trò (spec 0006, AC-6)

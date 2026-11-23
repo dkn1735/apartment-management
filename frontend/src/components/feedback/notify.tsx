@@ -10,6 +10,11 @@ export function notifySuccess(message: string, description?: string) {
   return toast.success(message, { description });
 }
 
+/** Báo một việc trang đã tự xử lý, ví dụ đã tải lại dữ liệu mới nhất (spec 0008, AC-17). Tự tắt như toast thành công. */
+export function notifyInfo(message: string) {
+  return toast.info(message);
+}
+
 /**
  * Báo lỗi của thao tác không nằm trong form hay hộp thoại: toast không tự tắt, có nút "Đóng" (AC-8),
  * kèm mã tra cứu với lỗi hệ thống (AC-7). Lỗi không phải ApiError dùng câu chung của lỗi hệ thống.

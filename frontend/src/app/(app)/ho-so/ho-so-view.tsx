@@ -1,6 +1,7 @@
 "use client";
 
-import { Building2, Home, RotateCcw, ShieldCheck, UserRound, type LucideIcon } from "lucide-react";
+import { Building2, Home, KeyRound, RotateCcw, ShieldCheck, UserRound, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { KeyValueList } from "@/components/data/key-value-list";
 import { StatusBadge, type StatusTone } from "@/components/data/status-badge";
@@ -26,7 +27,18 @@ export function HoSoView() {
 
   return (
     <>
-      <PageHeader title="Hồ sơ của tôi" description="Thông tin hệ thống đang ghi nhận cho tài khoản của bạn." />
+      <PageHeader
+        title="Hồ sơ của tôi"
+        description="Thông tin hệ thống đang ghi nhận cho tài khoản của bạn."
+        actions={
+          <Button asChild variant="outline">
+            <Link href="/doi-mat-khau">
+              <KeyRound aria-hidden="true" />
+              Đổi mật khẩu
+            </Link>
+          </Button>
+        }
+      />
       {data ? (
         <NoiDung hoSo={data} />
       ) : isError && !laLoiChuyenVeDangNhap(error) ? (

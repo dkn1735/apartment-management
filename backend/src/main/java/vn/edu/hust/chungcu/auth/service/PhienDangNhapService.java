@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.hust.chungcu.auth.entity.PhienDangNhap;
+import vn.edu.hust.chungcu.auth.repository.KhoaTamTaiKhoanRepository;
 import vn.edu.hust.chungcu.auth.repository.NguoiDungHeThongRepository;
 import vn.edu.hust.chungcu.auth.repository.PhienDangNhapRepository;
 import vn.edu.hust.chungcu.common.config.AppProperties;
@@ -27,9 +28,12 @@ public class PhienDangNhapService {
 
 	private final Duration retention;
 
+	private final KhoaTamTaiKhoanRepository khoaTam;
+
 	public PhienDangNhapService(NguoiDungHeThongRepository nguoiDung, PhienDangNhapRepository phien, Clock clock,
-			AppProperties properties) {
+			AppProperties properties, KhoaTamTaiKhoanRepository khoaTam) {
 		this.nguoiDung = nguoiDung;
+		this.khoaTam = khoaTam;
 		this.phien = phien;
 		this.clock = clock;
 		this.retention = properties.security().sessionRetention();
@@ -47,6 +51,9 @@ public class PhienDangNhapService {
 	@Transactional
 	public void taoPhien(PhienMoi moi) {
 		this.nguoiDung.ghiDangNhapCuoi(moi.maNguoiDung(), moi.taoLuc());
+		// Mật khẩu khớp: bộ đếm về 0 và xóa khóa, rollback cùng phiên (spec 0009, AC-4).
+		// JdbcClient dùng chung kết nối của JpaTransactionManager
+		this.khoaTam.datLai(moi.maNguoiDung());
 		if (moi.hashMoi() != null) {
 			this.nguoiDung.nangCapMatKhauHash(moi.maNguoiDung(), moi.hashCu(), moi.hashMoi());
 		}

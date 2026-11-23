@@ -21,6 +21,7 @@ const HAI_VAI_TRO: HoSo = {
   soDienThoai: "0900000006",
   email: "bqt@chungcu.test",
   trangThaiTaiKhoan: "Hoạt động",
+  phaiDoiMatKhau: false,
   vaiTro: ["BAN_QUAN_TRI", "CU_DAN"],
   phamVi: { maToaNha: ["A"], maCanHo: ["A-0101"] },
   chiTietVaiTro: {

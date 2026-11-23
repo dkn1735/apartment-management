@@ -63,6 +63,7 @@ class HoSoIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.auth = new AuthApi(this.mockMvc);
 		this.taiKhoanThu = new TaiKhoanThu(this.jdbc);
@@ -183,7 +184,7 @@ class HoSoIntegrationTest {
 	@Test
 	void nguoiDungKhongConTonTaiThi401VaXoaCookie() throws Exception {
 		String token = this.accessTokens
-			.cap("ND99999999", UUID.randomUUID(), List.of(VaiTro.CU_DAN), MutableClock.MAC_DINH)
+			.cap("ND99999999", UUID.randomUUID(), List.of(VaiTro.CU_DAN), false, MutableClock.MAC_DINH)
 			.value();
 		MvcResult result = this.mockMvc.perform(this.auth.profile(token))
 			.andExpect(status().isUnauthorized())

@@ -6,21 +6,28 @@ import { MUC_CHUC_NANG, type MucChucNang } from "./muc-chuc-nang";
 const tenNhom = (vaiTro: string[]) => nhomMenu(vaiTro).map((g) => [g.label, g.items.map((i) => i.label)]);
 
 describe("nhomMenu (spec 0006, AC-10)", () => {
-  it("BQL thấy nhóm Ban quản lý có Tòa nhà", () => {
+  it("BQL thấy nhóm Ban quản lý có Tòa nhà, Nhật ký hệ thống và Tài khoản", () => {
     expect(tenNhom(["BAN_QUAN_LY"])).toEqual([
       [undefined, ["Tổng quan", "Hồ sơ"]],
-      ["Ban quản lý", ["Tòa nhà"]],
+      ["Ban quản lý", ["Tòa nhà", "Nhật ký hệ thống", "Tài khoản"]],
     ]);
   });
 
-  it.each([[["QUAN_TRI_VIEN"]], [["CU_DAN"]], [[]], [["VAI_TRO_LA"]]])("%j chỉ thấy nhóm đầu", (vaiTro) => {
+  it("Admin thấy nhóm Quản trị viên có Nhật ký hệ thống và Tài khoản", () => {
+    expect(tenNhom(["QUAN_TRI_VIEN"])).toEqual([
+      [undefined, ["Tổng quan", "Hồ sơ"]],
+      ["Quản trị viên", ["Nhật ký hệ thống", "Tài khoản"]],
+    ]);
+  });
+
+  it.each([[["CU_DAN"]], [[]], [["VAI_TRO_LA"]]])("%j chỉ thấy nhóm đầu", (vaiTro) => {
     expect(tenNhom(vaiTro)).toEqual([[undefined, ["Tổng quan", "Hồ sơ"]]]);
   });
 
   it("hai vai trò: mục chỉ ở nhóm đứng trước, nhóm rỗng bị ẩn", () => {
     expect(tenNhom(["CU_DAN", "BAN_QUAN_TRI"])).toEqual([
       [undefined, ["Tổng quan", "Hồ sơ"]],
-      ["Ban quản trị", ["Tòa nhà"]],
+      ["Ban quản trị", ["Tòa nhà", "Nhật ký hệ thống"]],
     ]);
   });
 

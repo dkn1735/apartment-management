@@ -58,6 +58,9 @@ class DangNhapJwtIntegrationTest {
 	MutableClock clock;
 
 	@Autowired
+	org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+	@Autowired
 	JwtDecoder jwtDecoder;
 
 	@Autowired
@@ -67,6 +70,7 @@ class DangNhapJwtIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.auth = new AuthApi(this.mockMvc);
 	}

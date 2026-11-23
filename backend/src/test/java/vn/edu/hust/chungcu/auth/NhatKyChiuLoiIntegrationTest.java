@@ -56,6 +56,7 @@ class NhatKyChiuLoiIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.tk = new TaiKhoanThu(this.jdbc).tao(this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED));
 		this.nhatKyGhi.datHong(true);
 	}

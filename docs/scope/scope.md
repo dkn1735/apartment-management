@@ -21,10 +21,10 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 6 | Làm mới phiên & đăng xuất | Slice 2 | done |
 | 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | done |
 | 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
-| 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | planned |
-| 10 | Đổi mật khẩu | Slice 6 | planned |
-| 11 | Quản lý tài khoản (Admin) | Slice 7 | planned |
-| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | planned |
+| 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
+| 10 | Đổi mật khẩu | Slice 6 | in-progress |
+| 11 | Quản lý tài khoản (Admin) | Slice 7 | done |
+| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | done |
 | 13 | Quên mật khẩu qua email | Slice 9 | planned |
 
 ## Foundations
@@ -130,36 +130,59 @@ spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `bac
   - [x] Đường mỏng: V11, `NhatKyService.ghi` trong transaction riêng, gắn đăng nhập thành công và thất bại (AC-1, AC-2, AC-3, AC-10)
   - [x] Ghi sau commit: đăng xuất và phát hiện dùng lại token (AC-4, AC-5, AC-6)
   - [x] Chịu lỗi và giữ bí mật: log ERROR, chặn tên khóa nhạy cảm, test quét, trigger và CHECK (AC-7, AC-8, AC-9)
-- [ ] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
-- [ ] Test it: `/test ghi nhật ký kiểm toán dùng chung`
+- [x] Verify it: `/check verify ghi nhật ký kiểm toán dùng chung`
+- [x] Test it: `/test ghi nhật ký kiểm toán dùng chung`
 
 ## Slice 5: Màn hình tra cứu nhật ký kiểm toán
 
-### 9. Màn hình tra cứu nhật ký kiểm toán
+### 9. Màn hình tra cứu nhật ký kiểm toán · in-progress
 Admin, BQT và BQL xem lịch sử thao tác có phân trang (API-AUTH-05). Dựa trên spec của tính năng 8.
 **Done when:** người có quyền xem được danh sách log mới nhất trước, phân trang và lọc theo người dùng, loại thao tác, khoảng thời gian; vai trò khác bị chặn; trạng thái rỗng và lỗi hiển thị đúng.
-- [ ] Build it: `/develop màn hình tra cứu nhật ký kiểm toán`
+spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/nhatky/`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/NguoiDungTraCuuService.java`, `frontend/src/app/(app)/nhat-ky/`
+- [x] Build it: `/develop màn hình tra cứu nhật ký kiểm toán`
+  - [x] API đọc: danh sách có bộ lọc, danh mục loại thao tác, họ tên theo lô (AC-11, AC-12, AC-13, AC-14)
+  - [x] Màn hình `/nhat-ky`: bảng, bộ lọc trên URL, trạng thái rỗng và lỗi, mục menu (AC-11, AC-12, AC-14)
 
 ## Slice 6: Đổi mật khẩu
 
-### 10. Đổi mật khẩu
+### 10. Đổi mật khẩu · in-progress
 Người dùng đã đăng nhập đổi mật khẩu sau khi nhập đúng mật khẩu cũ (API-AUTH-04). Dựa trên spec của tính năng 5 và 8.
 **Done when:** sai mật khẩu cũ bị từ chối; mật khẩu mới phải đạt quy tắc độ mạnh; đổi xong thì các phiên khác bị thu hồi và có dòng nhật ký kiểm toán.
-- [ ] Build it: `/develop đổi mật khẩu`
+không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_quan_ly_chung_cu.xlsx`, spec 0004, 0005, 0007) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/service/DoiMatKhauService.java`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/GhiMatKhauMoiService.java`, `frontend/src/app/(app)/doi-mat-khau/`
+- [x] Build it: `/develop đổi mật khẩu`
+  - [x] API `PUT /api/v1/auth/change-password`: kiểm mật khẩu cũ, quy tắc độ mạnh, thu hồi phiên khác, nhật ký `AUTH_DOI_MAT_KHAU`
+  - [x] Trang `/doi-mat-khau`, lối vào từ menu người dùng và trang hồ sơ
 
 ## Slice 7: Quản lý tài khoản (Admin)
 
-### 11. Quản lý tài khoản (Admin) · needs a decision
+### 11. Quản lý tài khoản (Admin) · done
 Admin hoặc BQL tạo tài khoản cho từng vai trò, gán vai trò, khóa và mở khóa (trangThaiTaiKhoan). Đây là cách duy nhất để có tài khoản, vì cư dân không tự đăng ký.
 **Done when:** Admin tìm, tạo, sửa, khóa và mở khóa tài khoản trên màn hình; trùng số điện thoại, email hoặc CCCD bị báo lỗi rõ; tài khoản bị khóa không đăng nhập được và mất phiên đang có; mọi thay đổi có nhật ký kiểm toán.
-- [ ] Design it (spec): `/architect quản lý tài khoản (admin)`
+spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `backend/src/main/resources/db/migration/V12__quan_ly_tai_khoan.sql`, `frontend/src/app/(app)/tai-khoan/`, `frontend/src/lib/tai-khoan.ts`
+- [x] Design it (spec): `/architect quản lý tài khoản (admin)`
+- [x] Build it: `/develop quản lý tài khoản (admin)`
+  - [x] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
+  - [x] Bắt đổi mật khẩu xuyên suốt: claim, interceptor, cấp lại access token, chuyển trang (AC-13, AC-14)
+  - [x] Chi tiết, sửa thông tin và vai trò: trùng thông tin, `phienBan`, gỡ vai trò bị chặn, trang chi tiết (AC-3, AC-6, AC-7, AC-8, AC-9, AC-16)
+  - [x] Trạng thái và đặt lại mật khẩu: thu hồi phiên, tự bảo vệ, Admin cuối, khóa dòng (AC-9, AC-10, AC-11, AC-12, AC-16)
+  - [x] Phạm vi BQL, tìm kiếm đủ, khóa lại: cư dân thuần, `unaccent`, a11y, `verify.md` (AC-5, AC-15, AC-16, AC-17)
+- [x] Verify it: `/check verify quản lý tài khoản (admin)`
+- [x] Test it: `/test quản lý tài khoản (admin)`
 
 ## Slice 8: Khóa tạm khi đăng nhập sai nhiều lần
 
-### 12. Khóa tạm khi đăng nhập sai nhiều lần · needs a decision
+### 12. Khóa tạm khi đăng nhập sai nhiều lần · done
 Chặn dò mật khẩu: sai liên tiếp N lần thì tạm khóa đăng nhập trong một khoảng thời gian. Cần chốt ngưỡng, thời gian khóa, và cách phân biệt với trạng thái `Tạm khóa` do Admin đặt.
 **Done when:** vượt ngưỡng thì đăng nhập bị chặn kể cả khi nhập đúng mật khẩu, tới hạn thì tự mở; đăng nhập đúng thì bộ đếm về 0; Admin mở khóa sớm được; thông báo lỗi không tiết lộ tài khoản có tồn tại hay không.
-- [ ] Design it (spec): `/architect khóa tạm khi đăng nhập sai nhiều lần`
+spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (KhoaTam*, MoKhoaDangNhapService) và `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/tai-khoan/[ma]/`
+- [x] Design it (spec): `/architect khóa tạm khi đăng nhập sai nhiều lần`
+- [x] Build it: `/develop khóa tạm khi đăng nhập sai nhiều lần`
+  - [x] Đường mỏng cho tài khoản thật: giữ lượt, 429 kèm `Retry-After`, cửa sổ 15 phút, câu báo số phút (AC-1, AC-2, AC-3, AC-4, AC-7, AC-13, AC-15, AC-18)
+  - [x] Định danh ảo và chạy song song: bảng `dang_nhap_sai_dinh_danh`, phản hồi giống hệt, xóa khi định danh có chủ, test 20 luồng (AC-5, AC-6, AC-7, AC-19)
+  - [x] Phía người quản lý: `khoaTamDen`, `DELETE .../login-lock`, đặt lại mật khẩu xóa khóa, thẻ Trạng thái và bảo mật (AC-8, AC-9, AC-10, AC-14, AC-16)
+  - [x] Nhật ký, log, job dọn và khóa lại: hai loại nhật ký mới, trang `/nhat-ky`, câu gợi ý, a11y, `verify.md` (AC-11, AC-12, AC-13, AC-14, AC-17)
+- [x] Verify it: `/check verify khóa tạm khi đăng nhập sai nhiều lần`
+- [x] Test it: `/test khóa tạm khi đăng nhập sai nhiều lần`
 
 ## Slice 9: Quên mật khẩu qua email
 
@@ -170,6 +193,7 @@ Người dùng nhận link hoặc mã đặt lại mật khẩu qua email. Kéo 
 
 ## Deferred
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
+- **Giới hạn đăng nhập theo IP**: chống dò rải trên nhiều tài khoản và giảm việc cố tình khóa tài khoản người khác; cần chốt có tin `X-Forwarded-For` sau proxy hay không · needs a decision · from spec 0009
 - **UC01 Căn hộ & Tòa nhà**: tòa nhà, tầng, căn hộ, khu vực dùng chung (10 API) · needs a decision
 - **UC02 Cư trú & Nhân khẩu**: hồ sơ cư trú, phương tiện (7 API) · needs a decision
 - **UC03 Chỉ số tiêu thụ**: đồng hồ điện nước, ghi chỉ số, ngoại lệ (6 API) · needs a decision

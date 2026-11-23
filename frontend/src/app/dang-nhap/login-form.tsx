@@ -3,19 +3,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Clock, Lock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useId, useState } from "react";
 import * as z from "zod";
 import { FormAlert } from "@/components/form/form-alert";
 import { FormField } from "@/components/form/form-field";
+import { PasswordInput } from "@/components/form/password-input";
 import { SubmitButton } from "@/components/form/submit-button";
 import { useApiForm } from "@/components/form/use-api-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { api, client } from "@/lib/api/api";
+import { api, ApiError, client } from "@/lib/api/api";
 import { ERROR_MESSAGES } from "@/lib/api/error-messages";
 import { BO_QUA_CHUYEN_TRANG } from "@/lib/api/query-client";
+import { duongDoiMatKhau } from "@/lib/auth/bat-doi-mat-khau";
 import { safeNext } from "@/lib/auth/safe-next";
-import { PasswordInput } from "./password-input";
+import { CAU_GOI_Y_KHOA_TAM } from "@/lib/khoa-tam";
 
 const schema = z.object({
   taiKhoan: z.string().trim().min(1, "Vui lòng nhập số điện thoại hoặc email"),
@@ -41,6 +44,9 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const goiYId = useId();
+  // Hiện câu gợi ý khóa tạm từ lần sai đầu tiên kể từ khi form được dựng (spec 0009, AC-13)
+  const [daSai, setDaSai] = useState(false);
   const form = useApiForm({ schema, defaultValues: { taiKhoan: "", matKhau: "" } });
   const mutation = useMutation({
     mutationFn: (values: Values) => api(client.POST("/api/v1/auth/login", { body: values })),
@@ -52,16 +58,20 @@ export function LoginForm() {
   const lyDo = laLyDo(lyDoParam) ? LY_DO[lyDoParam] : null;
 
   const onSubmit = form.submitWith(async (values) => {
+    let phaiDoiMatKhau = false;
     try {
-      await mutation.mutateAsync(values);
+      const data = (await mutation.mutateAsync(values)) as { phaiDoiMatKhau?: boolean } | undefined;
+      phaiDoiMatKhau = data?.phaiDoiMatKhau === true;
     } catch (error) {
       // Giữ ô tài khoản, xóa ô mật khẩu để gõ lại
       form.setValue("matKhau", "");
+      if (error instanceof ApiError && error.errorCode === "AUTH_INVALID_CREDENTIALS") setDaSai(true);
       throw error;
     }
     // Bỏ dữ liệu của tài khoản trước (nếu có) trước khi vào trang của tài khoản mới
     queryClient.clear();
-    router.replace(safeNext(searchParams.get("next")));
+    // Mật khẩu tạm: đổi mật khẩu trước, rồi mới tới trang định vào (spec 0008, AC-14)
+    router.replace(phaiDoiMatKhau ? duongDoiMatKhau(searchParams.get("next")) : safeNext(searchParams.get("next")));
   });
 
   return (
@@ -74,7 +84,13 @@ export function LoginForm() {
           </Alert>
         )}
       </div>
-      <form onSubmit={onSubmit} noValidate aria-label="Đăng nhập" className="flex flex-col gap-5">
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        aria-label="Đăng nhập"
+        aria-describedby={daSai ? goiYId : undefined}
+        className="flex flex-col gap-5"
+      >
         <FormAlert error={form.formError} focusKey={form.formErrorKey} />
         <FieldGroup>
           <FormField
@@ -95,6 +111,11 @@ export function LoginForm() {
         <SubmitButton form={form} size="lg" className="w-full">
           Đăng nhập
         </SubmitButton>
+        {daSai && (
+          <p id={goiYId} className="-mt-2 type-caption text-muted-foreground">
+            {CAU_GOI_Y_KHOA_TAM}
+          </p>
+        )}
       </form>
     </div>
   );

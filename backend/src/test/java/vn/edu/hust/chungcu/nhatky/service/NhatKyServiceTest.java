@@ -73,9 +73,13 @@ class NhatKyServiceTest {
 		new TransactionTemplate(this.transactionManager).executeWithoutResult(status -> {
 			this.service.ghi(suKien(new ChiTietThu("x", List.of())));
 			this.nguCanh.requestId = "req-doi-sau";
+			this.nguCanh.diaChiIp = "203.0.113.99";
 			assertThat(this.nhatKyGhi.dong).isEmpty();
 		});
-		assertThat(this.nhatKyGhi.dong).singleElement().extracting(DongNhatKy::requestId).isEqualTo("req-1");
+		assertThat(this.nhatKyGhi.dong).singleElement().satisfies(d -> {
+			assertThat(d.requestId()).isEqualTo("req-1");
+			assertThat(d.diaChiIp()).isEqualTo("198.51.100.1");
+		});
 	}
 
 	@Test
@@ -104,12 +108,35 @@ class NhatKyServiceTest {
 		assertThat(this.transactionManager.soLanCommit).isZero();
 	}
 
+	// AC-7: lỗi thì không thử lại, lớp ghi chỉ được gọi một lần
+	@Test
+	void loiKhiGhiThiKhongThuLai() {
+		this.nhatKyGhi.loi = new DataAccessResourceFailureException("x");
+		this.service.ghi(suKien(null));
+		assertThat(this.nhatKyGhi.soLanGoi).isEqualTo(1);
+	}
+
 	@Test
 	void loiSauCommitCungKhongNem(CapturedOutput output) {
 		this.nhatKyGhi.loi = new DataAccessResourceFailureException("x");
 		assertThatCode(() -> new TransactionTemplate(this.transactionManager)
 			.executeWithoutResult(status -> this.service.ghi(suKien(null)))).doesNotThrowAnyException();
 		assertThat(output.getAll()).contains("Ghi nhật ký thất bại");
+		assertThat(this.nhatKyGhi.soLanGoi).isEqualTo(1);
+	}
+
+	// AC-7: chi tiết không chuyển được sang JSON thì không ném, không ghi, log ERROR
+	// không kèm nội dung lỗi
+	@Test
+	void chiTietKhongChuyenDuocSangJsonThiChiLogError(CapturedOutput output) {
+		assertThatCode(() -> this.service.ghi(suKien(new ChiTietHong("x")))).doesNotThrowAnyException();
+
+		assertThat(this.nhatKyGhi.soLanGoi).isZero();
+		assertThat(output.getAll()).contains("ERROR")
+			.contains("Ghi nhật ký thất bại")
+			.contains("loaiThaoTac=AUTH_DANG_XUAT")
+			.contains("requestId=req-1")
+			.doesNotContain("noi-dung-chi-tiet-hong");
 	}
 
 	@Test
@@ -159,11 +186,21 @@ class NhatKyServiceTest {
 	record ChiTietMo(Map<String, Object> noiDung) implements ChiTietNhatKy {
 	}
 
+	/** Chi tiết mà Jackson không đọc được: accessor ném lỗi. */
+	record ChiTietHong(String giaTri) implements ChiTietNhatKy {
+		@Override
+		public String giaTri() {
+			throw new IllegalStateException("noi-dung-chi-tiet-hong");
+		}
+	}
+
 	static final class GiaNhatKyGhi extends NhatKyGhi {
 
 		final List<DongNhatKy> dong = new ArrayList<>();
 
 		RuntimeException loi;
+
+		int soLanGoi;
 
 		GiaNhatKyGhi() {
 			super(null);
@@ -171,6 +208,7 @@ class NhatKyServiceTest {
 
 		@Override
 		public void them(DongNhatKy value) {
+			this.soLanGoi++;
 			if (this.loi != null) {
 				throw this.loi;
 			}
@@ -182,6 +220,8 @@ class NhatKyServiceTest {
 	static final class GiaNguCanh implements NguCanhYeuCau {
 
 		String requestId = "req-1";
+
+		String diaChiIp = "198.51.100.1";
 
 		RuntimeException loi;
 
@@ -195,7 +235,7 @@ class NhatKyServiceTest {
 
 		@Override
 		public String diaChiIp() {
-			return "198.51.100.1";
+			return this.diaChiIp;
 		}
 
 	}

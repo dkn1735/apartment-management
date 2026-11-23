@@ -67,6 +67,7 @@ class LamMoiPhienIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.auth = new AuthApi(this.mockMvc);
 		this.db = new PhienDb(this.jdbc);

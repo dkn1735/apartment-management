@@ -69,6 +69,7 @@ class DangNhapQuyTacIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.taiKhoanThu = new TaiKhoanThu(this.jdbc);
 		clearInvocations(this.passwordEncoder);

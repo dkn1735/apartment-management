@@ -7,3 +7,12 @@ export const mockPathname = vi.fn(() => "/");
 export const mockNotFound = vi.fn((): never => {
   throw new Error("NEXT_NOT_FOUND");
 });
+
+/** Tham số URL giả cho useSearchParams; test đổi bằng `mockSearchParams.mockReturnValue(new URLSearchParams("a=1"))`. */
+export const mockSearchParams = vi.fn(() => new URLSearchParams());
+
+/** `router.replace` giả, để test kiểm URL mà trang ghi. */
+export const mockReplace = vi.fn();
+
+/** `router.push` giả, để test kiểm thay đổi URL có thêm vào lịch sử trình duyệt. */
+export const mockPush = vi.fn();

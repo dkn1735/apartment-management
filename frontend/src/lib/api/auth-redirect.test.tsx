@@ -103,3 +103,28 @@ describe("Chuyển về đăng nhập khi lỗi xác thực (AC-15)", () => {
     expect(assign).not.toHaveBeenCalled();
   });
 });
+
+describe("Chuyển sang đổi mật khẩu khi đang dùng mật khẩu tạm (spec 0008, AC-14)", () => {
+  const loiMatKhauTam = () => new ApiError({ status: 403, errorCode: "AUTH_PASSWORD_CHANGE_REQUIRED", message: "x" });
+
+  it("query bị chặn thì sang /doi-mat-khau kèm next", async () => {
+    render(
+      <QueryClientProvider client={client}>
+        <QueryLoi id="mk" error={loiMatKhauTam} />
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(assign).toHaveBeenCalled());
+    expect(assign).toHaveBeenCalledWith("/doi-mat-khau?next=%2Fho-so%3Ftab%3Dvai-tro");
+  });
+
+  it("đang ở trang đổi mật khẩu thì không chuyển", async () => {
+    window.history.pushState({}, "", "/doi-mat-khau");
+    render(
+      <QueryClientProvider client={client}>
+        <QueryLoi id="mk2" error={loiMatKhauTam} />
+      </QueryClientProvider>,
+    );
+    await new Promise((r) => setTimeout(r, 20));
+    expect(assign).not.toHaveBeenCalled();
+  });
+});

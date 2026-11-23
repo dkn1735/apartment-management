@@ -46,6 +46,7 @@ class NhatKyBiMatIntegrationTest {
 	@Test
 	void khongCotNaoChuaBiMat() throws Exception {
 		this.clock.reset();
+		KhoaTamTestSupport.datLai(this.jdbc);
 		NhatKyDb nhatKy = new NhatKyDb(this.jdbc);
 		TaiKhoanThu taiKhoanThu = new TaiKhoanThu(this.jdbc);
 		TaiKhoanThu.TaiKhoan tk = taiKhoanThu.tao(this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED));
