@@ -61,6 +61,7 @@ class TaiKhoanTrangThaiIntegrationTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.auth = new AuthApi(this.mockMvc);
 		this.nhatKy = new NhatKyDb(this.jdbc);

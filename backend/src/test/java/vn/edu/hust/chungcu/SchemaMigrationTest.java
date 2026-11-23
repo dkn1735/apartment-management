@@ -245,12 +245,13 @@ class SchemaMigrationTest {
 		flyway.migrate();
 	}
 
-	// AC-1, AC-3
+	// AC-1, AC-3; spec 0009 thêm dang_nhap_sai_dinh_danh
 	@Test
-	void flywayTaoDuBonMuoiHaiBang() {
+	void flywayTaoDuBonMuoiBaBang() {
 		List<String> bang = tenCacBang();
-		assertThat(bang).hasSize(42)
-			.contains("quan_tri_vien", "nhan_vien_bao_ve", "phien_dang_nhap", "yeu_cau_dat_lai_mat_khau");
+		assertThat(bang).hasSize(43)
+			.contains("quan_tri_vien", "nhan_vien_bao_ve", "phien_dang_nhap", "yeu_cau_dat_lai_mat_khau",
+					"dang_nhap_sai_dinh_danh");
 	}
 
 	// AC-3

@@ -49,6 +49,7 @@ class TaiKhoanTimKiemIntegrationTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.auth = new AuthApi(this.mockMvc);
 		this.admin = this.auth.accessToken(TaiKhoanApi.ADMIN);

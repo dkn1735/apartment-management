@@ -55,6 +55,7 @@ class NhatKyDangNhapIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.clock.reset();
 		this.nhatKy = new NhatKyDb(this.jdbc);
 		this.taiKhoanThu = new TaiKhoanThu(this.jdbc);

@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import vn.edu.hust.chungcu.SeedTestcontainersConfiguration;
 import vn.edu.hust.chungcu.auth.AuthApi;
 import vn.edu.hust.chungcu.auth.TaiKhoanThu;
+import vn.edu.hust.chungcu.auth.KhoaTamTestSupport;
 
 /**
  * {@code GET /api/v1/system/audit-logs} và {@code /action-types} (spec 0007, AC-11 đến
@@ -57,6 +58,7 @@ class NhatKyTraCuuIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.auth = new AuthApi(this.mockMvc);
 	}
 
@@ -97,7 +99,8 @@ class NhatKyTraCuuIntegrationTest {
 			.andExpect(jsonPath("$.data[*].ma").value(contains("AUTH_DANG_NHAP_THANH_CONG", "AUTH_DANG_NHAP_THAT_BAI",
 					"AUTH_DANG_XUAT", "AUTH_PHAT_HIEN_DUNG_LAI_TOKEN", "AUTH_DOI_MAT_KHAU", "AUTH_TAO_TAI_KHOAN",
 					"AUTH_CAP_NHAT_TAI_KHOAN", "AUTH_GAN_VAI_TRO", "AUTH_CAP_NHAT_VAI_TRO", "AUTH_GO_VAI_TRO",
-					"AUTH_KHOA_TAI_KHOAN", "AUTH_MO_KHOA_TAI_KHOAN", "AUTH_DAT_LAI_MAT_KHAU")))
+					"AUTH_KHOA_TAI_KHOAN", "AUTH_MO_KHOA_TAI_KHOAN", "AUTH_DAT_LAI_MAT_KHAU", "AUTH_KHOA_TAM_DANG_NHAP",
+					"AUTH_MO_KHOA_TAM_DANG_NHAP")))
 			.andExpect(jsonPath("$.data[0].nhan").value("Đăng nhập thành công"));
 	}
 

@@ -43,6 +43,7 @@ import vn.edu.hust.chungcu.auth.phanquyen.ChiCuDanController;
 import vn.edu.hust.chungcu.auth.service.AccessTokenService;
 import vn.edu.hust.chungcu.auth.service.PhamViTruyCapService;
 import vn.edu.hust.chungcu.canho.repository.ToaNhaQuery;
+import vn.edu.hust.chungcu.auth.KhoaTamTestSupport;
 
 /**
  * {@code GET /api/v1/buildings} và lớp kiểm vai trò (spec 0006, AC-2, AC-3, AC-4, AC-7,
@@ -79,6 +80,7 @@ class ToaNhaIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
+		KhoaTamTestSupport.datLai(this.jdbc);
 		this.auth = new AuthApi(this.mockMvc);
 	}
 

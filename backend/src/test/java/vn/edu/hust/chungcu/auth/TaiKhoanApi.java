@@ -118,6 +118,12 @@ public final class TaiKhoanApi {
 			.cookie(new Cookie("access_token", accessToken));
 	}
 
+	/** Mở khóa đăng nhập sớm (spec 0009, AC-8). */
+	public static MockHttpServletRequestBuilder moKhoaDangNhap(String accessToken, String ma) {
+		return delete("/api/v1/accounts/" + ma + "/login-lock").header("X-Requested-With", "XMLHttpRequest")
+			.cookie(new Cookie("access_token", accessToken));
+	}
+
 	private static MockHttpServletRequestBuilder json(MockHttpServletRequestBuilder r, String accessToken,
 			Object body) {
 		return r.header("X-Requested-With", "XMLHttpRequest")
