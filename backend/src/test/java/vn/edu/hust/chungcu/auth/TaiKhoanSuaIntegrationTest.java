@@ -136,6 +136,29 @@ class TaiKhoanSuaIntegrationTest {
 		items.forEach((it) -> assertThat(it.get("vaiTro").toString()).isEqualTo("[\"CU_DAN\"]"));
 	}
 
+	// AC-8, AC-9: vai trò trên path sai thì 400, kiểm trước cả bước 404 tài khoản
+	@Test
+	void vaiTroTrenPathSaiBao400TruocKhiTimTaiKhoan() throws Exception {
+		for (String ma : List.of("ND99999999", maTheoSo("0900000007"))) {
+			this.mockMvc.perform(TaiKhoanApi.suaVaiTro(this.admin, ma, "ADMIN", vaiTroBody(0)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errorCode").value("VALIDATION_FAILED"))
+				.andExpect(jsonPath("$.errors[0].field").value("vaiTro"))
+				.andExpect(jsonPath("$.errors[0].message").value("Vai trò không tồn tại"));
+			this.mockMvc.perform(TaiKhoanApi.goVaiTro(this.admin, ma, "ADMIN", 0))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.errorCode").value("VALIDATION_FAILED"))
+				.andExpect(jsonPath("$.errors[0].field").value("vaiTro"))
+				.andExpect(jsonPath("$.errors[0].message").value("Vai trò không tồn tại"));
+		}
+		// Vai trò đúng, tài khoản không có: 404 như chi tiết
+		this.mockMvc
+			.perform(
+					TaiKhoanApi.suaVaiTro(this.admin, "ND99999999", "BAO_VE", vaiTroBody(0, "viTriTruc", "Cổng chính")))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.message").value("Không tìm thấy tài khoản"));
+	}
+
 	@Test
 	void suaThongTinChungGhiTenTruongVaPhienBanTang() throws Exception {
 		JsonNode tk = tao(List.of(TaiKhoanApi.vaiTro("BAO_VE", "viTriTruc", "Cổng chính")));

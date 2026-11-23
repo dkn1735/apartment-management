@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import jakarta.servlet.http.Cookie;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -22,6 +31,7 @@ import tools.jackson.databind.json.JsonMapper;
 import vn.edu.hust.chungcu.MutableClock;
 import vn.edu.hust.chungcu.MutableClockConfiguration;
 import vn.edu.hust.chungcu.SeedTestcontainersConfiguration;
+import vn.edu.hust.chungcu.common.security.JwtConfig;
 
 /** Bắt đổi mật khẩu tạm ở lần đăng nhập đầu (spec 0008, AC-13). */
 @Import({ SeedTestcontainersConfiguration.class, MutableClockConfiguration.class })
@@ -42,6 +52,15 @@ class BatDoiMatKhauIntegrationTest {
 
 	@Autowired
 	JdbcTemplate jdbc;
+
+	@Autowired
+	JwtDecoder jwtDecoder;
+
+	@Autowired
+	JwtEncoder jwtEncoder;
+
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	AuthApi auth;
 
@@ -116,6 +135,57 @@ class BatDoiMatKhauIntegrationTest {
 		this.mockMvc.perform(get("/api/v1/accounts"))
 			.andExpect(status().isUnauthorized())
 			.andExpect(jsonPath("$.errorCode").value("UNAUTHENTICATED"));
+	}
+
+	/** Ký lại access token với claim đã sửa, giữ nguyên chữ ký hợp lệ của server. */
+	String kyLai(String access, Consumer<Map<String, Object>> sua) {
+		Jwt jwt = this.jwtDecoder.decode(access);
+		JwtClaimsSet claims = JwtClaimsSet.builder().claims((c) -> {
+			c.putAll(jwt.getClaims());
+			sua.accept(c);
+		}).build();
+		return this.jwtEncoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims))
+			.getTokenValue();
+	}
+
+	int buildings(String access) throws Exception {
+		return this.mockMvc.perform(get("/api/v1/buildings").cookie(new Cookie("access_token", access)))
+			.andReturn()
+			.getResponse()
+			.getStatus();
+	}
+
+	// AC-13: token cấp trước tính năng này không có claim, hoặc claim không phải boolean,
+	// thì coi như false
+	@Test
+	void claimThieuHoacKhongPhaiBooleanCoiNhuFalse() throws Exception {
+		String[] tk = taoTaiKhoanBql();
+		String access = AuthApi.cookieValue(this.auth.login(tk[0], tk[1]), "access_token").orElseThrow();
+		assertThat(buildings(access)).isEqualTo(403);
+
+		assertThat(buildings(kyLai(access, (c) -> c.remove(JwtConfig.CLAIM_PHAI_DOI_MAT_KHAU)))).isEqualTo(200);
+		assertThat(buildings(kyLai(access, (c) -> c.put(JwtConfig.CLAIM_PHAI_DOI_MAT_KHAU, "true")))).isEqualTo(200);
+		assertThat(buildings(kyLai(access, (c) -> c.put(JwtConfig.CLAIM_PHAI_DOI_MAT_KHAU, 1)))).isEqualTo(200);
+	}
+
+	// AC-13 (Value sourcing): claim đọc lại từ DB mỗi lần cấp, không chép từ token cũ
+	@Test
+	void lamMoiDocLaiCoTuDb() throws Exception {
+		String[] tk = taoTaiKhoanBql();
+		this.jdbc.update(
+				"UPDATE nguoi_dung_he_thong SET mat_khau_hash = ?, phai_doi_mat_khau = false WHERE so_dien_thoai = ?",
+				this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED), tk[0]);
+		MvcResult login = this.auth.login(tk[0], AuthApi.MAT_KHAU_SEED);
+		String access = AuthApi.cookieValue(login, "access_token").orElseThrow();
+		String refresh = AuthApi.cookieValue(login, "refresh_token").orElseThrow();
+		assertThat(buildings(access)).isEqualTo(200);
+
+		this.jdbc.update("UPDATE nguoi_dung_he_thong SET phai_doi_mat_khau = true WHERE so_dien_thoai = ?", tk[0]);
+		MvcResult lamMoi = this.auth.refresh(refresh);
+		assertThat(
+				JSON.readTree(lamMoi.getResponse().getContentAsString()).get("data").get("phaiDoiMatKhau").asBoolean())
+			.isTrue();
+		assertThat(buildings(AuthApi.cookieValue(lamMoi, "access_token").orElseThrow())).isEqualTo(403);
 	}
 
 }
