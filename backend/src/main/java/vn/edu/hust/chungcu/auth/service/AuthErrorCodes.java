@@ -50,6 +50,14 @@ public final class AuthErrorCodes {
 
 	public static final String AUTH_PASSWORD_CHANGE_REQUIRED_MESSAGE = "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.";
 
+	/**
+	 * Mọi lý do token đặt lại mật khẩu không dùng được dùng cùng mã và cùng câu (spec
+	 * 0010, AC-6).
+	 */
+	public static final String AUTH_RESET_TOKEN_INVALID = "AUTH_RESET_TOKEN_INVALID";
+
+	public static final String AUTH_RESET_TOKEN_INVALID_MESSAGE = "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.";
+
 	private AuthErrorCodes() {
 	}
 

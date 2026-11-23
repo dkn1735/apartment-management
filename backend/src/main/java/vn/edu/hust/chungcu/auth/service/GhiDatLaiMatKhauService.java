@@ -28,8 +28,11 @@ public class GhiDatLaiMatKhauService {
 
 	private final NhatKyService nhatKy;
 
+	private final HuyYeuCauDatLaiService huyYeuCauDatLai;
+
 	public GhiDatLaiMatKhauService(TaiKhoanDichService dich, TaiKhoanGhi ghi, ThuHoiPhienService thuHoiPhien,
-			NhatKyService nhatKy) {
+			NhatKyService nhatKy, HuyYeuCauDatLaiService huyYeuCauDatLai) {
+		this.huyYeuCauDatLai = huyYeuCauDatLai;
 		this.dich = dich;
 		this.ghi = ghi;
 		this.thuHoiPhien = thuHoiPhien;
@@ -40,6 +43,7 @@ public class GhiDatLaiMatKhauService {
 	public void ghi(NguoiQuanLy nguoi, String maNguoiDung, String matKhauHash, Instant now) {
 		this.dich.khoa(nguoi, maNguoiDung);
 		this.ghi.datLaiMatKhau(maNguoiDung, matKhauHash, now);
+		this.huyYeuCauDatLai.huyConMo(maNguoiDung, now);
 		int soPhien = this.thuHoiPhien.thuHoi(maNguoiDung, null, now, LyDoThuHoi.DAT_LAI_MAT_KHAU);
 		log.info("Đặt lại mật khẩu: maNguoiThucHien={}, maNguoiDung={}, soPhienThuHoi={}", nguoi.maNguoiDung(),
 				maNguoiDung, soPhien);

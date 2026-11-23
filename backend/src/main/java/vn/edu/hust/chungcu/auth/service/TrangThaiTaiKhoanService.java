@@ -48,9 +48,12 @@ public class TrangThaiTaiKhoanService {
 
 	private final Clock clock;
 
+	private final HuyYeuCauDatLaiService huyYeuCauDatLai;
+
 	public TrangThaiTaiKhoanService(TaiKhoanDichService dich, TaiKhoanPhamViService phamVi, TaiKhoanQuery query,
 			TaiKhoanGhi ghi, ThuHoiPhienService thuHoiPhien, TaiKhoanTraCuuService traCuu, NhatKyService nhatKy,
-			Clock clock) {
+			Clock clock, HuyYeuCauDatLaiService huyYeuCauDatLai) {
+		this.huyYeuCauDatLai = huyYeuCauDatLai;
 		this.dich = dich;
 		this.phamVi = phamVi;
 		this.query = query;
@@ -111,6 +114,8 @@ public class TrangThaiTaiKhoanService {
 			chiTiet = new ChiTietTaiKhoan.MoKhoa(cu, moi, lyDo.isEmpty() ? null : lyDo);
 		}
 		else {
+			// Rời Hoạt động: link đặt lại qua email cũ bị hủy (spec 0010, AC-10)
+			this.huyYeuCauDatLai.huyConMo(maNguoiDung, now);
 			int soPhien = this.thuHoiPhien.thuHoi(maNguoiDung, null, now, LyDoThuHoi.TAI_KHOAN_BI_KHOA);
 			loai = LoaiThaoTac.AUTH_KHOA_TAI_KHOAN;
 			chiTiet = new ChiTietTaiKhoan.Khoa(cu, moi, lyDo, soPhien);

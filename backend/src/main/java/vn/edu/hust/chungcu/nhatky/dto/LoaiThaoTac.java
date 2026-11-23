@@ -20,7 +20,9 @@ public enum LoaiThaoTac {
 	AUTH_CAP_NHAT_VAI_TRO("Cập nhật vai trò"), AUTH_GO_VAI_TRO("Gỡ vai trò"), AUTH_KHOA_TAI_KHOAN("Khóa tài khoản"),
 	AUTH_MO_KHOA_TAI_KHOAN("Mở khóa tài khoản"), AUTH_DAT_LAI_MAT_KHAU("Đặt lại mật khẩu"),
 	AUTH_KHOA_TAM_DANG_NHAP("Tạm khóa đăng nhập do nhập sai nhiều lần"),
-	AUTH_MO_KHOA_TAM_DANG_NHAP("Mở khóa đăng nhập");
+	AUTH_MO_KHOA_TAM_DANG_NHAP("Mở khóa đăng nhập"),
+	AUTH_YEU_CAU_DAT_LAI_MAT_KHAU("Yêu cầu đặt lại mật khẩu qua email"),
+	AUTH_DAT_LAI_MAT_KHAU_QUA_EMAIL("Đặt lại mật khẩu qua email");
 
 	private final String nhan;
 

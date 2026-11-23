@@ -100,6 +100,23 @@ public class TaiKhoanGhi {
 			.update();
 	}
 
+	/**
+	 * Đặt mật khẩu do chính chủ chọn qua link email (spec 0010, AC-7): như
+	 * {@link #datLaiMatKhau} nhưng tắt cờ bắt đổi, vì đây không phải mật khẩu tạm.
+	 */
+	public void datMatKhauQuaEmail(String maNguoiDung, String matKhauHash, Instant luc) {
+		this.jdbc.sql("""
+				UPDATE nguoi_dung_he_thong
+				SET mat_khau_hash = :hash, phai_doi_mat_khau = false, doi_mat_khau_luc = :luc,
+				    phien_ban = phien_ban + 1, cap_nhat_luc = :luc,
+				    so_lan_dang_nhap_sai = 0, khoa_tam_den = NULL, lan_sai_cuoi_luc = NULL
+				WHERE ma_nguoi_dung = :ma""")
+			.param("hash", matKhauHash)
+			.param("luc", OffsetDateTime.ofInstant(luc, ZoneOffset.UTC))
+			.param("ma", maNguoiDung)
+			.update();
+	}
+
 	/** Tăng {@code phien_ban} khi phiên bản còn khớp (AC-8, AC-9); 0 khi lệch. */
 	public int tangPhienBan(String maNguoiDung, long phienBan, Instant luc) {
 		return this.jdbc.sql("""

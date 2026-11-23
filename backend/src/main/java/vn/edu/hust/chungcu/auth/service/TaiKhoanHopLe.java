@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import vn.edu.hust.chungcu.auth.dto.TruongVaiTroNhap;
 import vn.edu.hust.chungcu.auth.dto.VaiTro;
 import vn.edu.hust.chungcu.auth.dto.VaiTroRequest;
+import vn.edu.hust.chungcu.auth.dto.YeuCauDatLaiRequest;
 import vn.edu.hust.chungcu.auth.repository.BangVaiTro;
 import vn.edu.hust.chungcu.auth.repository.TruongVaiTro;
 import vn.edu.hust.chungcu.auth.repository.VaiTroGhi;
@@ -28,7 +29,7 @@ final class TaiKhoanHopLe {
 
 	static final int EMAIL_TOI_DA = 150;
 
-	private static final Pattern EMAIL = Pattern.compile("^[a-z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$");
+	private static final Pattern EMAIL = Pattern.compile(YeuCauDatLaiRequest.EMAIL_REGEX);
 
 	private static final Pattern KHOANG_TRANG = Pattern.compile("\\s+");
 
