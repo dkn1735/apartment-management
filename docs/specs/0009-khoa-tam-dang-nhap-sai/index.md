@@ -1,7 +1,7 @@
 # 0009. Khóa tạm khi đăng nhập sai nhiều lần: giữ lượt trước khi so mật khẩu, đếm cả định danh không tồn tại, trả 429 kèm `Retry-After`
 
 **Date**: 2026-11-23
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

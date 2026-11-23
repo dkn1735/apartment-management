@@ -24,7 +24,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
 | 10 | Đổi mật khẩu | Slice 6 | in-progress |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | done |
-| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | in-progress |
+| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | done |
 | 13 | Quên mật khẩu qua email | Slice 9 | planned |
 
 ## Foundations
@@ -171,7 +171,7 @@ spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/ma
 
 ## Slice 8: Khóa tạm khi đăng nhập sai nhiều lần
 
-### 12. Khóa tạm khi đăng nhập sai nhiều lần · in-progress
+### 12. Khóa tạm khi đăng nhập sai nhiều lần · done
 Chặn dò mật khẩu: sai liên tiếp N lần thì tạm khóa đăng nhập trong một khoảng thời gian. Cần chốt ngưỡng, thời gian khóa, và cách phân biệt với trạng thái `Tạm khóa` do Admin đặt.
 **Done when:** vượt ngưỡng thì đăng nhập bị chặn kể cả khi nhập đúng mật khẩu, tới hạn thì tự mở; đăng nhập đúng thì bộ đếm về 0; Admin mở khóa sớm được; thông báo lỗi không tiết lộ tài khoản có tồn tại hay không.
 spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (KhoaTam*, MoKhoaDangNhapService) và `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/tai-khoan/[ma]/`
@@ -181,8 +181,8 @@ spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/s
   - [x] Định danh ảo và chạy song song: bảng `dang_nhap_sai_dinh_danh`, phản hồi giống hệt, xóa khi định danh có chủ, test 20 luồng (AC-5, AC-6, AC-7, AC-19)
   - [x] Phía người quản lý: `khoaTamDen`, `DELETE .../login-lock`, đặt lại mật khẩu xóa khóa, thẻ Trạng thái và bảo mật (AC-8, AC-9, AC-10, AC-14, AC-16)
   - [x] Nhật ký, log, job dọn và khóa lại: hai loại nhật ký mới, trang `/nhat-ky`, câu gợi ý, a11y, `verify.md` (AC-11, AC-12, AC-13, AC-14, AC-17)
-- [ ] Verify it: `/check verify khóa tạm khi đăng nhập sai nhiều lần`
-- [ ] Test it: `/test khóa tạm khi đăng nhập sai nhiều lần`
+- [x] Verify it: `/check verify khóa tạm khi đăng nhập sai nhiều lần`
+- [x] Test it: `/test khóa tạm khi đăng nhập sai nhiều lần`
 
 ## Slice 9: Quên mật khẩu qua email
 
