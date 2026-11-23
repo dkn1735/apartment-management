@@ -24,7 +24,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
 | 10 | Đổi mật khẩu | Slice 6 | in-progress |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | done |
-| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | planned |
+| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | in-progress |
 | 13 | Quên mật khẩu qua email | Slice 9 | planned |
 
 ## Foundations
@@ -171,10 +171,18 @@ spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/ma
 
 ## Slice 8: Khóa tạm khi đăng nhập sai nhiều lần
 
-### 12. Khóa tạm khi đăng nhập sai nhiều lần · needs a decision
+### 12. Khóa tạm khi đăng nhập sai nhiều lần · in-progress
 Chặn dò mật khẩu: sai liên tiếp N lần thì tạm khóa đăng nhập trong một khoảng thời gian. Cần chốt ngưỡng, thời gian khóa, và cách phân biệt với trạng thái `Tạm khóa` do Admin đặt.
 **Done when:** vượt ngưỡng thì đăng nhập bị chặn kể cả khi nhập đúng mật khẩu, tới hạn thì tự mở; đăng nhập đúng thì bộ đếm về 0; Admin mở khóa sớm được; thông báo lỗi không tiết lộ tài khoản có tồn tại hay không.
-- [ ] Design it (spec): `/architect khóa tạm khi đăng nhập sai nhiều lần`
+spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (KhoaTam*, MoKhoaDangNhapService) và `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/tai-khoan/[ma]/`
+- [x] Design it (spec): `/architect khóa tạm khi đăng nhập sai nhiều lần`
+- [x] Build it: `/develop khóa tạm khi đăng nhập sai nhiều lần`
+  - [x] Đường mỏng cho tài khoản thật: giữ lượt, 429 kèm `Retry-After`, cửa sổ 15 phút, câu báo số phút (AC-1, AC-2, AC-3, AC-4, AC-7, AC-13, AC-15, AC-18)
+  - [x] Định danh ảo và chạy song song: bảng `dang_nhap_sai_dinh_danh`, phản hồi giống hệt, xóa khi định danh có chủ, test 20 luồng (AC-5, AC-6, AC-7, AC-19)
+  - [x] Phía người quản lý: `khoaTamDen`, `DELETE .../login-lock`, đặt lại mật khẩu xóa khóa, thẻ Trạng thái và bảo mật (AC-8, AC-9, AC-10, AC-14, AC-16)
+  - [x] Nhật ký, log, job dọn và khóa lại: hai loại nhật ký mới, trang `/nhat-ky`, câu gợi ý, a11y, `verify.md` (AC-11, AC-12, AC-13, AC-14, AC-17)
+- [ ] Verify it: `/check verify khóa tạm khi đăng nhập sai nhiều lần`
+- [ ] Test it: `/test khóa tạm khi đăng nhập sai nhiều lần`
 
 ## Slice 9: Quên mật khẩu qua email
 
@@ -185,6 +193,7 @@ Người dùng nhận link hoặc mã đặt lại mật khẩu qua email. Kéo 
 
 ## Deferred
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
+- **Giới hạn đăng nhập theo IP**: chống dò rải trên nhiều tài khoản và giảm việc cố tình khóa tài khoản người khác; cần chốt có tin `X-Forwarded-For` sau proxy hay không · needs a decision · from spec 0009
 - **UC01 Căn hộ & Tòa nhà**: tòa nhà, tầng, căn hộ, khu vực dùng chung (10 API) · needs a decision
 - **UC02 Cư trú & Nhân khẩu**: hồ sơ cư trú, phương tiện (7 API) · needs a decision
 - **UC03 Chỉ số tiêu thụ**: đồng hồ điện nước, ghi chỉ số, ngoại lệ (6 API) · needs a decision
