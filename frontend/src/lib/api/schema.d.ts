@@ -302,6 +302,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/accounts/{maNguoiDung}/login-lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Mở khóa đăng nhập sớm
+         * @description Xóa khóa tạm do nhập sai mật khẩu nhiều lần và đặt bộ đếm về 0. Không đổi trạng thái tài khoản, không thu hồi phiên. Không đang khóa thì vẫn trả 200.
+         *
+         *     Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY
+         */
+        delete: operations["moKhoaDangNhapTaiKhoan"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -363,6 +385,11 @@ export interface components {
             /** Format: int64 */
             phienBan: number;
             vaiTro: components["schemas"]["VaiTroTaiKhoan"][];
+            /**
+             * Format: date-time
+             * @description Đang khóa đăng nhập tới thời điểm này; null khi không khóa
+             */
+            khoaTamDen?: string;
         };
         VaiTroTaiKhoan: {
             /** @enum {string} */
@@ -1057,6 +1084,17 @@ export interface operations {
                     "*/*": components["schemas"]["ApiResponseDangNhapResponse"];
                 };
             };
+            /** @description Sai quá nhiều lần, đang khóa tạm đăng nhập (AUTH_TOO_MANY_ATTEMPTS) */
+            429: {
+                headers: {
+                    /** @description Số giây còn lại tới khi mở khóa */
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description Lỗi theo vỏ bọc chung */
             default: {
                 headers: {
@@ -1353,6 +1391,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseHoSoResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    moKhoaDangNhapTaiKhoan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                maNguoiDung: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTaiKhoanChiTietResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

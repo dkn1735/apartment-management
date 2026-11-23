@@ -1,16 +1,19 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Lock } from "lucide-react";
 import { useRef, useState } from "react";
 import { KeyValueList } from "@/components/data/key-value-list";
 import { StatusBadge } from "@/components/data/status-badge";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
+import { notifyError, notifySuccess } from "@/components/feedback/notify";
 import { SectionHeader } from "@/components/layout/section-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { api, client } from "@/lib/api/api";
 import type { components } from "@/lib/api/schema";
-import { formatNgayGio } from "@/lib/format";
+import { formatGioNgay, formatNgayGio } from "@/lib/format";
 import { khoaChiTiet, TONE_TRANG_THAI, type TaiKhoanChiTiet } from "@/lib/tai-khoan";
 import { MatKhauTamDialog } from "../mat-khau-tam-dialog";
 import { DoiTrangThaiDialog } from "./doi-trang-thai-dialog";
@@ -21,12 +24,14 @@ type TheTrangThaiProps = { taiKhoan: TaiKhoanChiTiet; laAdmin: boolean; laChinhM
 
 /**
  * Thẻ Trạng thái và bảo mật (spec 0008, AC-10, AC-12, AC-17). Nút mà backend chắc chắn từ chối thì ẩn: tự khóa
- * hay tự đặt lại mật khẩu của mình, BQL đổi trạng thái tài khoản đang Ngừng hoạt động.
+ * hay tự đặt lại mật khẩu của mình, BQL đổi trạng thái tài khoản đang Ngừng hoạt động. Đang khóa tạm đăng nhập thì
+ * có dòng báo và nút mở khóa sớm, kể cả với tài khoản của chính mình (spec 0009, AC-14).
  */
 export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiProps) {
   const queryClient = useQueryClient();
   const [matKhauTam, setMatKhauTam] = useState<string | null>(null);
   const nhomNut = useRef<HTMLDivElement>(null);
+  const tieuDe = useRef<HTMLHeadingElement>(null);
   // Nút vừa bấm đã biến mất sau khi đổi trạng thái: đưa focus tới nút đầu tiên còn lại (thường là nút mới hiện ra)
   const focusNutDau = () => requestAnimationFrame(() => nhomNut.current?.querySelector("button")?.focus());
   const trangThai = taiKhoan.trangThaiTaiKhoan;
@@ -41,10 +46,25 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
     // Không giữ mật khẩu tạm trong cache của mutation (AC-17)
     gcTime: 0,
   });
+  const moKhoa = useMutation({
+    mutationFn: () =>
+      api<TaiKhoanChiTiet>(
+        client.DELETE("/api/v1/accounts/{maNguoiDung}/login-lock", {
+          params: { path: { maNguoiDung: taiKhoan.maNguoiDung } },
+        }),
+      ),
+    onSuccess: (data) => {
+      queryClient.setQueryData(khoaChiTiet(taiKhoan.maNguoiDung), data);
+      notifySuccess("Đã mở khóa đăng nhập");
+      // Nút vừa bấm biến mất: đưa focus về tiêu đề thẻ, không để rơi về đầu trang
+      requestAnimationFrame(() => tieuDe.current?.focus());
+    },
+    onError: notifyError,
+  });
 
   return (
     <Card className="lg:col-span-2">
-      <SectionHeader as="h2" title="Trạng thái và bảo mật" />
+      <SectionHeader as="h2" title="Trạng thái và bảo mật" headingRef={tieuDe} />
       <KeyValueList
         className="mt-4"
         items={[
@@ -56,6 +76,24 @@ export function TheTrangThai({ taiKhoan, laAdmin, laChinhMinh }: TheTrangThaiPro
           { label: "Đổi mật khẩu gần nhất", value: formatNgayGio(taiKhoan.doiMatKhauLuc) },
         ]}
       />
+      {taiKhoan.khoaTamDen && (
+        <Alert tone="warning" className="mt-4">
+          <Lock aria-hidden="true" />
+          <AlertDescription className="sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <p>Đang khóa đăng nhập đến {formatGioNgay(taiKhoan.khoaTamDen)}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start sm:self-auto"
+              disabled={moKhoa.isPending}
+              onClick={() => moKhoa.mutate()}
+            >
+              Mở khóa đăng nhập
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
       {laChinhMinh ? (
         <p className="mt-4 type-caption text-muted-foreground">
           Đây là tài khoản của bạn. Hãy đổi mật khẩu ở trang Đổi mật khẩu.

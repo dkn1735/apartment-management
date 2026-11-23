@@ -46,6 +46,13 @@ export function formatNgayGio(value: string | null | undefined): string {
   return p ? `${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}` : EMPTY_VALUE;
 }
 
+/** Thời điểm ISO thành `HH:mm dd/MM/yyyy` giờ Việt Nam, cho câu kiểu "đến 08:15 16/11/2026" (spec 0009, AC-14). */
+export function formatGioNgay(value: string | null | undefined): string {
+  if (!value || LOCAL_DATE.test(value)) return EMPTY_VALUE;
+  const p = parts(value);
+  return p ? `${p.hour}:${p.minute} ${p.day}/${p.month}/${p.year}` : EMPTY_VALUE;
+}
+
 /**
  * `2026-11-16` (LocalDate) thành `16/11/2026` bằng cách tách chuỗi, không qua `Date` nên không lệch ngày.
  * Chuỗi ISO khác là thời điểm: lấy phần ngày theo giờ Việt Nam.

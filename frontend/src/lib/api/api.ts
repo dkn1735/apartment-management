@@ -13,15 +13,32 @@ export class ApiError extends Error {
   readonly errorCode: string;
   readonly errors: FieldError[];
   readonly requestId: string | undefined;
+  /** Số giây từ header `Retry-After` (spec 0009, AC-15); chỉ có khi header là số nguyên dương. */
+  readonly retryAfter: number | undefined;
 
-  constructor(init: { status: number; errorCode: string; message: string; errors?: FieldError[]; requestId?: string }) {
+  constructor(init: {
+    status: number;
+    errorCode: string;
+    message: string;
+    errors?: FieldError[];
+    requestId?: string;
+    retryAfter?: number;
+  }) {
     super(init.message);
     this.name = "ApiError";
     this.status = init.status;
     this.errorCode = init.errorCode;
     this.errors = init.errors ?? [];
     this.requestId = init.requestId;
+    this.retryAfter = init.retryAfter;
   }
+}
+
+/** `Retry-After` dạng số giây nguyên dương thành số; dạng ngày HTTP, thiếu hay không phải số thì `undefined`. */
+export function docRetryAfter(value: string | null): number | undefined {
+  if (value === null || !/^\d+$/.test(value.trim())) return undefined;
+  const giay = Number(value.trim());
+  return Number.isSafeInteger(giay) && giay > 0 ? giay : undefined;
 }
 
 /** Client openapi-fetch có kiểu sinh từ docs/api/openapi.json. Gọi cùng tên miền, nên baseUrl rỗng. */
@@ -86,6 +103,7 @@ export async function api<T>(request: Promise<FetchResult<Envelope<T>>>): Promis
       message: body.message ?? "Hệ thống gặp lỗi, vui lòng thử lại sau",
       errors: body.errors,
       requestId: body.requestId ?? response.headers.get("X-Request-Id") ?? undefined,
+      retryAfter: docRetryAfter(response.headers.get("Retry-After")),
     });
   }
   throw backendUnavailable(response.status, response.headers.get("X-Request-Id") ?? undefined);

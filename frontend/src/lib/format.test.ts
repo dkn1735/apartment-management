@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatNgay, formatNgayGio, formatSo, formatTien } from "./format";
+import { formatGioNgay, formatNgay, formatNgayGio, formatSo, formatTien } from "./format";
 
 describe("định dạng (AC-11), chạy ở múi giờ America/New_York", () => {
   it("múi giờ của bộ test khác Việt Nam", () => {
@@ -33,5 +33,14 @@ describe("định dạng (AC-11), chạy ở múi giờ America/New_York", () =>
     expect(formatNgayGio("2026-11-16")).toBe("—");
     expect(formatTien(null)).toBe("—");
     expect(formatTien(Number.NaN)).toBe("—");
+  });
+});
+
+describe("formatGioNgay (spec 0009, AC-14)", () => {
+  it("giờ trước, ngày sau, theo giờ Việt Nam", () => {
+    expect(formatGioNgay("2026-11-16T01:15:00Z")).toBe("08:15 16/11/2026");
+    expect(formatGioNgay("2026-11-16T23:30:00Z")).toBe("06:30 17/11/2026");
+    expect(formatGioNgay(null)).toBe("—");
+    expect(formatGioNgay("khong-hop-le")).toBe("—");
   });
 });

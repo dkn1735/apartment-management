@@ -35,7 +35,18 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_SELF_PROTECTED: "Bạn không thể tự gỡ vai trò quản trị, tự khóa hay tự đặt lại mật khẩu của mình.",
   AUTH_LAST_ADMIN: "Hệ thống phải luôn còn ít nhất một quản trị viên đang hoạt động.",
   AUTH_PASSWORD_CHANGE_REQUIRED: "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.",
+  // Spec 0009: khóa tạm đăng nhập; có Retry-After thì dùng thongBaoKhoaTam để nêu số phút
+  AUTH_TOO_MANY_ATTEMPTS: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.",
 };
+
+/** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */
+export function thongBaoKhoaTam(retryAfter: number | undefined): string {
+  if (retryAfter === undefined || !Number.isFinite(retryAfter) || retryAfter <= 0) {
+    return ERROR_MESSAGES.AUTH_TOO_MANY_ATTEMPTS;
+  }
+  const phut = Math.max(1, Math.ceil(retryAfter / 60));
+  return `Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ${phut} phút hoặc liên hệ ban quản lý.`;
+}
 
 /** Câu chung theo mã HTTP khi errorCode chưa có trong từ điển. */
 function messageForStatus(status: number): string {
@@ -60,6 +71,7 @@ function messageForStatus(status: number): string {
 
 /** Câu thông báo chung cho một lỗi API. Không bao giờ dùng `error.message` của response. */
 export function messageFor(error: ApiError): string {
+  if (error.errorCode === "AUTH_TOO_MANY_ATTEMPTS") return thongBaoKhoaTam(error.retryAfter);
   return Object.hasOwn(ERROR_MESSAGES, error.errorCode)
     ? ERROR_MESSAGES[error.errorCode]
     : messageForStatus(error.status);

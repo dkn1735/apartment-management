@@ -221,3 +221,39 @@ describe("Thẻ Trạng thái và bảo mật (spec 0008, AC-10, AC-12, AC-17)",
     expect(screen.getByRole("button", { name: "Đặt lại mật khẩu" })).toBeInTheDocument();
   });
 });
+
+describe("Khóa tạm đăng nhập trên thẻ Trạng thái và bảo mật (spec 0009, AC-14)", () => {
+  const KHOA = { ...TK, khoaTamDen: "2026-11-16T01:15:00Z" };
+
+  it("không khóa thì không có dòng khóa và nút mở", async () => {
+    hienThi();
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByText(/Đang khóa đăng nhập đến/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mở khóa đăng nhập" })).not.toBeInTheDocument();
+  });
+
+  it("đang khóa: bấm Enter mở khóa, toast, dòng biến mất, focus về tiêu đề thẻ", async () => {
+    del.mockResolvedValue({ ...TK, khoaTamDen: undefined });
+    const { user, container } = hienThi(KHOA);
+    expect(await screen.findByText("Đang khóa đăng nhập đến 08:15 16/11/2026")).toBeInTheDocument();
+    await expectNoA11yViolations(container);
+
+    const nut = screen.getByRole("button", { name: "Mở khóa đăng nhập" });
+    nut.focus();
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => expect(screen.queryByText(/Đang khóa đăng nhập đến/)).not.toBeInTheDocument());
+    expect(del).toHaveBeenCalledWith("/api/v1/accounts/{maNguoiDung}/login-lock", {
+      params: { path: { maNguoiDung: "ND00000020" } },
+    });
+    expect(notify.success).toHaveBeenCalledWith("Đã mở khóa đăng nhập");
+    expect(screen.queryByRole("button", { name: "Mở khóa đăng nhập" })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("heading", { level: 2, name: "Trạng thái và bảo mật" })).toHaveFocus());
+  });
+
+  it("tài khoản của chính mình cũng mở được", async () => {
+    hoSo.maNguoiDung = "ND00000020";
+    hienThi(KHOA);
+    expect(await screen.findByRole("button", { name: "Mở khóa đăng nhập" })).toBeInTheDocument();
+  });
+});

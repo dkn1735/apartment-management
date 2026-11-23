@@ -142,3 +142,40 @@ describe("Thông báo lý do (AC-15)", () => {
     expect(screen.getByRole("status", { hidden: true })).toBeEmptyDOMElement();
   });
 });
+
+describe("Khóa tạm đăng nhập (spec 0009, AC-13)", () => {
+  const GOI_Y = "Nhập sai 5 lần liên tiếp sẽ bị tạm khóa đăng nhập 15 phút.";
+
+  it("429 hiện số phút trong role=alert; câu gợi ý hiện từ lần 401 đầu và còn sau 429", async () => {
+    const { user, container } = setup();
+    expect(screen.queryByText(GOI_Y)).not.toBeInTheDocument();
+
+    apiMock.mockRejectedValueOnce(new ApiError({ status: 401, errorCode: "AUTH_INVALID_CREDENTIALS", message: "x" }));
+    await dienVaGui(user);
+    const goiY = await screen.findByText(GOI_Y);
+    const form = screen.getByRole("form", { name: "Đăng nhập" });
+    expect(form).toHaveAttribute("aria-describedby", goiY.id);
+
+    apiMock.mockRejectedValueOnce(
+      new ApiError({ status: 429, errorCode: "AUTH_TOO_MANY_ATTEMPTS", message: "x", retryAfter: 720 }),
+    );
+    await user.type(matKhau(), "SaiMatKhau2");
+    await user.click(screen.getByRole("button", { name: "Đăng nhập" }));
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 12 phút hoặc liên hệ ban quản lý.",
+      ),
+    );
+    expect(screen.getByText(GOI_Y)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Đăng nhập" })).toBeEnabled();
+    await expectNoA11yViolations(container);
+  });
+
+  it("429 thiếu Retry-After thì hiện câu mặc định, không hiện câu gợi ý", async () => {
+    apiMock.mockRejectedValueOnce(new ApiError({ status: 429, errorCode: "AUTH_TOO_MANY_ATTEMPTS", message: "x" }));
+    const { user } = setup();
+    await dienVaGui(user);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Vui lòng thử lại sau ít phút");
+    expect(screen.queryByText(GOI_Y)).not.toBeInTheDocument();
+  });
+});
