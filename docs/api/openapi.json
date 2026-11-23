@@ -445,6 +445,26 @@
               }
             }
           },
+          "429" : {
+            "description" : "Sai quá nhiều lần, đang khóa tạm đăng nhập (AUTH_TOO_MANY_ATTEMPTS)",
+            "headers" : {
+              "Retry-After" : {
+                "description" : "Số giây còn lại tới khi mở khóa",
+                "style" : "simple",
+                "schema" : {
+                  "type" : "integer",
+                  "minimum" : 1
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "default" : {
             "description" : "Lỗi theo vỏ bọc chung",
             "content" : {
@@ -896,6 +916,54 @@
           }
         }
       }
+    },
+    "/api/v1/accounts/{maNguoiDung}/login-lock" : {
+      "delete" : {
+        "tags" : [ "Tài khoản" ],
+        "summary" : "Mở khóa đăng nhập sớm",
+        "description" : "Xóa khóa tạm do nhập sai mật khẩu nhiều lần và đặt bộ đếm về 0. Không đổi trạng thái tài khoản, không thu hồi phiên. Không đang khóa thì vẫn trả 200.\n\nVai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY",
+        "operationId" : "moKhoaDangNhapTaiKhoan",
+        "parameters" : [ {
+          "name" : "maNguoiDung",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseTaiKhoanChiTietResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components" : {
@@ -1042,6 +1110,11 @@
             "items" : {
               "$ref" : "#/components/schemas/VaiTroTaiKhoan"
             }
+          },
+          "khoaTamDen" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Đang khóa đăng nhập tới thời điểm này; null khi không khóa"
           }
         },
         "required" : [ "capNhatLuc", "email", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "phienBan", "soDienThoai", "taoLuc", "trangThaiTaiKhoan", "vaiTro" ]

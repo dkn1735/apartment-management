@@ -43,8 +43,11 @@ public class CapNhatTaiKhoanService {
 
 	private final Clock clock;
 
+	private final KhoaTamDangNhapService khoaTam;
+
 	public CapNhatTaiKhoanService(TaiKhoanDichService dich, TaiKhoanQuery query, TaiKhoanGhi ghi,
-			TaiKhoanTraCuuService traCuu, NhatKyService nhatKy, Clock clock) {
+			TaiKhoanTraCuuService traCuu, NhatKyService nhatKy, Clock clock, KhoaTamDangNhapService khoaTam) {
+		this.khoaTam = khoaTam;
 		this.dich = dich;
 		this.query = query;
 		this.ghi = ghi;
@@ -91,6 +94,10 @@ public class CapNhatTaiKhoanService {
 		catch (DataIntegrityViolationException ex) {
 			throw TaiKhoanLoi.tuRangBuoc(ex);
 		}
+		// Số điện thoại, email mới không mang theo khóa của định danh ảo (spec 0009,
+		// AC-19)
+		this.khoaTam.xoaDinhDanh(doi.contains("soDienThoai") ? moi.soDienThoai() : null,
+				doi.contains("email") ? moi.email() : null);
 		log.info("Cập nhật tài khoản: maNguoiThucHien={}, maNguoiDung={}, truongThayDoi={}", nguoi.maNguoiDung(),
 				maNguoiDung, doi);
 		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.AUTH_CAP_NHAT_TAI_KHOAN, nguoi.maNguoiDung(),

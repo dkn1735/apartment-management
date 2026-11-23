@@ -9,6 +9,11 @@ import java.util.Optional;
  */
 public sealed interface TaiKhoanDangNhap {
 
+	/**
+	 * Chuỗi đã chuẩn hóa: email chữ thường, hoặc số điện thoại dạng {@code 0xxxxxxxxx}.
+	 */
+	String value();
+
 	record Email(String value) implements TaiKhoanDangNhap {
 	}
 

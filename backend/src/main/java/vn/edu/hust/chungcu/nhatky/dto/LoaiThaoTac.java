@@ -18,7 +18,9 @@ public enum LoaiThaoTac {
 	AUTH_DOI_MAT_KHAU("Đổi mật khẩu"), AUTH_TAO_TAI_KHOAN("Tạo tài khoản"),
 	AUTH_CAP_NHAT_TAI_KHOAN("Cập nhật thông tin tài khoản"), AUTH_GAN_VAI_TRO("Gán vai trò"),
 	AUTH_CAP_NHAT_VAI_TRO("Cập nhật vai trò"), AUTH_GO_VAI_TRO("Gỡ vai trò"), AUTH_KHOA_TAI_KHOAN("Khóa tài khoản"),
-	AUTH_MO_KHOA_TAI_KHOAN("Mở khóa tài khoản"), AUTH_DAT_LAI_MAT_KHAU("Đặt lại mật khẩu");
+	AUTH_MO_KHOA_TAI_KHOAN("Mở khóa tài khoản"), AUTH_DAT_LAI_MAT_KHAU("Đặt lại mật khẩu"),
+	AUTH_KHOA_TAM_DANG_NHAP("Tạm khóa đăng nhập do nhập sai nhiều lần"),
+	AUTH_MO_KHOA_TAM_DANG_NHAP("Mở khóa đăng nhập");
 
 	private final String nhan;
 

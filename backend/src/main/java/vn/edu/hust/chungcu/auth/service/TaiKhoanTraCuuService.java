@@ -1,5 +1,7 @@
 package vn.edu.hust.chungcu.auth.service;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +42,12 @@ public class TaiKhoanTraCuuService {
 
 	private final TaiKhoanPhamViService phamVi;
 
-	public TaiKhoanTraCuuService(TaiKhoanQuery query, TaiKhoanPhamViService phamVi) {
+	private final Clock clock;
+
+	public TaiKhoanTraCuuService(TaiKhoanQuery query, TaiKhoanPhamViService phamVi, Clock clock) {
 		this.query = query;
 		this.phamVi = phamVi;
+		this.clock = clock;
 	}
 
 	/**
@@ -108,12 +113,18 @@ public class TaiKhoanTraCuuService {
 		if (maNguoiDung == null || !MA_NGUOI_DUNG.matcher(maNguoiDung).matches()) {
 			throw ApiException.notFound(TaiKhoanPhamViService.KHONG_TIM_THAY);
 		}
-		DongTaiKhoan d = this.query.tim(maNguoiDung)
+		TaiKhoanQuery.DongChiTiet chiTiet = this.query.tim(maNguoiDung)
 			.orElseThrow(() -> ApiException.notFound(TaiKhoanPhamViService.KHONG_TIM_THAY));
+		DongTaiKhoan d = chiTiet.dong();
 		List<VaiTroTaiKhoan> vaiTro = this.query.vaiTroCua(List.of(maNguoiDung)).get(maNguoiDung);
+		// Khóa đã tới hạn thì coi như không khóa (spec 0009, AC-9)
+		Instant khoaTamDen = chiTiet.khoaTamDen();
+		if (khoaTamDen != null && !khoaTamDen.isAfter(Instant.now(this.clock))) {
+			khoaTamDen = null;
+		}
 		return new TaiKhoanChiTietResponse(d.maNguoiDung(), d.hoTen(), d.soDienThoai(), d.email(),
 				d.trangThaiTaiKhoan(), d.phaiDoiMatKhau(), d.dangNhapCuoiLuc(), d.doiMatKhauLuc(), d.taoLuc(),
-				d.capNhatLuc(), d.phienBan(), vaiTro);
+				d.capNhatLuc(), d.phienBan(), vaiTro, khoaTamDen);
 	}
 
 }

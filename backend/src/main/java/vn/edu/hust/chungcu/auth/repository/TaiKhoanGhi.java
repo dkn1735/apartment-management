@@ -84,13 +84,15 @@ public class TaiKhoanGhi {
 
 	/**
 	 * Đặt mật khẩu tạm, bật cờ bắt đổi, tăng {@code phien_ban} trên dòng đã khóa (spec
-	 * 0008, AC-12).
+	 * 0008, AC-12). Cũng đặt lại bộ đếm và xóa khóa tạm, để đăng nhập được ngay bằng mật
+	 * khẩu tạm (spec 0009, AC-10).
 	 */
 	public void datLaiMatKhau(String maNguoiDung, String matKhauHash, Instant luc) {
 		this.jdbc.sql("""
 				UPDATE nguoi_dung_he_thong
 				SET mat_khau_hash = :hash, phai_doi_mat_khau = true, doi_mat_khau_luc = :luc,
-				    phien_ban = phien_ban + 1, cap_nhat_luc = :luc
+				    phien_ban = phien_ban + 1, cap_nhat_luc = :luc,
+				    so_lan_dang_nhap_sai = 0, khoa_tam_den = NULL, lan_sai_cuoi_luc = NULL
 				WHERE ma_nguoi_dung = :ma""")
 			.param("hash", matKhauHash)
 			.param("luc", OffsetDateTime.ofInstant(luc, ZoneOffset.UTC))

@@ -72,10 +72,18 @@ public class TaiKhoanQuery {
 	public record BoLocTaiKhoan(boolean chiCuDanThuan, String q, String qSo, VaiTro vaiTro, String trangThai) {
 	}
 
-	public Optional<DongTaiKhoan> tim(String maNguoiDung) {
-		return this.jdbc.sql("SELECT " + COT_CHUNG + " FROM nguoi_dung_he_thong n WHERE n.ma_nguoi_dung = :ma")
+	/**
+	 * Dòng của trang chi tiết: như {@link DongTaiKhoan}, thêm khóa tạm (spec 0009, AC-9).
+	 */
+	public record DongChiTiet(DongTaiKhoan dong, Instant khoaTamDen) {
+	}
+
+	/** Câu đọc chi tiết, không khóa dòng; chỉ câu này đọc {@code khoa_tam_den}. */
+	public Optional<DongChiTiet> tim(String maNguoiDung) {
+		return this.jdbc
+			.sql("SELECT " + COT_CHUNG + ", n.khoa_tam_den FROM nguoi_dung_he_thong n WHERE n.ma_nguoi_dung = :ma")
 			.param("ma", maNguoiDung)
-			.query((rs, rowNum) -> dong(rs))
+			.query((rs, rowNum) -> new DongChiTiet(dong(rs), instant(rs, "khoa_tam_den")))
 			.optional();
 	}
 

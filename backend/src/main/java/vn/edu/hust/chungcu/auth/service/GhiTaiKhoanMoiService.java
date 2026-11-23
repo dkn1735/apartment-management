@@ -27,9 +27,12 @@ public class GhiTaiKhoanMoiService {
 
 	private final NhatKyService nhatKy;
 
-	public GhiTaiKhoanMoiService(TaiKhoanGhi ghi, NhatKyService nhatKy) {
+	private final KhoaTamDangNhapService khoaTam;
+
+	public GhiTaiKhoanMoiService(TaiKhoanGhi ghi, NhatKyService nhatKy, KhoaTamDangNhapService khoaTam) {
 		this.ghi = ghi;
 		this.nhatKy = nhatKy;
+		this.khoaTam = khoaTam;
 	}
 
 	/**
@@ -49,6 +52,8 @@ public class GhiTaiKhoanMoiService {
 		catch (DataIntegrityViolationException ex) {
 			throw TaiKhoanLoi.tuRangBuoc(ex);
 		}
+		// Định danh vừa có chủ không mang theo khóa của định danh ảo (spec 0009, AC-19)
+		this.khoaTam.xoaDinhDanh(thongTin.soDienThoai(), thongTin.email());
 		log.info("Tạo tài khoản: maNguoiThucHien={}, maNguoiDung={}, vaiTro={}", maNguoiQuanLy, maNguoiDung,
 				vaiTro.stream().map((v) -> v.vaiTro().name()).toList());
 		// Đang trong transaction: dòng nhật ký chờ tới sau commit (spec 0007, AC-6)

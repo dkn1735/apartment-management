@@ -30,6 +30,7 @@ import vn.edu.hust.chungcu.auth.dto.VaiTroCapNhatRequest;
 import vn.edu.hust.chungcu.auth.phanquyen.ChoPhep;
 import vn.edu.hust.chungcu.auth.service.CapNhatTaiKhoanService;
 import vn.edu.hust.chungcu.auth.service.DatLaiMatKhauService;
+import vn.edu.hust.chungcu.auth.service.MoKhoaDangNhapService;
 import vn.edu.hust.chungcu.auth.service.NguoiQuanLy;
 import vn.edu.hust.chungcu.auth.service.TaiKhoanTraCuuService;
 import vn.edu.hust.chungcu.auth.service.TaoTaiKhoanService;
@@ -59,8 +60,12 @@ public class TaiKhoanController {
 
 	private final DatLaiMatKhauService datLai;
 
+	private final MoKhoaDangNhapService moKhoa;
+
 	public TaiKhoanController(TaiKhoanTraCuuService traCuu, TaoTaiKhoanService tao, CapNhatTaiKhoanService capNhat,
-			VaiTroTaiKhoanService vaiTro, TrangThaiTaiKhoanService trangThai, DatLaiMatKhauService datLai) {
+			VaiTroTaiKhoanService vaiTro, TrangThaiTaiKhoanService trangThai, DatLaiMatKhauService datLai,
+			MoKhoaDangNhapService moKhoa) {
+		this.moKhoa = moKhoa;
 		this.traCuu = traCuu;
 		this.tao = tao;
 		this.capNhat = capNhat;
@@ -165,6 +170,17 @@ public class TaiKhoanController {
 			@PathVariable String maNguoiDung) {
 		return khongLuu(ApiResponse.ok(this.datLai.datLai(NguoiQuanLy.tu(authentication), maNguoiDung),
 				"Đặt lại mật khẩu thành công"));
+	}
+
+	@Operation(operationId = "moKhoaDangNhapTaiKhoan", summary = "Mở khóa đăng nhập sớm",
+			description = "Xóa khóa tạm do nhập sai mật khẩu nhiều lần và đặt bộ đếm về 0. Không đổi trạng thái "
+					+ "tài khoản, không thu hồi phiên. Không đang khóa thì vẫn trả 200.")
+	@ChoPhep({ QUAN_TRI_VIEN, BAN_QUAN_LY })
+	@DeleteMapping("/{maNguoiDung}/login-lock")
+	public ResponseEntity<ApiResponse<TaiKhoanChiTietResponse>> moKhoaDangNhap(Authentication authentication,
+			@PathVariable String maNguoiDung) {
+		return ApiResponse.ok(this.moKhoa.moKhoa(NguoiQuanLy.tu(authentication), maNguoiDung),
+				"Mở khóa đăng nhập thành công");
 	}
 
 	/** Response có mật khẩu tạm không được lưu ở bất kỳ cache nào (AC-1, AC-12). */

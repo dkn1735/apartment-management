@@ -14,6 +14,11 @@ public final class AuthErrorCodes {
 
 	public static final String AUTH_ACCOUNT_LOCKED_MESSAGE = "Tài khoản đang bị khóa hoặc đã ngừng hoạt động. Vui lòng liên hệ ban quản lý.";
 
+	/** Sai quá nhiều lần, đang khóa tạm đăng nhập (spec 0009, AC-7). */
+	public static final String AUTH_TOO_MANY_ATTEMPTS = "AUTH_TOO_MANY_ATTEMPTS";
+
+	public static final String AUTH_TOO_MANY_ATTEMPTS_MESSAGE = "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.";
+
 	/** Mọi lý do làm mới thất bại dùng cùng mã và cùng câu (spec 0005, AC-3, AC-4). */
 	public static final String AUTH_REFRESH_INVALID = "AUTH_REFRESH_INVALID";
 

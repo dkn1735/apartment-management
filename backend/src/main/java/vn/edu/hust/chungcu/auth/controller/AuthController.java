@@ -1,6 +1,9 @@
 package vn.edu.hust.chungcu.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -65,6 +68,15 @@ public class AuthController {
 
 	@Operation(summary = "Đăng nhập bằng số điện thoại hoặc email",
 			description = "Đặt ba cookie HttpOnly: access_token, refresh_token, phien. Body không chứa token.")
+	// Khai báo 429 làm springdoc bỏ 200 tự sinh, nên khai lại 200 theo kiểu trả về
+	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "OK",
+			useReturnTypeSchema = true)
+	@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429",
+			description = "Sai quá nhiều lần, đang khóa tạm đăng nhập (AUTH_TOO_MANY_ATTEMPTS)",
+			headers = @Header(name = "Retry-After", description = "Số giây còn lại tới khi mở khóa",
+					schema = @Schema(type = "integer", minimum = "1")),
+			content = @Content(mediaType = "application/json",
+					schema = @Schema(ref = "#/components/schemas/ErrorResponse")))
 	@CongKhai
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<DangNhapResponse>> dangNhap(@Valid @RequestBody DangNhapRequest request,
