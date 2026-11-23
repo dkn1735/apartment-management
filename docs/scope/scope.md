@@ -196,10 +196,10 @@ spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/
   - [x] Không lộ tài khoản và giới hạn: phản hồi giống nhau, chuẩn hóa email, SMTP hỏng, 60 giây, 5 lần/giờ, trần chung, một link mở (AC-2, AC-3, AC-4, AC-5)
   - [x] An toàn của token và các luồng khác: `check`, một lỗi cho mọi token hỏng, một lần dùng, thứ tự khóa, hủy link khi đổi mật khẩu, khóa hay sửa email (AC-6, AC-8, AC-9, AC-10)
   - [x] Nhật ký, job dọn và khóa lại giao diện: hai loại nhật ký, dọn 7 ngày, trạng thái và a11y của hai trang, `Referrer-Policy`, `verify.md` (AC-11, AC-12, AC-13, AC-15)
-- [ ] Verify it: `/check verify quên mật khẩu qua email`
+- [x] Verify it: `/check verify quên mật khẩu qua email`
 - [ ] Test it: `/test quên mật khẩu qua email`
-- [ ] Review it (fresh model): `/check review quên mật khẩu qua email`
-- [ ] Document it: `/document quên mật khẩu qua email`
+- [x] Review it (fresh model): `/check review quên mật khẩu qua email`
+- [x] Document it: `/document quên mật khẩu qua email`
 
 ## Deferred
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
