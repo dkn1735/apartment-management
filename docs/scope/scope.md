@@ -25,7 +25,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 10 | Đổi mật khẩu | Slice 6 | in-progress |
 | 11 | Quản lý tài khoản (Admin) | Slice 7 | done |
 | 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | done |
-| 13 | Quên mật khẩu qua email | Slice 9 | planned |
+| 13 | Quên mật khẩu qua email | Slice 9 | in-progress |
 
 ## Foundations
 
@@ -186,10 +186,20 @@ spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/s
 
 ## Slice 9: Quên mật khẩu qua email
 
-### 13. Quên mật khẩu qua email · needs a decision · GA
+### 13. Quên mật khẩu qua email · in-progress · GA
 Người dùng nhận link hoặc mã đặt lại mật khẩu qua email. Kéo theo việc chọn cách gửi email, nên cần một quyết định riêng.
 **Done when:** yêu cầu đặt lại gửi email có link hoặc mã dùng một lần và có hạn; dùng xong hoặc hết hạn thì không dùng lại được; phản hồi giống nhau dù email có tồn tại hay không; đặt lại xong thì mọi phiên cũ bị thu hồi.
-- [ ] Design it (spec): `/architect quên mật khẩu qua email`
+spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (`QuenMatKhau*`), `common/email/`, `frontend/src/app/quen-mat-khau/`, `frontend/src/app/dat-lai-mat-khau/`
+- [x] Design it (spec): `/architect quên mật khẩu qua email`
+- [x] Build it: `/develop quên mật khẩu qua email`
+  - [x] Đường mảnh từ trang tới hộp thư: `V14`, cấu hình mail và `AppProperties`, Mailpit, `EmailSender`, gửi sau commit, `request` và `confirm` cơ bản, hai trang tối thiểu, GreenMail (AC-1, AC-7, AC-14)
+  - [x] Không lộ tài khoản và giới hạn: phản hồi giống nhau, chuẩn hóa email, SMTP hỏng, 60 giây, 5 lần/giờ, trần chung, một link mở (AC-2, AC-3, AC-4, AC-5)
+  - [x] An toàn của token và các luồng khác: `check`, một lỗi cho mọi token hỏng, một lần dùng, thứ tự khóa, hủy link khi đổi mật khẩu, khóa hay sửa email (AC-6, AC-8, AC-9, AC-10)
+  - [x] Nhật ký, job dọn và khóa lại giao diện: hai loại nhật ký, dọn 7 ngày, trạng thái và a11y của hai trang, `Referrer-Policy`, `verify.md` (AC-11, AC-12, AC-13, AC-15)
+- [ ] Verify it: `/check verify quên mật khẩu qua email`
+- [ ] Test it: `/test quên mật khẩu qua email`
+- [ ] Review it (fresh model): `/check review quên mật khẩu qua email`
+- [ ] Document it: `/document quên mật khẩu qua email`
 
 ## Deferred
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
