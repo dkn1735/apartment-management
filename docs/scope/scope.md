@@ -11,41 +11,47 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 
 ## At a glance
 
-| # | Feature | Phase | Status |
-|---|---------|-------|--------|
-| 1 | Stack & kiến trúc | Foundation | done |
-| 2 | Quy chuẩn code & công cụ | Foundation | done |
-| 3 | Mô hình dữ liệu | Foundation | done |
-| 4 | Design system & nền tảng giao diện | Foundation | done |
-| 5 | Đăng nhập & trang hồ sơ | Slice 1 | done |
-| 6 | Làm mới phiên & đăng xuất | Slice 2 | done |
-| 7 | Phân quyền theo vai trò & bố cục app | Slice 3 | done |
-| 8 | Ghi nhật ký kiểm toán dùng chung | Slice 4 | in-progress |
-| 9 | Màn hình tra cứu nhật ký kiểm toán | Slice 5 | in-progress |
-| 10 | Đổi mật khẩu | Slice 6 | in-progress |
-| 11 | Quản lý tài khoản (Admin) | Slice 7 | done |
-| 12 | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8 | done |
-| 13 | Quên mật khẩu qua email | Slice 9 | in-progress |
+| #   | Feature                              | Phase      | Status      |
+| --- | ------------------------------------ | ---------- | ----------- |
+| 1   | Stack & kiến trúc                    | Foundation | done        |
+| 2   | Quy chuẩn code & công cụ             | Foundation | done        |
+| 3   | Mô hình dữ liệu                      | Foundation | done        |
+| 4   | Design system & nền tảng giao diện   | Foundation | done        |
+| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done        |
+| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done        |
+| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done        |
+| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done        |
+| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done        |
+| 10  | Đổi mật khẩu                         | Slice 6    | done        |
+| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done        |
+| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done        |
+| 13  | Quên mật khẩu qua email              | Slice 9    | done        |
 
 ## Foundations
 
 ### 1. Stack & kiến trúc · done
+
 Bạn đã chọn Spring Boot, NextJS và PostgreSQL. Phần còn phải chốt: phiên bản, cách tổ chức repo, cách backend nói chuyện với database và chạy migration, quy chuẩn API (dạng response chung, mã lỗi, phân trang) và cách chạy cả ba phần trên máy local.
 **Done when:** quyết định được ghi trong một spec, và bộ khung rỗng (backend, frontend, database) khởi động được trên máy local và build thành công.
 spec [0001](../specs/0001-stack-kien-truc/index.md) · code in `backend/`, `frontend/`, `docker-compose.yml`, `docker-compose.prod.yml`
+
 - [x] Decide the stack (spec): `/architect stack & kiến trúc`
 - [x] Scaffold from the decision: `/develop stack & kiến trúc`
 
 ### 2. Quy chuẩn code & công cụ · done
+
 Ghi lại quy ước code và chọn công cụ lint, format, kiểm tra trước khi commit, dựa trên bộ khung thật sau khi scaffold.
 **Done when:** `AGENTS.md` ở thư mục gốc mô tả đúng stack thật, và lint, format, pre-commit chạy sạch cho cả backend lẫn frontend.
 code in `AGENTS.md`, `lefthook.yml`, `.github/workflows/ci.yml`, `frontend/eslint.config.mjs`, `backend/pom.xml`
+
 - [x] Capture conventions + tooling choices: `/audit`
 
 ### 3. Mô hình dữ liệu · done
+
 Đưa schema có sẵn (38 bảng) vào migration, và bổ sung những gì phân hệ xác thực cần mà schema chưa có: nơi lưu refresh token và mã đặt lại mật khẩu, bộ đếm đăng nhập sai, cách biểu diễn vai trò Admin và Bảo vệ (API có nhắc nhưng chưa có bảng). Mô hình dữ liệu là thứ tốn kém nhất nếu phải làm lại, nên chốt sớm.
 **Done when:** migration tạo đủ schema trên database trống, các bổ sung cho xác thực có mặt, và có dữ liệu mẫu (seed) cho ít nhất một tài khoản mỗi vai trò.
 spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main/resources/db/`, `backend/src/test/java/vn/edu/hust/chungcu/SchemaMigrationTest.java`
+
 - [x] Design it (spec): `/architect mô hình dữ liệu`
 - [x] Build it: `/develop mô hình dữ liệu`
   - [x] Đường mỏng định danh: V1, profile `seed`, seed tài khoản, khung test (AC-3, AC-4, AC-5, AC-6, AC-7)
@@ -56,9 +62,11 @@ spec [0002](../specs/0002-mo-hinh-du-lieu/index.md) · code in `backend/src/main
 - [x] Test it: `/test mô hình dữ liệu`
 
 ### 4. Design system & nền tảng giao diện · done
+
 Ngôn ngữ hình ảnh, bố cục và các component nền (form, nút, bảng, thông báo lỗi) bằng tiếng Việt, để mọi màn hình sau trông thống nhất và dùng được bằng bàn phím.
 **Done when:** `design.md` mô tả chữ, màu, khoảng cách, component; các component nền xử lý focus, bàn phím, trạng thái lỗi và trạng thái đang tải.
 spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend/design.md`, `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/lib/`, `frontend/src/app/dev/`
+
 - [x] Design it (spec): `/architect design system & nền tảng giao diện`
 - [x] Build it: `/develop design system & nền tảng giao diện`
   - [x] Đường mỏng: token, font, hạ tầng test, form có lỗi API, `/dev/ui` (AC-1, AC-2, AC-5, AC-6, AC-7, AC-14, AC-15, AC-16, AC-17, AC-18, AC-19)
@@ -71,9 +79,11 @@ spec [0003](../specs/0003-design-system-giao-dien/index.md) · code in `frontend
 ## Slice 1: Đăng nhập & trang hồ sơ
 
 ### 5. Đăng nhập & trang hồ sơ · done · GA
+
 Đường chạy mỏng nhất xuyên mọi tầng (cũng chính là walking skeleton): người dùng đăng nhập bằng số điện thoại hoặc email và mật khẩu, nhận access token và refresh token, vào trang hồ sơ được bảo vệ (API-AUTH-01, API-AUTH-03). Spec này là spec gốc của phân hệ: chốt cách cấp và kiểm tra token, cách lưu token phía trình duyệt, cách băm mật khẩu. Các lát sau dựa vào nó.
 **Done when:** tài khoản seed đăng nhập được trên màn hình NextJS và thấy hồ sơ của mình (họ tên, vai trò, phạm vi tòa nhà hoặc căn hộ); sai mật khẩu hoặc tài khoản `Tạm khóa` bị từ chối với thông báo rõ ràng; vào trang được bảo vệ khi chưa đăng nhập thì bị chuyển về trang đăng nhập.
 spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/`, `frontend/src/proxy.ts`
+
 - [x] Design it (spec): `/architect đăng nhập & trang hồ sơ`
 - [x] Build it: `/develop đăng nhập & trang hồ sơ`
   - [x] Đường mỏng: đăng nhập bằng số điện thoại tới trang hồ sơ, JWT trong cookie, chống CSRF, `proxy.ts` (AC-1, AC-7, AC-10, AC-11, AC-13)
@@ -88,9 +98,11 @@ spec [0004](../specs/0004-dang-nhap-ho-so/index.md) · code in `backend/src/main
 ## Slice 2: Làm mới phiên & đăng xuất
 
 ### 6. Làm mới phiên & đăng xuất · done
+
 Gia hạn phiên bằng refresh token mà không cần nhập lại mật khẩu (API-AUTH-02), và đăng xuất thì thu hồi refresh token. Dựa trên spec của tính năng 5.
 **Done when:** access token hết hạn được làm mới âm thầm khi người dùng đang thao tác; sau khi đăng xuất, refresh token cũ không dùng được nữa; refresh token hết hạn hoặc bị thu hồi thì người dùng phải đăng nhập lại.
 spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `backend/src/main/resources/db/migration/V10__phien_bat_dau_luc.sql`, `frontend/src/lib/api/refresh.ts`, `frontend/src/app/(app)/menu-nguoi-dung.tsx`
+
 - [x] Design it (spec): `/architect làm mới phiên & đăng xuất`
 - [x] Build it: `/develop làm mới phiên & đăng xuất`
   - [x] Đường mỏng: làm mới âm thầm khi access token hết hạn, V10, middleware gửi lại request (AC-1, AC-7, AC-9, AC-10, AC-12)
@@ -106,9 +118,11 @@ spec [0005](../specs/0005-lam-moi-phien-dang-xuat/index.md) · code in `backend/
 ## Slice 3: Phân quyền theo vai trò & bố cục app
 
 ### 7. Phân quyền theo vai trò & bố cục app · done
+
 Một cách phân quyền dùng chung cho cả 80 API: xác định vai trò từ các bảng con (NhanVienBQL, NhanVienKyThuat, KeToan, ThanhVienBanQuanTri, CuDan) cùng Admin, chặn mỗi endpoint theo cột RBAC trong file đặc tả, và bố cục app NextJS có menu theo vai trò. Phân hệ nào sau này cũng dựa vào nó.
 **Done when:** mỗi vai trò chỉ thấy menu và gọi được API của mình; gọi API không đủ quyền trả về 403 và giao diện hiện trang báo không có quyền; một người có nhiều vai trò vẫn được xử lý đúng.
 spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/phanquyen/`, `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `frontend/src/lib/phan-quyen/`, `frontend/src/app/(app)/`
+
 - [x] Design it (spec): `/architect phân quyền theo vai trò & bố cục app`
 - [x] Build it: `/develop phân quyền theo vai trò & bố cục app`
   - [x] Đường mỏng: `@ChoPhep`, interceptor, `GET /buildings`, menu từ hồ sơ, trang `/toa-nha` tối thiểu (AC-2, AC-7, AC-10, AC-15)
@@ -121,10 +135,12 @@ spec [0006](../specs/0006-phan-quyen-bo-cuc-app/index.md) · code in `backend/sr
 
 ## Slice 4: Ghi nhật ký kiểm toán dùng chung
 
-### 8. Ghi nhật ký kiểm toán dùng chung · in-progress
+### 8. Ghi nhật ký kiểm toán dùng chung · done
+
 Cơ chế ghi vào NhatKyHeThong mà mọi phân hệ cắm vào được, đặt trước các tính năng tạo ra sự kiện cần ghi. Đợt này ghi các sự kiện xác thực: đăng nhập thành công và thất bại, đăng xuất, đổi mật khẩu, khóa và mở khóa tài khoản.
 **Done when:** mỗi sự kiện xác thực tạo đúng một dòng log có người thực hiện, loại thao tác, đối tượng và chi tiết thay đổi; không ghi mật khẩu hay token vào log; ghi log lỗi không làm hỏng thao tác chính.
 spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/nhatky/`, `backend/src/main/resources/db/migration/V11__nhat_ky_he_thong.sql`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/`
+
 - [x] Design it (spec): `/architect ghi nhật ký kiểm toán dùng chung`
 - [x] Build it: `/develop ghi nhật ký kiểm toán dùng chung`
   - [x] Đường mỏng: V11, `NhatKyService.ghi` trong transaction riêng, gắn đăng nhập thành công và thất bại (AC-1, AC-2, AC-3, AC-10)
@@ -135,20 +151,24 @@ spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `bac
 
 ## Slice 5: Màn hình tra cứu nhật ký kiểm toán
 
-### 9. Màn hình tra cứu nhật ký kiểm toán · in-progress
+### 9. Màn hình tra cứu nhật ký kiểm toán · done
+
 Admin, BQT và BQL xem lịch sử thao tác có phân trang (API-AUTH-05). Dựa trên spec của tính năng 8.
 **Done when:** người có quyền xem được danh sách log mới nhất trước, phân trang và lọc theo người dùng, loại thao tác, khoảng thời gian; vai trò khác bị chặn; trạng thái rỗng và lỗi hiển thị đúng.
 spec [0007](../specs/0007-nhat-ky-kiem-toan-dung-chung/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/nhatky/`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/NguoiDungTraCuuService.java`, `frontend/src/app/(app)/nhat-ky/`
+
 - [x] Build it: `/develop màn hình tra cứu nhật ký kiểm toán`
   - [x] API đọc: danh sách có bộ lọc, danh mục loại thao tác, họ tên theo lô (AC-11, AC-12, AC-13, AC-14)
   - [x] Màn hình `/nhat-ky`: bảng, bộ lọc trên URL, trạng thái rỗng và lỗi, mục menu (AC-11, AC-12, AC-14)
 
 ## Slice 6: Đổi mật khẩu
 
-### 10. Đổi mật khẩu · in-progress
+### 10. Đổi mật khẩu · done
+
 Người dùng đã đăng nhập đổi mật khẩu sau khi nhập đúng mật khẩu cũ (API-AUTH-04). Dựa trên spec của tính năng 5 và 8.
 **Done when:** sai mật khẩu cũ bị từ chối; mật khẩu mới phải đạt quy tắc độ mạnh; đổi xong thì các phiên khác bị thu hồi và có dòng nhật ký kiểm toán.
 không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_quan_ly_chung_cu.xlsx`, spec 0004, 0005, 0007) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/service/DoiMatKhauService.java`, `backend/src/main/java/vn/edu/hust/chungcu/auth/service/GhiMatKhauMoiService.java`, `frontend/src/app/(app)/doi-mat-khau/`
+
 - [x] Build it: `/develop đổi mật khẩu`
   - [x] API `PUT /api/v1/auth/change-password`: kiểm mật khẩu cũ, quy tắc độ mạnh, thu hồi phiên khác, nhật ký `AUTH_DOI_MAT_KHAU`
   - [x] Trang `/doi-mat-khau`, lối vào từ menu người dùng và trang hồ sơ
@@ -156,9 +176,11 @@ không có spec riêng (build theo API-AUTH-04 trong `docs/danh_sach_dac_ta_api_
 ## Slice 7: Quản lý tài khoản (Admin)
 
 ### 11. Quản lý tài khoản (Admin) · done
+
 Admin hoặc BQL tạo tài khoản cho từng vai trò, gán vai trò, khóa và mở khóa (trangThaiTaiKhoan). Đây là cách duy nhất để có tài khoản, vì cư dân không tự đăng ký.
 **Done when:** Admin tìm, tạo, sửa, khóa và mở khóa tài khoản trên màn hình; trùng số điện thoại, email hoặc CCCD bị báo lỗi rõ; tài khoản bị khóa không đăng nhập được và mất phiên đang có; mọi thay đổi có nhật ký kiểm toán.
 spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/`, `backend/src/main/resources/db/migration/V12__quan_ly_tai_khoan.sql`, `frontend/src/app/(app)/tai-khoan/`, `frontend/src/lib/tai-khoan.ts`
+
 - [x] Design it (spec): `/architect quản lý tài khoản (admin)`
 - [x] Build it: `/develop quản lý tài khoản (admin)`
   - [x] Đường mỏng: V12, tạo tài khoản đủ bảy vai trò, mật khẩu tạm, danh sách tối thiểu, `/tai-khoan` và `/tai-khoan/moi` (AC-1, AC-2, AC-4, AC-16, AC-17, AC-18)
@@ -172,9 +194,11 @@ spec [0008](../specs/0008-quan-ly-tai-khoan/index.md) · code in `backend/src/ma
 ## Slice 8: Khóa tạm khi đăng nhập sai nhiều lần
 
 ### 12. Khóa tạm khi đăng nhập sai nhiều lần · done
+
 Chặn dò mật khẩu: sai liên tiếp N lần thì tạm khóa đăng nhập trong một khoảng thời gian. Cần chốt ngưỡng, thời gian khóa, và cách phân biệt với trạng thái `Tạm khóa` do Admin đặt.
 **Done when:** vượt ngưỡng thì đăng nhập bị chặn kể cả khi nhập đúng mật khẩu, tới hạn thì tự mở; đăng nhập đúng thì bộ đếm về 0; Admin mở khóa sớm được; thông báo lỗi không tiết lộ tài khoản có tồn tại hay không.
-spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (KhoaTam*, MoKhoaDangNhapService) và `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/tai-khoan/[ma]/`
+spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (KhoaTam\*, MoKhoaDangNhapService) và `frontend/src/app/dang-nhap/`, `frontend/src/app/(app)/tai-khoan/[ma]/`
+
 - [x] Design it (spec): `/architect khóa tạm khi đăng nhập sai nhiều lần`
 - [x] Build it: `/develop khóa tạm khi đăng nhập sai nhiều lần`
   - [x] Đường mỏng cho tài khoản thật: giữ lượt, 429 kèm `Retry-After`, cửa sổ 15 phút, câu báo số phút (AC-1, AC-2, AC-3, AC-4, AC-7, AC-13, AC-15, AC-18)
@@ -186,10 +210,12 @@ spec [0009](../specs/0009-khoa-tam-dang-nhap-sai/index.md) · code in `backend/s
 
 ## Slice 9: Quên mật khẩu qua email
 
-### 13. Quên mật khẩu qua email · in-progress · GA
+### 13. Quên mật khẩu qua email · done · GA
+
 Người dùng nhận link hoặc mã đặt lại mật khẩu qua email. Kéo theo việc chọn cách gửi email, nên cần một quyết định riêng.
 **Done when:** yêu cầu đặt lại gửi email có link hoặc mã dùng một lần và có hạn; dùng xong hoặc hết hạn thì không dùng lại được; phản hồi giống nhau dù email có tồn tại hay không; đặt lại xong thì mọi phiên cũ bị thu hồi.
 spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/auth/` (`QuenMatKhau*`), `common/email/`, `frontend/src/app/quen-mat-khau/`, `frontend/src/app/dat-lai-mat-khau/`
+
 - [x] Design it (spec): `/architect quên mật khẩu qua email`
 - [x] Build it: `/develop quên mật khẩu qua email`
   - [x] Đường mảnh từ trang tới hộp thư: `V14`, cấu hình mail và `AppProperties`, Mailpit, `EmailSender`, gửi sau commit, `request` và `confirm` cơ bản, hai trang tối thiểu, GreenMail (AC-1, AC-7, AC-14)
@@ -197,12 +223,14 @@ spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/
   - [x] An toàn của token và các luồng khác: `check`, một lỗi cho mọi token hỏng, một lần dùng, thứ tự khóa, hủy link khi đổi mật khẩu, khóa hay sửa email (AC-6, AC-8, AC-9, AC-10)
   - [x] Nhật ký, job dọn và khóa lại giao diện: hai loại nhật ký, dọn 7 ngày, trạng thái và a11y của hai trang, `Referrer-Policy`, `verify.md` (AC-11, AC-12, AC-13, AC-15)
 - [x] Verify it: `/check verify quên mật khẩu qua email`
-- [ ] Test it: `/test quên mật khẩu qua email`
+- [x] Test it: `/test quên mật khẩu qua email`
 - [x] Review it (fresh model): `/check review quên mật khẩu qua email`
 - [x] Document it: `/document quên mật khẩu qua email`
 
 ## Deferred
+
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
+
 - **Giới hạn đăng nhập theo IP**: chống dò rải trên nhiều tài khoản và giảm việc cố tình khóa tài khoản người khác; cần chốt có tin `X-Forwarded-For` sau proxy hay không · needs a decision · from spec 0009
 - **UC01 Căn hộ & Tòa nhà**: tòa nhà, tầng, căn hộ, khu vực dùng chung (10 API) · needs a decision
 - **UC02 Cư trú & Nhân khẩu**: hồ sơ cư trú, phương tiện (7 API) · needs a decision
@@ -224,13 +252,13 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 
 **Feature lifecycle**: scope cập nhật khi một tính năng tiến lên; mỗi dòng là trạng thái nó hiển thị và ai đặt nó:
 
-| State | Set by | The feature shows |
-|---|---|---|
-| `planned` · needs a decision | `/scope` | một ô: `Design it (spec): /architect <feature>` |
-| `in-progress` (designed) | **`/architect` khi chốt spec** | `Design it` đã tick; có link spec; `Build it: /develop <feature>` kèm **2 đến 5 mốc**; các ô kết thúc theo tier (`Verify it` từ Alpha, `Test it` từ Beta, `Review it` + `Document it` ở GA) |
-| `in-progress` (building) | `/develop` | các ô mốc được tick dần; có đường dẫn code |
-| `in-progress` (verified) | `/check verify` | `Build it` và các mốc đã tick; `Verify it` đã tick |
-| `done` | **bạn, khi bạn thấy đủ** (skill nào cũng đặt được khi bạn bảo); `/sync` đối chiếu | các ô bạn đã chạy được tick, ô bỏ qua ghi là skipped; bước cuối của tier (`Prototype` sau `/develop`; `Alpha` sau `/check verify`; `Beta`/`GA` sau `/test`) là thời điểm gợi ý để gọi là xong |
+| State                        | Set by                                                                            | The feature shows                                                                                                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planned` · needs a decision | `/scope`                                                                          | một ô: `Design it (spec): /architect <feature>`                                                                                                                                               |
+| `in-progress` (designed)     | **`/architect` khi chốt spec**                                                    | `Design it` đã tick; có link spec; `Build it: /develop <feature>` kèm **2 đến 5 mốc**; các ô kết thúc theo tier (`Verify it` từ Alpha, `Test it` từ Beta, `Review it` + `Document it` ở GA)   |
+| `in-progress` (building)     | `/develop`                                                                        | các ô mốc được tick dần; có đường dẫn code                                                                                                                                                    |
+| `in-progress` (verified)     | `/check verify`                                                                   | `Build it` và các mốc đã tick; `Verify it` đã tick                                                                                                                                            |
+| `done`                       | **bạn, khi bạn thấy đủ** (skill nào cũng đặt được khi bạn bảo); `/sync` đối chiếu | các ô bạn đã chạy được tick, ô bỏ qua ghi là skipped; bước cuối của tier (`Prototype` sau `/develop`; `Alpha` sau `/check verify`; `Beta`/`GA` sau `/test`) là thời điểm gợi ý để gọi là xong |
 
 - **Bước tiếp theo** = ô đầu tiên chưa tick (luôn là một lệnh hoặc một mốc được theo dõi).
 - **needs a decision** = chạy `/architect` trước; nếu không có tag này thì đi thẳng `/develop` (hoặc `/audit` cho quy chuẩn & công cụ). Tag mất đi khi spec được chốt.

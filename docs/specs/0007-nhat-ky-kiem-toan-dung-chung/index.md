@@ -1,7 +1,7 @@
 # 0007. Nhật ký kiểm toán dùng chung: `NhatKyService.ghi` trong transaction riêng, ghi sau commit, chi tiết JSONB có kiểu
 
 **Date**: 2026-11-20
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

@@ -1,7 +1,7 @@
 # 0010. Quên mật khẩu qua email: link một lần trong fragment, gửi SMTP sau commit trên luồng nền, phản hồi giống nhau mọi trường hợp
 
 **Date**: 2026-11-23
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

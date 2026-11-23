@@ -16,7 +16,7 @@ Chi tiết (hợp đồng API, mã lỗi, phân trang, ngày giờ, quy ước D
 ## Commands
 
 ```bash
-docker compose up -d                          # PostgreSQL dev, cổng 5433
+docker compose up -d                          # PostgreSQL dev cổng 5433, Mailpit (SMTP 1025, xem thư ở http://localhost:8025)
 cd backend && mvnw.cmd spring-boot:run        # backend :8080, Swagger ở /swagger-ui.html (dev)
 cd backend && mvnw.cmd verify                 # build + test (cần Docker), ghi docs/api/openapi.json
 cd frontend && pnpm install && pnpm dev       # frontend :3000, gọi /api qua rewrites
@@ -38,6 +38,7 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 - Đặt tên: khái niệm nghiệp vụ dùng tiếng Việt không dấu (`CanHoService`, `maCanHo`, bảng `can_ho`), khái niệm kỹ thuật dùng tiếng Anh (`Controller`, `Repository`, `Dto`). Component React PascalCase, hook `useXxx`. Chữ viết tắt trong tên field Java viết như một từ (`maNvbql`, `soCccd`, không phải `maNVBQL`) để naming strategy ánh xạ đúng sang cột `ma_nvbql`, `so_cccd`; sai thì Hibernate `validate` báo lỗi lúc khởi động. Thông báo cho người dùng viết tiếng Việt có dấu, lưu UTF-8 NFC.
 - Phân quyền: mỗi handler controller mang đúng một annotation ở mức method, `@ChoPhep(VaiTro...)`, `@DaDangNhap` hoặc `@CongKhai` (package `auth.phanquyen`), không dùng `@PreAuthorize`; `PhanQuyenCoverageTest` báo đỏ khi thiếu. Giới hạn theo dữ liệu đi qua `PhamViTruyCapService`. Trang mới của giao diện khai trong ma trận `frontend/src/lib/phan-quyen/muc-chuc-nang.ts` để có menu và được chặn trang ([spec 0006](docs/specs/0006-phan-quyen-bo-cuc-app/index.md)).
 - Database: đổi schema bằng một file Flyway `V<n>` mới trong `backend/src/main/resources/db/migration`, không sửa file `V<n>` đã chạy. Quy ước (mã tự sinh tiền tố cộng 8 chữ số, collation `vi-VN-x-icu`, CHECK định dạng, mọi khóa ngoại có index) ở [spec 0002](docs/specs/0002-mo-hinh-du-lieu/index.md). Dữ liệu mẫu ở `db/seed`, chỉ nạp khi bật profile `seed`; test mặc định chạy trên database trống, test cần seed dùng `SeedTestcontainersConfiguration`.
+- Email: gửi qua `common.email.EmailSender`, sau commit (`@TransactionalEventListener(AFTER_COMMIT)`) và trên bean `emailExecutor` có giới hạn, không gửi trong transaction hay trên executor mặc định. Profile `prod` cần `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `APP_PUBLIC_URL` (thiếu thì không khởi động); link gửi đi chỉ dựng từ `app.public-url` ([spec 0010](docs/specs/0010-quen-mat-khau-email/index.md)).
 - Giao diện đạt WCAG AA: dùng được hoàn toàn bằng bàn phím, focus nhìn thấy được, mọi ô nhập có nhãn, lỗi gắn với ô nhập, đủ tương phản.
 - Test: unit test cho service (inject fake qua constructor), integration test với PostgreSQL thật qua Testcontainers cho API và repository (không dùng H2). Frontend: Vitest + Testing Library.
 - Commit theo Conventional Commits, phạm vi là phân hệ: `feat(auth): ...`, `fix(common): ...`, `chore(tooling): ...`.
@@ -67,6 +68,8 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 - [design-system](.claude/skills/design-system/): token và component spec, dùng ở tính năng 4.
 
 Declined: thêm skill cho ESLint, Prettier, Lefthook, Spring Java Format, GitHub Actions · MCP servers: next-devtools (connected, cần `pnpm dev` đang chạy)
+
+Declined: `claude-dev-suite@spring-mail`, `testland/qa@mailpit-testing` · MCP server Mailpit
 
 ## Context files
 
