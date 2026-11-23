@@ -154,6 +154,67 @@ class KhoaTamDinhDanhIntegrationTest {
 		login(emailMoi, SAI).andExpect(status().isUnauthorized());
 	}
 
+	// AC-5: định danh ảo đếm theo dạng đã chuẩn hóa, +84 có dấu cách và chữ hoa dùng
+	// chung dòng
+	@Test
+	void dinhDanhAoChuanHoaDungChungMotDong() throws Exception {
+		String so = TaiKhoanApi.soMoi();
+		String soQuocTe = "+84 " + so.substring(1, 3) + " " + so.substring(3, 6) + " " + so.substring(6);
+		login(soQuocTe, SAI).andExpect(status().isUnauthorized());
+		login(so, SAI).andExpect(status().isUnauthorized());
+		login("+84" + so.substring(1), SAI).andExpect(status().isUnauthorized());
+		login(soQuocTe, SAI).andExpect(status().isUnauthorized());
+		KhoaTamDangNhapIntegrationTest.expectKhoa(login(so, SAI), 900);
+
+		String email = "ao" + so + "@chungcu.test";
+		for (int i = 0; i < 4; i++) {
+			login(email.toUpperCase(), SAI).andExpect(status().isUnauthorized());
+		}
+		KhoaTamDangNhapIntegrationTest.expectKhoa(login(email, SAI), 900);
+
+		assertThat(KhoaTamTestSupport.soDongDinhDanh(this.jdbc)).isEqualTo(2);
+		assertThat(KhoaTamTestSupport.dinhDanh(this.jdbc, so)).isNotNull();
+		assertThat(KhoaTamTestSupport.dinhDanh(this.jdbc, email)).isNotNull();
+	}
+
+	// AC-19: tạo tài khoản nhập +84 và email chữ hoa vẫn xóa đúng dòng của dạng chuẩn
+	// hóa
+	@Test
+	void taoTaiKhoanNhapChuaChuanHoaVanXoaDung() throws Exception {
+		String admin = new AuthApi(this.mockMvc).accessToken(TaiKhoanApi.ADMIN);
+		Map<String, Object> body = TaiKhoanApi.cuDanMoi();
+		String so = (String) body.get("soDienThoai");
+		String email = (String) body.get("email");
+		khoaAo(so);
+		khoaAo(email);
+		body.put("soDienThoai", "+84 " + so.substring(1));
+		body.put("email", email.toUpperCase());
+
+		this.mockMvc.perform(TaiKhoanApi.tao(admin, body)).andExpect(status().isCreated());
+
+		assertThat(KhoaTamTestSupport.dinhDanh(this.jdbc, so)).isNull();
+		assertThat(KhoaTamTestSupport.dinhDanh(this.jdbc, email)).isNull();
+		login(email, SAI).andExpect(status().isUnauthorized());
+	}
+
+	// AC-19: sửa số điện thoại sang số đang bị khóa ảo, nhập dạng +84
+	@Test
+	void suaSoDienThoaiXoaDongDinhDanhAo() throws Exception {
+		String admin = new AuthApi(this.mockMvc).accessToken(TaiKhoanApi.ADMIN);
+		TaiKhoanThu.TaiKhoan tk = new TaiKhoanThu(this.jdbc).tao(this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED));
+		String soMoi = TaiKhoanApi.soMoi();
+		khoaAo(soMoi);
+		Long phienBan = this.jdbc.queryForObject("SELECT phien_ban FROM nguoi_dung_he_thong WHERE ma_nguoi_dung = ?",
+				Long.class, tk.maNguoiDung());
+		Map<String, Object> sua = Map.of("hoTen", "Người Thử", "soDienThoai", "+84" + soMoi.substring(1), "email",
+				tk.email(), "phienBan", phienBan);
+
+		this.mockMvc.perform(TaiKhoanApi.sua(admin, tk.maNguoiDung(), sua)).andExpect(status().isOk());
+
+		assertThat(KhoaTamTestSupport.dinhDanh(this.jdbc, soMoi)).isNull();
+		login(soMoi, SAI).andExpect(status().isUnauthorized());
+	}
+
 	private void khoaAo(String dinhDanh) throws Exception {
 		for (int i = 0; i < 5; i++) {
 			login(dinhDanh, SAI);

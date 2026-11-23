@@ -171,6 +171,82 @@ class MoKhoaDangNhapIntegrationTest {
 			.isEqualTo(200);
 	}
 
+	// AC-8, AC-11: khóa đã hết hạn thì mở vẫn 200 và xóa cột, nhưng không ghi nhật ký
+	@Test
+	void moKhiKhoaDaHetHanThiKhongGhiNhatKy() throws Exception {
+		khoa(this.tk.soDienThoai());
+		this.clock.advance(Duration.ofMinutes(15).plusSeconds(1));
+		String admin = this.auth.accessToken(TaiKhoanApi.ADMIN);
+		NhatKyDb nhatKy = new NhatKyDb(this.jdbc);
+		String maLog = nhatKy.maLogCuoi();
+
+		this.mockMvc.perform(TaiKhoanApi.moKhoaDangNhap(admin, this.tk.maNguoiDung()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.khoaTamDen").doesNotExist());
+
+		KhoaTamTestSupport.TrangThai sau = KhoaTamTestSupport.cua(this.jdbc, this.tk.maNguoiDung());
+		assertThat(sau.khoaTamDen()).isNull();
+		assertThat(sau.soLanSai()).isZero();
+		assertThat(nhatKy.toanBoSau(maLog)).doesNotContain("AUTH_MO_KHOA_TAM_DANG_NHAP");
+	}
+
+	// AC-11: BQL mở khóa thì người thực hiện trong nhật ký là BQL, không phải Admin
+	@Test
+	void bqlMoKhoaThiNguoiThucHienLaBql() throws Exception {
+		String bql = this.auth.accessToken(TaiKhoanApi.BQL);
+		String cuDan = TaiKhoanApi.maTheoSo(this.jdbc, "0900000007");
+		khoa("0900000007");
+		NhatKyDb nhatKy = new NhatKyDb(this.jdbc);
+		String maLog = nhatKy.maLogCuoi();
+
+		this.mockMvc.perform(TaiKhoanApi.moKhoaDangNhap(bql, cuDan)).andExpect(status().isOk());
+
+		List<Map<String, Object>> dong = nhatKy.theoDoiTuong("NguoiDungHeThong:" + cuDan)
+			.stream()
+			.filter((d) -> "AUTH_MO_KHOA_TAM_DANG_NHAP".equals(d.get("loai_thao_tac")))
+			.toList();
+		assertThat(nhatKy.toanBoSau(maLog)).contains("AUTH_MO_KHOA_TAM_DANG_NHAP");
+		assertThat(dong).isNotEmpty();
+		assertThat(dong.get(dong.size() - 1).get("ma_nguoi_dung"))
+			.isEqualTo(TaiKhoanApi.maTheoSo(this.jdbc, TaiKhoanApi.BQL));
+	}
+
+	// AC-16: người quản lý còn đang phải đổi mật khẩu tạm thì bị chặn
+	@Test
+	void dangPhaiDoiMatKhauThiBiChan() throws Exception {
+		String so = TaiKhoanApi.soMoi();
+		Map<String, Object> body = TaiKhoanApi.body("BQL Mới", so, "bql" + so + "@chungcu.test",
+				List.of(TaiKhoanApi.vaiTro("BAN_QUAN_LY", "chucVu", "Nhân viên", "boPhan", "Vận hành")));
+		MvcResult tao = this.mockMvc.perform(TaiKhoanApi.tao(this.admin, body))
+			.andExpect(status().isCreated())
+			.andReturn();
+		String matKhauTam = JSON.readTree(tao.getResponse().getContentAsString())
+			.get("data")
+			.get("matKhauTam")
+			.asString();
+		String bqlMoi = AuthApi.cookieValue(this.auth.login(so, matKhauTam), "access_token").orElseThrow();
+		khoa(this.tk.soDienThoai());
+
+		this.mockMvc.perform(TaiKhoanApi.moKhoaDangNhap(bqlMoi, this.tk.maNguoiDung()))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.errorCode").value("AUTH_PASSWORD_CHANGE_REQUIRED"));
+		assertThat(KhoaTamTestSupport.cua(this.jdbc, this.tk.maNguoiDung()).khoaTamDen()).isNotNull();
+	}
+
+	// AC-10: tự đổi mật khẩu từ phiên còn sống không xóa khóa tạm
+	@Test
+	void tuDoiMatKhauKhongXoaKhoa() throws Exception {
+		String access = this.auth.accessToken(this.tk.soDienThoai());
+		khoa(this.tk.soDienThoai());
+		KhoaTamTestSupport.TrangThai truoc = KhoaTamTestSupport.cua(this.jdbc, this.tk.maNguoiDung());
+
+		this.mockMvc.perform(DoiMatKhauIntegrationTest.doi(access, AuthApi.MAT_KHAU_SEED, "MatKhauMoiThu1"))
+			.andExpect(status().isOk());
+
+		assertThat(KhoaTamTestSupport.cua(this.jdbc, this.tk.maNguoiDung()).khoaTamDen()).isEqualTo(truoc.khoaTamDen());
+		assertThat(this.auth.login(this.tk.soDienThoai(), "MatKhauMoiThu1").getResponse().getStatus()).isEqualTo(429);
+	}
+
 	private void khoa(String taiKhoan) throws Exception {
 		for (int i = 0; i < 5; i++) {
 			this.auth.login(taiKhoan, SAI);
