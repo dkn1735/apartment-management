@@ -58,7 +58,9 @@ class HoSoServiceTest {
 	void setUp() {
 		AppProperties properties = new AppProperties(VN,
 				new AppProperties.Security("k".repeat(32), Duration.ofMinutes(15), Duration.ofDays(7), 4, true,
-						Duration.ofDays(30), Duration.ofSeconds(10), Duration.ofDays(30), "0 0 3 * * *"));
+						Duration.ofDays(30), Duration.ofSeconds(10), Duration.ofDays(30), "0 0 3 * * *",
+						Duration.ofMinutes(30)),
+				"http://localhost:3000", new AppProperties.Mail("chungcu@localhost"));
 		this.service = new HoSoService(this.nguoiDung, this.vaiTroQuery,
 				new PhamViTinhToan(this.toaNha, this.cuTru, CLOCK), new AuthCookies(properties));
 		when(this.toaNha.danhSachMaToaNha()).thenReturn(List.of("A", "B"));

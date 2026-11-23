@@ -31,11 +31,14 @@ public class GhiMatKhauMoiService {
 
 	private final NhatKyService nhatKy;
 
+	private final HuyYeuCauDatLaiService huyYeuCauDatLai;
+
 	public GhiMatKhauMoiService(NguoiDungHeThongRepository nguoiDung, ThuHoiPhienService thuHoiPhien,
-			NhatKyService nhatKy) {
+			NhatKyService nhatKy, HuyYeuCauDatLaiService huyYeuCauDatLai) {
 		this.nguoiDung = nguoiDung;
 		this.thuHoiPhien = thuHoiPhien;
 		this.nhatKy = nhatKy;
+		this.huyYeuCauDatLai = huyYeuCauDatLai;
 	}
 
 	/**
@@ -51,6 +54,9 @@ public class GhiMatKhauMoiService {
 			throw new ApiException(HttpStatus.CONFLICT, ErrorCodes.CONCURRENT_MODIFICATION,
 					"Mật khẩu vừa được thay đổi ở nơi khác, vui lòng tải lại và thử lại.");
 		}
+		// Dòng tài khoản đã được ghi (đã khóa): link đặt lại qua email cũ không còn dùng
+		// được (spec 0010, AC-10)
+		this.huyYeuCauDatLai.huyConMo(maNguoiDung, now);
 		int soHo = this.thuHoiPhien.thuHoi(maNguoiDung, giuLai, now, LyDoThuHoi.DOI_MAT_KHAU);
 		log.info("Đổi mật khẩu: maNguoiDung={}, soPhienThuHoi={}", maNguoiDung, soHo);
 		// Đang trong transaction: dòng nhật ký chờ tới sau commit (spec 0007, AC-6)

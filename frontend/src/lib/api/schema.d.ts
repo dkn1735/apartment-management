@@ -124,6 +124,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/password-reset/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Yêu cầu link đặt lại mật khẩu qua email
+         * @description Luôn trả cùng một câu dù email có thuộc tài khoản nào hay không. Email gửi sau khi trả phản hồi; link sống 30 phút và chỉ dùng được một lần.
+         *
+         *     Công khai, không cần đăng nhập
+         */
+        post: operations["yeuCauDatLaiMatKhauEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password-reset/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Đặt mật khẩu mới bằng link trong email
+         * @description Dùng token một lần, đổi mật khẩu, thu hồi mọi phiên đăng nhập kể cả phiên của máy này và xóa ba cookie xác thực. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số.
+         *
+         *     Công khai, không cần đăng nhập
+         */
+        post: operations["xacNhanDatLaiMatKhauEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/password-reset/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Kiểm link đặt lại mật khẩu còn dùng được không
+         * @description Không đổi dữ liệu. Mọi lý do token không dùng được trả cùng mã AUTH_RESET_TOKEN_INVALID.
+         *
+         *     Công khai, không cần đăng nhập
+         */
+        post: operations["kiemTraTokenDatLai"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/logout": {
         parameters: {
             query?: never;
@@ -453,6 +519,10 @@ export interface components {
             /** Format: date-time */
             accessTokenHetHanLuc: string;
         };
+        YeuCauDatLaiRequest: {
+            /** @example an.nguyen@example.com */
+            email: string;
+        };
         ApiResponseVoid: {
             success?: boolean;
             /** Format: int32 */
@@ -461,6 +531,27 @@ export interface components {
             data?: unknown;
             /** Format: date-time */
             timestamp?: string;
+        };
+        XacNhanDatLaiRequest: {
+            token: string;
+            /** @description Ít nhất 8 ký tự, có cả chữ và số */
+            matKhauMoi: string;
+        };
+        KiemTraDatLaiRequest: {
+            token: string;
+        };
+        ApiResponseKiemTraDatLaiResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["KiemTraDatLaiResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        KiemTraDatLaiResponse: {
+            /** Format: date-time */
+            hetHanLuc: string;
         };
         DangNhapRequest: {
             /** @description Số điện thoại hoặc email */
@@ -1018,6 +1109,105 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseLamMoiPhienResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    yeuCauDatLaiMatKhauEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["YeuCauDatLaiRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    xacNhanDatLaiMatKhauEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["XacNhanDatLaiRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    kiemTraTokenDatLai: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KiemTraDatLaiRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseKiemTraDatLaiResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

@@ -45,8 +45,12 @@ public class CapNhatTaiKhoanService {
 
 	private final KhoaTamDangNhapService khoaTam;
 
+	private final HuyYeuCauDatLaiService huyYeuCauDatLai;
+
 	public CapNhatTaiKhoanService(TaiKhoanDichService dich, TaiKhoanQuery query, TaiKhoanGhi ghi,
-			TaiKhoanTraCuuService traCuu, NhatKyService nhatKy, Clock clock, KhoaTamDangNhapService khoaTam) {
+			TaiKhoanTraCuuService traCuu, NhatKyService nhatKy, Clock clock, KhoaTamDangNhapService khoaTam,
+			HuyYeuCauDatLaiService huyYeuCauDatLai) {
+		this.huyYeuCauDatLai = huyYeuCauDatLai;
 		this.khoaTam = khoaTam;
 		this.dich = dich;
 		this.query = query;
@@ -93,6 +97,10 @@ public class CapNhatTaiKhoanService {
 		}
 		catch (DataIntegrityViolationException ex) {
 			throw TaiKhoanLoi.tuRangBuoc(ex);
+		}
+		// Link đặt lại đã gửi tới email cũ không còn dùng được (spec 0010, AC-10)
+		if (doi.contains("email")) {
+			this.huyYeuCauDatLai.huyConMo(maNguoiDung, now);
 		}
 		// Số điện thoại, email mới không mang theo khóa của định danh ảo (spec 0009,
 		// AC-19)

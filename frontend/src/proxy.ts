@@ -25,6 +25,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Mọi trang trừ /api, tài nguyên tĩnh, file có đuôi, /dang-nhap và /dev/**
-  matcher: ["/((?!api/|api$|_next/static|_next/image|favicon\\.ico|dang-nhap|dev/|dev$|.*\\.[A-Za-z0-9]+$).*)"],
+  // Mọi trang trừ /api, tài nguyên tĩnh, file có đuôi, /dang-nhap, hai trang quên mật khẩu (spec 0010) và /dev/**
+  matcher: [
+    "/((?!api/|api$|_next/static|_next/image|favicon\\.ico|dang-nhap|quen-mat-khau|dat-lai-mat-khau|dev/|dev$|.*\\.[A-Za-z0-9]+$).*)",
+  ],
 };

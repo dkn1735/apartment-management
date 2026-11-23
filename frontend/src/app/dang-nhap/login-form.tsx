@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, Clock, Lock } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
 import * as z from "zod";
@@ -33,6 +34,12 @@ const LY_DO = {
   khoa: { tone: "warning", icon: Lock, text: ERROR_MESSAGES.AUTH_ACCOUNT_LOCKED },
   // Spec 0005, AC-14
   "dang-xuat": { tone: "success", icon: CircleCheck, text: "Bạn đã đăng xuất." },
+  // Spec 0010, AC-13
+  "dat-lai-mat-khau": {
+    tone: "success",
+    icon: CircleCheck,
+    text: "Đã đặt lại mật khẩu. Vui lòng đăng nhập bằng mật khẩu mới.",
+  },
 } as const;
 
 function laLyDo(value: string | null): value is keyof typeof LY_DO {
@@ -108,6 +115,9 @@ export function LoginForm() {
             render={(field) => <PasswordInput autoComplete="current-password" {...field} />}
           />
         </FieldGroup>
+        <p className="-mt-2 type-ui">
+          <Link href="/quen-mat-khau">Quên mật khẩu?</Link>
+        </p>
         <SubmitButton form={form} size="lg" className="w-full">
           Đăng nhập
         </SubmitButton>

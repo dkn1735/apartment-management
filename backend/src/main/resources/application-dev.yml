@@ -1,3 +1,14 @@
+spring:
+  mail:
+    # Mailpit trong docker compose; xem thư ở http://localhost:8025
+    host: ${MAIL_HOST:localhost}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 springdoc:
   api-docs:
     enabled: true
@@ -12,6 +23,9 @@ logging:
     vn.edu.hust.chungcu: DEBUG
 
 app:
+  public-url: ${APP_PUBLIC_URL:http://localhost:3000}
+  mail:
+    from: ${MAIL_FROM:Chung cư (dev) <no-reply@chungcu.local>}
   security:
     # Safari và Playwright không nhận cookie Secure qua http://localhost
     cookie-secure: ${COOKIE_SECURE:false}

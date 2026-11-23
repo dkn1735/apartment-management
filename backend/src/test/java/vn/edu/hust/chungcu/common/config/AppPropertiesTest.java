@@ -25,7 +25,9 @@ class AppPropertiesTest {
 		.withPropertyValues("app.timezone=Asia/Ho_Chi_Minh", "app.security.access-token-ttl=PT15M",
 				"app.security.refresh-token-ttl=P7D", "app.security.bcrypt-cost=12", "app.security.cookie-secure=true",
 				"app.security.session-max-lifetime=P30D", "app.security.refresh-reuse-grace=PT30S",
-				"app.security.session-retention=P30D", "app.security.session-cleanup-cron=0 0 3 * * *");
+				"app.security.session-retention=P30D", "app.security.session-cleanup-cron=0 0 3 * * *",
+				"app.security.password-reset-ttl=PT30M", "app.public-url=http://localhost:3000",
+				"app.mail.from=chungcu@localhost");
 
 	@Test
 	void thieuJwtSecretThiKhongKhoiDong() {
@@ -108,6 +110,30 @@ class AppPropertiesTest {
 				assertThat(context.getBean(AuthCookies.class).xoa().get("Set-Cookie")).hasSize(3)
 					.allSatisfy(cookie -> assertThat(cookie).contains("Max-Age=0"));
 			});
+	}
+
+	// Spec 0010, AC-14: thiếu URL gốc hay người gửi thì không khởi động, thông báo nêu
+	// tên
+	@Test
+	void thieuPublicUrlHoacMailFromThiKhongKhoiDong() {
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.public-url=")
+			.run(context -> assertThat(context).hasFailed()
+				.getFailure()
+				.rootCause()
+				.hasMessageContaining("APP_PUBLIC_URL"));
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.mail.from=")
+			.run(context -> assertThat(context).hasFailed().getFailure().rootCause().hasMessageContaining("MAIL_FROM"));
+	}
+
+	@Test
+	void publicUrlPhaiLaHttpVaBoDauGachCuoi() {
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.public-url=ftp://x")
+			.run(context -> assertThat(context).hasFailed()
+				.getFailure()
+				.rootCause()
+				.hasMessageContaining("APP_PUBLIC_URL phải bắt đầu bằng http:// hoặc https://"));
+		this.runner.withPropertyValues(KHOA_HOP_LE, "app.public-url=https://x.vn/")
+			.run(context -> assertThat(context.getBean(AppProperties.class).publicUrl()).isEqualTo("https://x.vn"));
 	}
 
 	@Configuration(proxyBeanMethods = false)

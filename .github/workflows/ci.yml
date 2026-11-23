@@ -69,6 +69,11 @@ jobs:
       # Compose đọc các biến :? ngay cả khi chỉ build; giá trị giả, không image nào chạy
       POSTGRES_PASSWORD: ci-build-only
       JWT_SECRET: ci-build-only-not-a-real-secret
+      MAIL_HOST: smtp.invalid
+      MAIL_USERNAME: ci-build-only
+      MAIL_PASSWORD: ci-build-only
+      MAIL_FROM: ci@invalid
+      APP_PUBLIC_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v7
       # Build image trong ngữ cảnh không có .git, bắt lỗi như prepare: lefthook install

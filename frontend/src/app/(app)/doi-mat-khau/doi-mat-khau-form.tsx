@@ -17,6 +17,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { api, ApiError, client } from "@/lib/api/api";
 import { safeNext } from "@/lib/auth/safe-next";
 import { HO_SO_QUERY_KEY, useHoSo } from "@/lib/auth/use-ho-so";
+import { matKhauMoiSchema } from "@/lib/mat-khau";
 
 /** Quy tắc độ mạnh của API-AUTH-04; backend kiểm lại, đây chỉ để báo sớm. */
 export const QUY_TAC_MAT_KHAU = "Ít nhất 8 ký tự, có cả chữ và số, khác mật khẩu hiện tại.";
@@ -24,13 +25,7 @@ export const QUY_TAC_MAT_KHAU = "Ít nhất 8 ký tự, có cả chữ và số,
 const schema = z
   .object({
     matKhauCu: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
-    matKhauMoi: z
-      .string()
-      .min(1, "Vui lòng nhập mật khẩu mới")
-      .min(8, "Mật khẩu mới phải có từ 8 đến 128 ký tự")
-      .max(128, "Mật khẩu mới phải có từ 8 đến 128 ký tự")
-      .regex(/\p{L}/u, "Mật khẩu mới phải có cả chữ và số")
-      .regex(/\p{Nd}/u, "Mật khẩu mới phải có cả chữ và số"),
+    matKhauMoi: matKhauMoiSchema,
     xacNhan: z.string().min(1, "Vui lòng nhập lại mật khẩu mới"),
   })
   .refine((v) => v.matKhauMoi !== v.matKhauCu, {

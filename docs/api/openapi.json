@@ -380,6 +380,126 @@
         }
       }
     },
+    "/api/v1/auth/password-reset/request" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Yêu cầu link đặt lại mật khẩu qua email",
+        "description" : "Luôn trả cùng một câu dù email có thuộc tài khoản nào hay không. Email gửi sau khi trả phản hồi; link sống 30 phút và chỉ dùng được một lần.\n\nCông khai, không cần đăng nhập",
+        "operationId" : "yeuCauDatLaiMatKhauEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/YeuCauDatLaiRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/password-reset/confirm" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Đặt mật khẩu mới bằng link trong email",
+        "description" : "Dùng token một lần, đổi mật khẩu, thu hồi mọi phiên đăng nhập kể cả phiên của máy này và xóa ba cookie xác thực. Mật khẩu mới: 8 tới 128 ký tự, có cả chữ và số.\n\nCông khai, không cần đăng nhập",
+        "operationId" : "xacNhanDatLaiMatKhauEmail",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/XacNhanDatLaiRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/password-reset/check" : {
+      "post" : {
+        "tags" : [ "Xác thực" ],
+        "summary" : "Kiểm link đặt lại mật khẩu còn dùng được không",
+        "description" : "Không đổi dữ liệu. Mọi lý do token không dùng được trả cùng mã AUTH_RESET_TOKEN_INVALID.\n\nCông khai, không cần đăng nhập",
+        "operationId" : "kiemTraTokenDatLai",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/KiemTraDatLaiRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseKiemTraDatLaiResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/logout" : {
       "post" : {
         "tags" : [ "Xác thực" ],
@@ -1276,6 +1396,19 @@
         },
         "required" : [ "accessTokenHetHanLuc", "hoTen", "lamMoi", "maNguoiDung", "phaiDoiMatKhau", "vaiTro" ]
       },
+      "YeuCauDatLaiRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "example" : "an.nguyen@example.com",
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,}$"
+          }
+        },
+        "required" : [ "email" ]
+      },
       "ApiResponseVoid" : {
         "type" : "object",
         "properties" : {
@@ -1295,6 +1428,67 @@
             "format" : "date-time"
           }
         }
+      },
+      "XacNhanDatLaiRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "maxLength" : 64,
+            "minLength" : 1
+          },
+          "matKhauMoi" : {
+            "type" : "string",
+            "description" : "Ít nhất 8 ký tự, có cả chữ và số",
+            "maxLength" : 128,
+            "minLength" : 8,
+            "pattern" : "^(?=.*\\p{L})(?=.*\\p{Nd}).*$"
+          }
+        },
+        "required" : [ "matKhauMoi", "token" ]
+      },
+      "KiemTraDatLaiRequest" : {
+        "type" : "object",
+        "properties" : {
+          "token" : {
+            "type" : "string",
+            "maxLength" : 64,
+            "minLength" : 1
+          }
+        },
+        "required" : [ "token" ]
+      },
+      "ApiResponseKiemTraDatLaiResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/KiemTraDatLaiResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "KiemTraDatLaiResponse" : {
+        "type" : "object",
+        "properties" : {
+          "hetHanLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "hetHanLuc" ]
       },
       "DangNhapRequest" : {
         "type" : "object",

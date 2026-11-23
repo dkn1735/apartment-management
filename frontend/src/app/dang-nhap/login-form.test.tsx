@@ -132,6 +132,17 @@ describe("Thông báo lý do (AC-15)", () => {
     await expectNoA11yViolations(container);
   });
 
+  it("ly-do=dat-lai-mat-khau hiện câu thành công (spec 0010, AC-13)", async () => {
+    const { container } = setup("ly-do=dat-lai-mat-khau");
+    expect(screen.getByRole("status")).toHaveTextContent("Đã đặt lại mật khẩu. Vui lòng đăng nhập bằng mật khẩu mới.");
+    await expectNoA11yViolations(container);
+  });
+
+  it("có link Quên mật khẩu? tới /quen-mat-khau (spec 0010, AC-13)", () => {
+    setup();
+    expect(screen.getByRole("link", { name: "Quên mật khẩu?" })).toHaveAttribute("href", "/quen-mat-khau");
+  });
+
   it("ly-do lạ thì không hiện gì", () => {
     setup("ly-do=toString");
     expect(screen.getByRole("status", { hidden: true })).toBeEmptyDOMElement();

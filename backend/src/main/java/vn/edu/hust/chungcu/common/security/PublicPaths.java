@@ -34,8 +34,12 @@ public final class PublicPaths {
 	public static final List<DuongCongKhai> CONG_KHAI = List.of(
 			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/login"),
 			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/refresh-token"),
-			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/logout"), new DuongCongKhai(null, "/error"),
-			new DuongCongKhai(null, "/actuator/health"), new DuongCongKhai(null, "/actuator/health/**"));
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/logout"),
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/password-reset/request"),
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/password-reset/check"),
+			new DuongCongKhai(HttpMethod.POST, "/api/v1/auth/password-reset/confirm"),
+			new DuongCongKhai(null, "/error"), new DuongCongKhai(null, "/actuator/health"),
+			new DuongCongKhai(null, "/actuator/health/**"));
 
 	/** Luôn công khai. */
 	public static final RequestMatcher ALWAYS = new OrRequestMatcher(
