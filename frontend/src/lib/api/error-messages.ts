@@ -37,6 +37,8 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_PASSWORD_CHANGE_REQUIRED: "Bạn cần đổi mật khẩu tạm trước khi tiếp tục.",
   // Spec 0009: khóa tạm đăng nhập; có Retry-After thì dùng thongBaoKhoaTam để nêu số phút
   AUTH_TOO_MANY_ATTEMPTS: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.",
+  // Spec 0010: mọi lý do link đặt lại mật khẩu không dùng được dùng chung câu này
+  AUTH_RESET_TOKEN_INVALID: "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.",
 };
 
 /** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */

@@ -21,7 +21,7 @@ export default function DangNhapPage() {
         </Suspense>
       </Card>
       <p className="max-w-[420px] text-center type-caption text-muted-foreground">
-        Chưa có tài khoản hoặc quên mật khẩu? Liên hệ ban quản lý tòa nhà để được hỗ trợ.
+        Chưa có tài khoản, hoặc email đăng ký không còn dùng được? Liên hệ ban quản lý tòa nhà để được hỗ trợ.
       </p>
     </main>
   );

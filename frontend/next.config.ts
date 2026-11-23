@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // Link đặt lại mật khẩu mang token trong fragment; trang này không gửi Referer đi đâu cả (spec 0010, AC-15)
+  async headers() {
+    return [{ source: "/dat-lai-mat-khau", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] }];
+  },
   // Trình duyệt chỉ gọi /api/... trên tên miền của Next.js; Next.js chuyển tiếp sang Spring Boot.
   // Vì vậy không đặt Route Handler nào dưới src/app/api (rewrite sẽ nuốt mất).
   async rewrites() {

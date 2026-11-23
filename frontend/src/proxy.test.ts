@@ -23,6 +23,8 @@ describe("proxy (AC-13)", () => {
 
   it.each([
     "/dang-nhap",
+    "/quen-mat-khau",
+    "/dat-lai-mat-khau",
     "/dev",
     "/dev/ui",
     "/dev/ui/shell",

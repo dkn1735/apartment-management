@@ -53,6 +53,13 @@ export function formatGioNgay(value: string | null | undefined): string {
   return p ? `${p.hour}:${p.minute} ${p.day}/${p.month}/${p.year}` : EMPTY_VALUE;
 }
 
+/** Thời điểm ISO thành `HH:mm ngày dd/MM/yyyy` giờ Việt Nam (spec 0010, hạn của link đặt lại mật khẩu). */
+export function formatGioNgayDayDu(value: string | null | undefined): string {
+  if (!value || LOCAL_DATE.test(value)) return EMPTY_VALUE;
+  const p = parts(value);
+  return p ? `${p.hour}:${p.minute} ngày ${p.day}/${p.month}/${p.year}` : EMPTY_VALUE;
+}
+
 /**
  * `2026-11-16` (LocalDate) thành `16/11/2026` bằng cách tách chuỗi, không qua `Date` nên không lệch ngày.
  * Chuỗi ISO khác là thời điểm: lấy phần ngày theo giờ Việt Nam.
