@@ -1,4 +1,12 @@
-import { Building2, LayoutDashboard, ScrollText, UserRound, UsersRound, type LucideIcon } from "lucide-react";
+import {
+  Building2,
+  LayoutDashboard,
+  MapPinned,
+  ScrollText,
+  UserRound,
+  UsersRound,
+  type LucideIcon,
+} from "lucide-react";
 import type { NavItem } from "@/components/layout/nav";
 import type { VaiTro } from "@/lib/vai-tro";
 
@@ -27,13 +35,20 @@ export const MUC_CHUC_NANG: readonly MucChucNang[] = [
   {
     href: "/toa-nha",
     label: "Tòa nhà",
-    vaiTro: ["BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN"],
+    vaiTro: ["BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN", "KY_THUAT"],
     sanSang: true,
     moTa: "Danh mục tòa nhà, số tầng và số căn hộ",
     icon: Building2,
   },
   { href: "/can-ho", label: "Căn hộ", vaiTro: ["BAN_QUAN_LY", "BAN_QUAN_TRI", "KE_TOAN"], sanSang: false },
-  { href: "/khu-vuc-chung", label: "Khu vực chung", vaiTro: ["BAN_QUAN_LY", "KY_THUAT"], sanSang: false },
+  {
+    href: "/khu-vuc-chung",
+    label: "Khu vực chung",
+    vaiTro: ["BAN_QUAN_LY", "KY_THUAT"],
+    sanSang: true,
+    moTa: "Sảnh, hành lang, phòng kỹ thuật của từng tòa",
+    icon: MapPinned,
+  },
   { href: "/ho-so-cu-tru", label: "Hồ sơ cư trú", vaiTro: ["BAN_QUAN_LY"], sanSang: false },
   { href: "/can-ho-cua-toi", label: "Căn hộ của tôi", vaiTro: ["CU_DAN"], sanSang: false },
   { href: "/chi-so", label: "Chỉ số điện nước", vaiTro: ["BAN_QUAN_LY", "KE_TOAN", "KY_THUAT"], sanSang: false },

@@ -194,6 +194,8 @@ class SchemaMigrationTest {
 		assertThat(count("SELECT count(*) FROM toa_nha")).isEqualTo(1);
 		assertThat(count("SELECT count(*) FROM tang WHERE ma_toa_nha = 'A'")).isEqualTo(3);
 		assertThat(count("SELECT count(*) FROM can_ho")).isEqualTo(3);
+		// Spec 0011, AC-12
+		assertThat(count("SELECT count(*) FROM khu_vuc_dung_chung WHERE ma_toa_nha = 'A'")).isEqualTo(3);
 		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(3);
 		assertThat(count("""
 				SELECT count(*) FROM cu_dan c
@@ -210,8 +212,10 @@ class SchemaMigrationTest {
 		Map<String, Integer> truoc = soDongMoiBang();
 		Connection connection = DataSourceUtils.getConnection(this.dataSource);
 		try {
-			ScriptUtils.executeSqlScript(connection, new EncodedResource(
-					new ClassPathResource("db/seed/R__seed_01_xac_thuc.sql"), StandardCharsets.UTF_8));
+			for (String seed : List.of("R__seed_01_xac_thuc.sql", "R__seed_02_khong_gian.sql")) {
+				ScriptUtils.executeSqlScript(connection,
+						new EncodedResource(new ClassPathResource("db/seed/" + seed), StandardCharsets.UTF_8));
+			}
 		}
 		finally {
 			DataSourceUtils.releaseConnection(connection, this.dataSource);

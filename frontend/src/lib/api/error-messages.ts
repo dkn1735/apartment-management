@@ -39,6 +39,9 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_TOO_MANY_ATTEMPTS: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.",
   // Spec 0010: mọi lý do link đặt lại mật khẩu không dùng được dùng chung câu này
   AUTH_RESET_TOKEN_INVALID: "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.",
+  // Spec 0011: tòa nhà và tầng
+  CANHO_TOA_NHA_DA_TON_TAI: "Tòa nhà đã tồn tại.",
+  CANHO_TANG_SAI_THU_TU: "Tầng mới phải nối tiếp tầng cao nhất của tòa.",
 };
 
 /** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */

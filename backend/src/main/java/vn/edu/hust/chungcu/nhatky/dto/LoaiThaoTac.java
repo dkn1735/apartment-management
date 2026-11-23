@@ -22,7 +22,9 @@ public enum LoaiThaoTac {
 	AUTH_KHOA_TAM_DANG_NHAP("Tạm khóa đăng nhập do nhập sai nhiều lần"),
 	AUTH_MO_KHOA_TAM_DANG_NHAP("Mở khóa đăng nhập"),
 	AUTH_YEU_CAU_DAT_LAI_MAT_KHAU("Yêu cầu đặt lại mật khẩu qua email"),
-	AUTH_DAT_LAI_MAT_KHAU_QUA_EMAIL("Đặt lại mật khẩu qua email");
+	AUTH_DAT_LAI_MAT_KHAU_QUA_EMAIL("Đặt lại mật khẩu qua email"),
+
+	CANHO_THEM_TOA_NHA("Thêm tòa nhà"), CANHO_THEM_TANG("Thêm tầng");
 
 	private final String nhan;
 

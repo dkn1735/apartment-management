@@ -29,7 +29,7 @@ class PhanQuyenOpenApiTest {
 		this.mockMvc.perform(get("/v3/api-docs"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.paths['/api/v1/buildings'].get.description")
-				.value(endsWith("\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN")))
+				.value(endsWith("\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT")))
 			.andExpect(jsonPath("$.paths['/api/v1/buildings'].get.responses['403'].description")
 				.value("Không đủ quyền (FORBIDDEN)"))
 			.andExpect(jsonPath(

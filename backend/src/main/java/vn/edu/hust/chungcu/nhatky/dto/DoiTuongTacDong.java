@@ -33,6 +33,16 @@ public record DoiTuongTacDong(String loai, String ma) {
 		return new DoiTuongTacDong(NGUOI_DUNG, maNguoiDung);
 	}
 
+	/** Tòa nhà {@code ToaNha:<ma>} (spec 0011, AC-14). */
+	public static DoiTuongTacDong toaNha(String maToaNha) {
+		return new DoiTuongTacDong("ToaNha", maToaNha);
+	}
+
+	/** Tầng {@code Tang:<maTang>} (spec 0011, AC-14). */
+	public static DoiTuongTacDong tang(String maTang) {
+		return new DoiTuongTacDong("Tang", maTang);
+	}
+
 	@Override
 	public String toString() {
 		return dang(this.loai, this.ma);

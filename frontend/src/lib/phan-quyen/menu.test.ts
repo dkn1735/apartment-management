@@ -6,10 +6,17 @@ import { MUC_CHUC_NANG, type MucChucNang } from "./muc-chuc-nang";
 const tenNhom = (vaiTro: string[]) => nhomMenu(vaiTro).map((g) => [g.label, g.items.map((i) => i.label)]);
 
 describe("nhomMenu (spec 0006, AC-10)", () => {
-  it("BQL thấy nhóm Ban quản lý có Tòa nhà, Nhật ký hệ thống và Tài khoản", () => {
+  it("BQL thấy nhóm Ban quản lý có Tòa nhà, Khu vực chung, Nhật ký hệ thống và Tài khoản", () => {
     expect(tenNhom(["BAN_QUAN_LY"])).toEqual([
       [undefined, ["Tổng quan", "Hồ sơ"]],
-      ["Ban quản lý", ["Tòa nhà", "Nhật ký hệ thống", "Tài khoản"]],
+      ["Ban quản lý", ["Tòa nhà", "Khu vực chung", "Nhật ký hệ thống", "Tài khoản"]],
+    ]);
+  });
+
+  it("Kỹ thuật thấy Tòa nhà và Khu vực chung (spec 0011, AC-10, AC-18)", () => {
+    expect(tenNhom(["KY_THUAT"])).toEqual([
+      [undefined, ["Tổng quan", "Hồ sơ"]],
+      ["Kỹ thuật", ["Tòa nhà", "Khu vực chung"]],
     ]);
   });
 

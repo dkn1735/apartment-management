@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.hust.chungcu.auth.dto.PhamViTruyCap;
 import vn.edu.hust.chungcu.canho.dto.ToaNhaResponse;
 import vn.edu.hust.chungcu.canho.repository.ToaNhaQuery;
 import vn.edu.hust.chungcu.canho.repository.ToaNhaRepository;
 import vn.edu.hust.chungcu.common.api.PageResponse;
 import vn.edu.hust.chungcu.common.api.TrangYeuCau;
+import vn.edu.hust.chungcu.common.error.ApiException;
 
 /**
  * Phần công khai của phân hệ căn hộ mà phân hệ khác được gọi. Không gọi
@@ -35,6 +37,13 @@ public class ToaNhaService {
 	@Transactional(readOnly = true)
 	public List<String> danhSachMaToaNha() {
 		return this.toaNha.findAllMaToaNha();
+	}
+
+	/** Một tòa đã nằm trong phạm vi người gọi (spec 0011, AC-9). */
+	@Transactional(readOnly = true)
+	public ToaNhaResponse chiTiet(String maToaNha) {
+		return this.toaNhaQuery.chiTiet(maToaNha)
+			.orElseThrow(() -> ApiException.notFound(PhamViTruyCap.KHONG_TIM_THAY));
 	}
 
 	/** Danh mục tòa nhà trong {@code maToaNha} (phạm vi của người gọi), AC-7. */

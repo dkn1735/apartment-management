@@ -342,6 +342,259 @@
         }
       }
     },
+    "/api/v1/buildings" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Danh mục cấu trúc tòa nhà (API-UC01-01)",
+        "description" : "Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT",
+        "operationId" : "danhSach",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "tenToaNha,asc"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseToaNhaResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Thêm tòa nhà (API-UC01-02)",
+        "description" : "Tạo tòa cùng đủ tầng 1 đến soTang trong một transaction. Mã hoặc tên trùng (không phân biệt hoa thường) trả 409.\n\nVai trò được phép: BAN_QUAN_LY",
+        "operationId" : "them",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ThemToaNhaRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseToaNhaResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/buildings/{buildingId}/floors" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Danh sách tầng theo tòa nhà (API-UC01-03)",
+        "description" : "Kèm số căn hộ của mỗi tầng. Tòa ngoài phạm vi trả 404.\n\nVai trò được phép: BAN_QUAN_LY, KY_THUAT",
+        "operationId" : "danhSach_1",
+        "parameters" : [ {
+          "name" : "buildingId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "soTang hoặc maTang, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "soTang,asc"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseTangResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Thêm tầng mới vào tòa nhà (API-UC01-04)",
+        "description" : "soTang phải bằng số tầng hiện có cộng một; sai thứ tự hoặc tòa đã đủ 99 tầng trả 422.\n\nVai trò được phép: BAN_QUAN_LY",
+        "operationId" : "them_1",
+        "parameters" : [ {
+          "name" : "buildingId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ThemTangRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseTangResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/refresh-token" : {
       "post" : {
         "tags" : [ "Xác thực" ],
@@ -936,13 +1189,30 @@
         }
       }
     },
-    "/api/v1/buildings" : {
+    "/api/v1/common-areas" : {
       "get" : {
         "tags" : [ "Căn hộ" ],
-        "summary" : "Danh mục cấu trúc tòa nhà (API-UC01-01)",
-        "description" : "Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN",
-        "operationId" : "danhSach",
+        "summary" : "Danh mục khu vực dùng chung (API-UC01-10)",
+        "description" : "Chỉ khu vực thuộc tòa trong phạm vi người gọi. q tìm chứa trong tên, không phân biệt hoa thường, không bỏ dấu.\n\nVai trò được phép: BAN_QUAN_LY, KY_THUAT",
+        "operationId" : "danhSach_2",
         "parameters" : [ {
+          "name" : "maToaNha",
+          "in" : "query",
+          "description" : "Mã tòa nhà; bỏ trống là mọi tòa trong phạm vi",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Từ khóa trong tên khu vực, tối đa 100 ký tự",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 100
+          }
+        }, {
           "name" : "page",
           "in" : "query",
           "description" : "Trang, bắt đầu từ 1",
@@ -966,11 +1236,11 @@
         }, {
           "name" : "sort",
           "in" : "query",
-          "description" : "maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc",
+          "description" : "tenKhuVuc, maKhuVuc hoặc tenToaNha, cộng ,asc hoặc ,desc",
           "required" : false,
           "schema" : {
             "type" : "string",
-            "default" : "tenToaNha,asc"
+            "default" : "tenKhuVuc,asc"
           }
         } ],
         "responses" : {
@@ -979,7 +1249,55 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponsePageResponseToaNhaResponse"
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseKhuVucDungChungResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/buildings/{buildingId}" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Thông tin một tòa nhà",
+        "description" : "Ngoài danh mục 81 API (spec 0011). Tòa ngoài phạm vi hoặc không tồn tại trả 404.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT",
+        "operationId" : "chiTiet",
+        "parameters" : [ {
+          "name" : "buildingId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseToaNhaResponse"
                 }
               }
             }
@@ -1343,6 +1661,131 @@
           }
         },
         "required" : [ "phienBan" ]
+      },
+      "ThemToaNhaRequest" : {
+        "type" : "object",
+        "properties" : {
+          "maToaNha" : {
+            "type" : "string",
+            "example" : "B",
+            "maxLength" : 10
+          },
+          "tenToaNha" : {
+            "type" : "string",
+            "example" : "Tòa B",
+            "maxLength" : 100
+          },
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 5,
+            "maximum" : 99,
+            "minimum" : 1
+          },
+          "diaChiKhuVuc" : {
+            "type" : "string",
+            "example" : "Khu đô thị mẫu, Hà Nội",
+            "maxLength" : 255
+          }
+        },
+        "required" : [ "diaChiKhuVuc", "maToaNha", "soTang", "tenToaNha" ]
+      },
+      "ApiResponseToaNhaResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ToaNhaResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ToaNhaResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maToaNha" : {
+            "type" : "string"
+          },
+          "tenToaNha" : {
+            "type" : "string"
+          },
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "diaChiKhuVuc" : {
+            "type" : "string"
+          },
+          "soCanHo" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "diaChiKhuVuc", "maToaNha", "soCanHo", "soTang", "tenToaNha" ]
+      },
+      "ThemTangRequest" : {
+        "type" : "object",
+        "properties" : {
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 4,
+            "maximum" : 99,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "soTang" ]
+      },
+      "ApiResponseTangResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/TangResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "TangResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maTang" : {
+            "type" : "string"
+          },
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "soCanHo" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "maTang", "soCanHo", "soTang" ]
       },
       "ApiResponseLamMoiPhienResponse" : {
         "type" : "object",
@@ -1829,6 +2272,77 @@
         },
         "required" : [ "ma", "nhan" ]
       },
+      "ApiResponsePageResponseKhuVucDungChungResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseKhuVucDungChungResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "KhuVucDungChungResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maKhuVuc" : {
+            "type" : "string"
+          },
+          "tenKhuVuc" : {
+            "type" : "string"
+          },
+          "viTri" : {
+            "type" : "string"
+          },
+          "maToaNha" : {
+            "type" : "string"
+          },
+          "tenToaNha" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "maKhuVuc", "maToaNha", "tenKhuVuc", "tenToaNha", "viTri" ]
+      },
+      "PageResponseKhuVucDungChungResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/KhuVucDungChungResponse"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
+      },
       "ApiResponsePageResponseToaNhaResponse" : {
         "type" : "object",
         "properties" : {
@@ -1879,28 +2393,55 @@
         },
         "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
       },
-      "ToaNhaResponse" : {
+      "ApiResponsePageResponseTangResponse" : {
         "type" : "object",
         "properties" : {
-          "maToaNha" : {
-            "type" : "string"
+          "success" : {
+            "type" : "boolean"
           },
-          "tenToaNha" : {
-            "type" : "string"
-          },
-          "soTang" : {
+          "code" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "diaChiKhuVuc" : {
+          "message" : {
             "type" : "string"
           },
-          "soCanHo" : {
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseTangResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PageResponseTangResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TangResponse"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         },
-        "required" : [ "diaChiKhuVuc", "maToaNha", "soCanHo", "soTang", "tenToaNha" ]
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
       },
       "ApiResponseHoSoResponse" : {
         "type" : "object",

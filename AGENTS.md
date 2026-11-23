@@ -41,7 +41,8 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 - Email: gửi qua `common.email.EmailSender`, sau commit (`@TransactionalEventListener(AFTER_COMMIT)`) và trên bean `emailExecutor` có giới hạn, không gửi trong transaction hay trên executor mặc định. Profile `prod` cần `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `APP_PUBLIC_URL` (thiếu thì không khởi động); link gửi đi chỉ dựng từ `app.public-url` ([spec 0010](docs/specs/0010-quen-mat-khau-email/index.md)).
 - Giao diện đạt WCAG AA: dùng được hoàn toàn bằng bàn phím, focus nhìn thấy được, mọi ô nhập có nhãn, lỗi gắn với ô nhập, đủ tương phản.
 - Test: unit test cho service (inject fake qua constructor), integration test với PostgreSQL thật qua Testcontainers cho API và repository (không dùng H2). Frontend: Vitest + Testing Library.
-- Commit theo Conventional Commits, phạm vi là phân hệ: `feat(auth): ...`, `fix(common): ...`, `chore(tooling): ...`.
+- Commit theo Conventional Commits, phạm vi là phân hệ: `feat(auth): ...`, `fix(common): ...`, `chore(tooling): ...`. Mỗi tính năng (feat) gom thành một commit khi xong, không chia nhỏ theo milestone hay từng bước, để lịch sử dễ theo dõi.
+- Agent luôn phản hồi người dùng bằng tiếng Việt có dấu (giữ nguyên tên kỹ thuật, code, lệnh bằng tiếng Anh).
 
 ## Tooling
 
@@ -58,7 +59,7 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 
 - integration: on
 - branch prefix: feat/
-- commit: per-milestone
+- commit: per-feature
 
 ## Agent skills
 

@@ -24,6 +24,7 @@ import vn.edu.hust.chungcu.auth.repository.TaiKhoanQuery;
 import vn.edu.hust.chungcu.auth.repository.TruongVaiTro;
 import vn.edu.hust.chungcu.auth.repository.VaiTroGhi;
 import vn.edu.hust.chungcu.common.error.ApiException;
+import vn.edu.hust.chungcu.common.error.LoiCoSoDuLieu;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
 import vn.edu.hust.chungcu.nhatky.dto.ChiTietNhatKy;
 import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
