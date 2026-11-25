@@ -6,10 +6,10 @@ import { MUC_CHUC_NANG, type MucChucNang } from "./muc-chuc-nang";
 const tenNhom = (vaiTro: string[]) => nhomMenu(vaiTro).map((g) => [g.label, g.items.map((i) => i.label)]);
 
 describe("nhomMenu (spec 0006, AC-10)", () => {
-  it("BQL thấy nhóm Ban quản lý có Tòa nhà, Khu vực chung, Nhật ký hệ thống và Tài khoản", () => {
+  it("BQL thấy nhóm Ban quản lý có Tòa nhà, Căn hộ, Khu vực chung, Nhật ký hệ thống và Tài khoản", () => {
     expect(tenNhom(["BAN_QUAN_LY"])).toEqual([
       [undefined, ["Tổng quan", "Hồ sơ"]],
-      ["Ban quản lý", ["Tòa nhà", "Khu vực chung", "Nhật ký hệ thống", "Tài khoản"]],
+      ["Ban quản lý", ["Tòa nhà", "Căn hộ", "Khu vực chung", "Nhật ký hệ thống", "Tài khoản"]],
     ]);
   });
 
@@ -27,14 +27,22 @@ describe("nhomMenu (spec 0006, AC-10)", () => {
     ]);
   });
 
-  it.each([[["CU_DAN"]], [[]], [["VAI_TRO_LA"]]])("%j chỉ thấy nhóm đầu", (vaiTro) => {
+  it("Cư dân thấy Căn hộ của tôi (spec 0012, AC-20)", () => {
+    expect(tenNhom(["CU_DAN"])).toEqual([
+      [undefined, ["Tổng quan", "Hồ sơ"]],
+      ["Cư dân", ["Căn hộ của tôi"]],
+    ]);
+  });
+
+  it.each([[[]], [["VAI_TRO_LA"]]])("%j chỉ thấy nhóm đầu", (vaiTro) => {
     expect(tenNhom(vaiTro)).toEqual([[undefined, ["Tổng quan", "Hồ sơ"]]]);
   });
 
   it("hai vai trò: mục chỉ ở nhóm đứng trước, nhóm rỗng bị ẩn", () => {
     expect(tenNhom(["CU_DAN", "BAN_QUAN_TRI"])).toEqual([
       [undefined, ["Tổng quan", "Hồ sơ"]],
-      ["Ban quản trị", ["Tòa nhà", "Nhật ký hệ thống"]],
+      ["Ban quản trị", ["Tòa nhà", "Căn hộ", "Nhật ký hệ thống"]],
+      ["Cư dân", ["Căn hộ của tôi"]],
     ]);
   });
 
@@ -65,6 +73,8 @@ describe("mucCuaDuongDan, duocVao (AC-11)", () => {
     ["/ho-so", undefined],
     ["/", undefined],
     ["/toa-nha-khac", undefined],
+    ["/can-ho/A-0101", "/can-ho"],
+    ["/can-ho-cua-toi/A-0101", "/can-ho-cua-toi"],
   ])("%s khớp %s", (pathname, href) => {
     expect(mucCuaDuongDan(pathname)?.href).toBe(href);
   });

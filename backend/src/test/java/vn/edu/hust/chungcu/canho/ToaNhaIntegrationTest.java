@@ -191,7 +191,7 @@ class ToaNhaIntegrationTest {
 			.andExpect(jsonPath("$.data.items[0].tenToaNha").value("Tòa A"))
 			.andExpect(jsonPath("$.data.items[0].soTang").value(3))
 			.andExpect(jsonPath("$.data.items[0].diaChiKhuVuc").value("Khu đô thị mẫu, Hà Nội"))
-			.andExpect(jsonPath("$.data.items[0].soCanHo").value(3));
+			.andExpect(jsonPath("$.data.items[0].soCanHo").value(12));
 	}
 
 	// AC-7: trang vượt quá trả items rỗng, tổng vẫn đúng

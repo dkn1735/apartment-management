@@ -9,6 +9,9 @@ public final class CanHoErrorCodes {
 	/** Tầng mới không nối tiếp tầng cao nhất, hoặc tòa đã đủ 99 tầng (AC-5). */
 	public static final String CANHO_TANG_SAI_THU_TU = "CANHO_TANG_SAI_THU_TU";
 
+	/** Mã căn ghép từ tầng và số căn đã có (spec 0012, AC-9). */
+	public static final String CANHO_CAN_HO_DA_TON_TAI = "CANHO_CAN_HO_DA_TON_TAI";
+
 	private CanHoErrorCodes() {
 	}
 

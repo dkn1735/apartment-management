@@ -7,6 +7,8 @@ import { useCallback, useEffect, useRef } from "react";
  * Ghi tham số lên URL của trang hiện tại; `undefined` thì xóa tham số đó. DataTable gọi hai lần liền nhau (đổi
  * sort rồi về trang 1), nên gộp vào bản mới nhất thay vì đọc lại `searchParams` cũ của lần render này.
  *
+ * Giá trị là mảng thì ghi tham số lặp lại (`?a=1&a=2`); mảng rỗng xóa tham số đó.
+ *
  * Mặc định thay URL tại chỗ (sắp xếp, phân trang). Truyền `{ themLichSu: true }` cho thay đổi người dùng chủ động
  * áp dụng như bộ lọc, để nút Back của trình duyệt trả lại trạng thái trước.
  */
@@ -20,15 +22,19 @@ export function useCapNhatUrl(searchParams: URLSearchParams) {
     moiNhat.current = null;
   }, [goc]);
   return useCallback(
-    (doi: Record<string, string | undefined>, { themLichSu = false }: { themLichSu?: boolean } = {}) => {
+    (
+      doi: Record<string, string | readonly string[] | undefined>,
+      { themLichSu = false }: { themLichSu?: boolean } = {},
+    ) => {
       // Các lần gọi trong cùng một lượt render có cùng `goc`, nên cộng dồn; URL đã đổi thì bắt đầu lại
       if (moiNhat.current?.goc !== goc) {
         moiNhat.current = { goc, params: new URLSearchParams(goc) };
       }
       const params = moiNhat.current.params;
       for (const [ten, giaTri] of Object.entries(doi)) {
-        if (giaTri === undefined) params.delete(ten);
-        else params.set(ten, giaTri);
+        params.delete(ten);
+        if (typeof giaTri === "string") params.set(ten, giaTri);
+        else giaTri?.forEach((motGiaTri) => params.append(ten, motGiaTri));
       }
       const qs = params.toString();
       const dich = qs ? `${pathname}?${qs}` : pathname;

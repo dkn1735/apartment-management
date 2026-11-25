@@ -193,7 +193,7 @@ class SchemaMigrationTest {
 	void seedCoToaNhaVaHoSoCuTruChoMoiCuDan() {
 		assertThat(count("SELECT count(*) FROM toa_nha")).isEqualTo(1);
 		assertThat(count("SELECT count(*) FROM tang WHERE ma_toa_nha = 'A'")).isEqualTo(3);
-		assertThat(count("SELECT count(*) FROM can_ho")).isEqualTo(3);
+		assertThat(count("SELECT count(*) FROM can_ho")).isEqualTo(12);
 		// Spec 0011, AC-12
 		assertThat(count("SELECT count(*) FROM khu_vuc_dung_chung WHERE ma_toa_nha = 'A'")).isEqualTo(3);
 		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(3);

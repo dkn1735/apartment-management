@@ -2,6 +2,7 @@ package vn.edu.hust.chungcu.canho.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import vn.edu.hust.chungcu.canho.dto.TangResponse;
@@ -29,6 +30,14 @@ public class TangQuery {
 
 	public TangQuery(JdbcClient jdbc) {
 		this.jdbc = jdbc;
+	}
+
+	/** Tòa của một tầng, rỗng khi tầng không có (spec 0012, AC-8). */
+	public Optional<String> maToaNhaCua(String maTang) {
+		return this.jdbc.sql("SELECT ma_toa_nha FROM tang WHERE ma_tang = :ma")
+			.param("ma", maTang)
+			.query(String.class)
+			.optional();
 	}
 
 	public long dem(String maToaNha) {

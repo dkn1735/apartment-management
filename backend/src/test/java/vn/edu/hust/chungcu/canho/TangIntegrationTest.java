@@ -191,7 +191,7 @@ class TangIntegrationTest {
 			.andExpect(jsonPath("$.data.totalItems").value(3))
 			.andExpect(jsonPath("$.data.totalPages").value(2))
 			.andExpect(jsonPath("$.data.items[*].maTang").value(contains("A-03", "A-02")))
-			.andExpect(jsonPath("$.data.items[*].soCanHo").value(contains(1, 1)));
+			.andExpect(jsonPath("$.data.items[*].soCanHo").value(contains(4, 4)));
 	}
 
 	// AC-9, AC-13
@@ -201,7 +201,7 @@ class TangIntegrationTest {
 			this.mockMvc.perform(ToaNhaApi.chiTiet(this.auth.accessToken(so), "A"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.tenToaNha").value("Tòa A"))
-				.andExpect(jsonPath("$.data.soCanHo").value(3));
+				.andExpect(jsonPath("$.data.soCanHo").value(12));
 		}
 		String cuDan = this.auth.accessToken(ToaNhaApi.CU_DAN);
 		this.mockMvc.perform(ToaNhaApi.chiTiet(cuDan, "A")).andExpect(status().isForbidden());

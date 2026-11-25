@@ -51,6 +51,110 @@
         }
       }
     },
+    "/api/v1/apartments/{apartmentId}" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Xem chi tiết căn hộ (API-UC01-06)",
+        "description" : "Nhân viên xem căn thuộc tòa trong phạm vi; cư dân chỉ xem căn đang cư trú. Ngoài phạm vi trả 404.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, CU_DAN",
+        "operationId" : "chiTiet",
+        "parameters" : [ {
+          "name" : "apartmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseCanHoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Cập nhật thông tin căn hộ (API-UC01-08)",
+        "description" : "Chỉ đổi diện tích và trạng thái sử dụng. Lần ghi sau thắng; nhật ký ghi giá trị cũ và mới.\n\nVai trò được phép: BAN_QUAN_LY",
+        "operationId" : "sua",
+        "parameters" : [ {
+          "name" : "apartmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SuaCanHoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseCanHoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/accounts/{maNguoiDung}" : {
       "get" : {
         "tags" : [ "Tài khoản" ],
@@ -851,6 +955,184 @@
         }
       }
     },
+    "/api/v1/apartments" : {
+      "get" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Tìm kiếm và lọc danh sách căn hộ (API-UC01-05)",
+        "description" : "Chỉ trả căn thuộc tòa trong phạm vi người gọi. Mọi bộ lọc tùy chọn và kết hợp bằng AND; soTang chỉ dùng được khi có maToaNha.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN",
+        "operationId" : "timKiem",
+        "parameters" : [ {
+          "name" : "maToaNha",
+          "in" : "query",
+          "description" : "Mã tòa nhà",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "soTang",
+          "in" : "query",
+          "description" : "Số tầng 1 đến 99, cần maToaNha",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "maximum" : 99,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "dienTichTu",
+          "in" : "query",
+          "description" : "Diện tích từ (m², gồm cả đầu này)",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "maximum" : 1000,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "dienTichDen",
+          "in" : "query",
+          "description" : "Diện tích đến (m², gồm cả đầu này)",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "maximum" : 1000,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "trangThaiSuDung",
+          "in" : "query",
+          "description" : "Trạng thái sử dụng, lặp lại được",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao" ]
+            }
+          }
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Một phần mã căn, tối đa 20 ký tự",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "maxLength" : 20
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Trang, bắt đầu từ 1",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 1,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "Số dòng mỗi trang, tối đa 100",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "maximum" : 100,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "maCanHo, dienTich hoặc trangThaiSuDung, cộng ,asc hoặc ,desc",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "maCanHo,asc"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePageResponseCanHoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Tạo căn hộ (API-UC01-07)",
+        "description" : "Mã căn do server ghép từ maTang và soCan (A-01 và 5 thành A-0105). Mã đã có trả 409.\n\nVai trò được phép: BAN_QUAN_LY",
+        "operationId" : "them_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ThemCanHoRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseCanHoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/accounts" : {
       "get" : {
         "tags" : [ "Tài khoản" ],
@@ -1282,7 +1564,7 @@
         "tags" : [ "Căn hộ" ],
         "summary" : "Thông tin một tòa nhà",
         "description" : "Ngoài danh mục 81 API (spec 0011). Tòa ngoài phạm vi hoặc không tồn tại trả 404.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT",
-        "operationId" : "chiTiet",
+        "operationId" : "chiTiet_1",
         "parameters" : [ {
           "name" : "buildingId",
           "in" : "path",
@@ -1454,6 +1736,82 @@
             "format" : "date-time"
           }
         }
+      },
+      "SuaCanHoRequest" : {
+        "type" : "object",
+        "properties" : {
+          "dienTich" : {
+            "type" : "number",
+            "example" : 72,
+            "maximum" : 1000,
+            "minimum" : 0
+          },
+          "trangThaiSuDung" : {
+            "type" : "string",
+            "enum" : [ "Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao" ]
+          }
+        },
+        "required" : [ "dienTich", "trangThaiSuDung" ]
+      },
+      "ApiResponseCanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/CanHoResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "CanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maCanHo" : {
+            "type" : "string",
+            "example" : "A-0105"
+          },
+          "maTang" : {
+            "type" : "string",
+            "example" : "A-01"
+          },
+          "soTang" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 1
+          },
+          "maToaNha" : {
+            "type" : "string",
+            "example" : "A"
+          },
+          "tenToaNha" : {
+            "type" : "string",
+            "example" : "Tòa A"
+          },
+          "dienTich" : {
+            "type" : "number",
+            "example" : 75.5
+          },
+          "trangThaiSuDung" : {
+            "type" : "string",
+            "enum" : [ "Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao" ]
+          },
+          "biTamDungTienIch" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "biTamDungTienIch", "dienTich", "maCanHo", "maTang", "maToaNha", "soTang", "tenToaNha", "trangThaiSuDung" ]
       },
       "CapNhatTaiKhoanRequest" : {
         "type" : "object",
@@ -1998,6 +2356,34 @@
           }
         },
         "required" : [ "accessTokenHetHanLuc", "hoTen", "maNguoiDung", "phaiDoiMatKhau", "vaiTro" ]
+      },
+      "ThemCanHoRequest" : {
+        "type" : "object",
+        "properties" : {
+          "maTang" : {
+            "type" : "string",
+            "example" : "A-01"
+          },
+          "soCan" : {
+            "type" : "integer",
+            "format" : "int32",
+            "example" : 5,
+            "maximum" : 99,
+            "minimum" : 1
+          },
+          "dienTich" : {
+            "type" : "number",
+            "example" : 70.5,
+            "maximum" : 1000,
+            "minimum" : 0
+          },
+          "trangThaiSuDung" : {
+            "type" : "string",
+            "default" : "Trống",
+            "enum" : [ "Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao" ]
+          }
+        },
+        "required" : [ "dienTich", "maTang", "soCan" ]
       },
       "TaoTaiKhoanRequest" : {
         "type" : "object",
@@ -2631,6 +3017,56 @@
           }
         },
         "required" : [ "maQuanTriVien" ]
+      },
+      "ApiResponsePageResponseCanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseCanHoResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PageResponseCanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CanHoResponse"
+            }
+          },
+          "page" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalItems" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
       },
       "ApiResponsePageResponseTaiKhoanTomTat" : {
         "type" : "object",

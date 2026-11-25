@@ -42,9 +42,11 @@ final class ToaNhaApi {
 	}
 
 	/**
-	 * Xóa mọi tòa test (mã bắt đầu bằng {@code T}) cùng tầng của nó; tòa seed giữ nguyên.
+	 * Xóa mọi tòa test (mã bắt đầu bằng {@code T}) cùng tầng và căn hộ của nó; tòa seed
+	 * giữ nguyên.
 	 */
 	static void donDep(JdbcTemplate jdbc) {
+		jdbc.update("DELETE FROM can_ho WHERE ma_tang LIKE 'T%'");
 		jdbc.update("DELETE FROM tang WHERE ma_toa_nha LIKE 'T%'");
 		jdbc.update("DELETE FROM toa_nha WHERE ma_toa_nha LIKE 'T%'");
 	}

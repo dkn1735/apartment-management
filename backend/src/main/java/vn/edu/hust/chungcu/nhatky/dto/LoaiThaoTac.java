@@ -24,7 +24,8 @@ public enum LoaiThaoTac {
 	AUTH_YEU_CAU_DAT_LAI_MAT_KHAU("Yêu cầu đặt lại mật khẩu qua email"),
 	AUTH_DAT_LAI_MAT_KHAU_QUA_EMAIL("Đặt lại mật khẩu qua email"),
 
-	CANHO_THEM_TOA_NHA("Thêm tòa nhà"), CANHO_THEM_TANG("Thêm tầng");
+	CANHO_THEM_TOA_NHA("Thêm tòa nhà"), CANHO_THEM_TANG("Thêm tầng"), CANHO_THEM_CAN_HO("Thêm căn hộ"),
+	CANHO_SUA_CAN_HO("Sửa căn hộ");
 
 	private final String nhan;
 

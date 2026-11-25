@@ -7,7 +7,7 @@ import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorCodes;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
 
-/** Lỗi dùng chung của các service tòa nhà và tầng (spec 0011, AC-2, AC-3, AC-5). */
+/** Lỗi dùng chung của các service tòa nhà, tầng và căn hộ (spec 0011, spec 0012). */
 final class CanHoLoi {
 
 	static final String TRUNG_MESSAGE = "Tòa nhà đã tồn tại";
@@ -36,6 +36,12 @@ final class CanHoLoi {
 			loi.add(new FieldError("tenToaNha", "Tên tòa nhà đã được dùng"));
 		}
 		return new ApiException(HttpStatus.CONFLICT, CanHoErrorCodes.CANHO_TOA_NHA_DA_TON_TAI, TRUNG_MESSAGE, loi);
+	}
+
+	/** 409 {@code CANHO_CAN_HO_DA_TON_TAI}, một mục ở ô số căn (spec 0012, AC-9). */
+	static ApiException trungCanHo(int soCan, String maCanHo) {
+		return new ApiException(HttpStatus.CONFLICT, CanHoErrorCodes.CANHO_CAN_HO_DA_TON_TAI, "Căn hộ đã tồn tại",
+				List.of(new FieldError("soCan", "Tầng này đã có căn số " + soCan + " (" + maCanHo + ")")));
 	}
 
 	/** 422 {@code CANHO_TANG_SAI_THU_TU} với câu của mục {@code soTang}. */
