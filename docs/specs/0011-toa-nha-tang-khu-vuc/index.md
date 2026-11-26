@@ -1,7 +1,7 @@
 # 0011. Tòa nhà, tầng và khu vực dùng chung: thêm tòa tự tạo đủ tầng, thêm tầng chỉ nối tiếp, khu vực chỉ xem từ seed
 
 **Date**: 2026-11-23
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

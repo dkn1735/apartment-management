@@ -1,7 +1,7 @@
 # 0012. Tìm kiếm và quản lý căn hộ: mã căn do server ghép từ tầng, sửa diện tích và trạng thái dưới khóa dòng
 
 **Date**: 2026-11-26
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
