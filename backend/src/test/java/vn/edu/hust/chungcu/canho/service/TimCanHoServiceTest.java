@@ -8,9 +8,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import vn.edu.hust.chungcu.auth.dto.VaiTro;
 import vn.edu.hust.chungcu.auth.service.NguoiDungTraCuuService;
 import vn.edu.hust.chungcu.canho.dto.BoLocCanHo;
 import vn.edu.hust.chungcu.canho.dto.CanHoResponse;
+import vn.edu.hust.chungcu.canho.dto.LanDoiTienIchResponse;
 import vn.edu.hust.chungcu.canho.repository.CanHoQuery;
 import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
@@ -72,6 +75,36 @@ class TimCanHoServiceTest {
 		khongThay(service, phamVi(Set.of(VaiTro.CU_DAN), List.of("A"), List.of("A-0101")));
 		khongThay(service, phamVi(Set.of(VaiTro.BAN_QUAN_LY), List.of("B"), List.of()));
 		khongThay(service, phamVi(Set.of(VaiTro.KY_THUAT), List.of("A"), List.of("A-0201")));
+	}
+
+	// covers: spec 0013 AC-9 (chỉ cư dân thì ẩn người đổi, không tra họ tên; vừa nhân
+	// viên
+	// tòa vừa cư dân thì thấy đủ)
+	@Test
+	void anNguoiDoiChiKhiXemNhoDieuKienCuDan() {
+		CanHoResponse tamDung = new CanHoResponse("A-0201", "A-02", 2, "A", "Tòa A", new BigDecimal("75.50"),
+				"Đang sử dụng", true,
+				new LanDoiTienIchResponse("Nợ phí", Instant.parse("2026-11-01T02:00:00Z"), "ND00000002", null));
+		CanHoQuery query = mock(CanHoQuery.class);
+		when(query.cua("A-0201")).thenReturn(Optional.of(tamDung));
+		NguoiDungTraCuuService nguoiDung = mock(NguoiDungTraCuuService.class);
+		TimCanHoService service = new TimCanHoService(query, new NguoiDoiTienIch(nguoiDung));
+
+		LanDoiTienIchResponse cuDan = service
+			.chiTiet("A-0201", phamVi(Set.of(VaiTro.CU_DAN), List.of(), List.of("A-0201")))
+			.lanDoiTienIch();
+		assertThat(cuDan.lyDo()).isEqualTo("Nợ phí");
+		assertThat(cuDan.doiLuc()).isEqualTo(Instant.parse("2026-11-01T02:00:00Z"));
+		assertThat(cuDan.maNguoiDoi()).isNull();
+		assertThat(cuDan.hoTenNguoiDoi()).isNull();
+		verifyNoInteractions(nguoiDung);
+
+		when(nguoiDung.hoTenTheoMa(Set.of("ND00000002"))).thenReturn(Map.of("ND00000002", "Trần Ban Quản Lý"));
+		LanDoiTienIchResponse haiVaiTro = service
+			.chiTiet("A-0201", phamVi(Set.of(VaiTro.CU_DAN, VaiTro.KE_TOAN), List.of("A"), List.of("A-0201")))
+			.lanDoiTienIch();
+		assertThat(haiVaiTro.maNguoiDoi()).isEqualTo("ND00000002");
+		assertThat(haiVaiTro.hoTenNguoiDoi()).isEqualTo("Trần Ban Quản Lý");
 	}
 
 	private static void khongThay(TimCanHoService service, PhamViTruyCap phamVi) {

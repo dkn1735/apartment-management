@@ -281,8 +281,8 @@ spec [0013](../specs/0013-tam-dung-tien-ich-can-ho/index.md) · code in `backend
   - [x] Hiện lần đổi: `lanDoiTienIch` có họ tên trên mọi response căn, ẩn người đổi với cư dân, hai dòng mới trên trang chi tiết (AC-8, AC-9, AC-14, AC-17)
   - [x] Bộ lọc và seed: tham số `biTamDungTienIch`, ô lọc "Tiện ích", căn `A-0204` bị tạm dừng trong seed (AC-11, AC-12, AC-16, AC-17)
   - [x] Song song và hoàn tất: test hai yêu cầu cùng lúc, sửa constructor trong test, kiểm kiểu OpenAPI, `mvnw verify` (AC-6, AC-13)
-- [ ] Verify it: `/check verify tạm dừng quyền tiện ích căn hộ`
-- [ ] Test it: `/test tạm dừng quyền tiện ích căn hộ`
+- [x] Verify it: `/check verify tạm dừng quyền tiện ích căn hộ`
+- [x] Test it: `/test tạm dừng quyền tiện ích căn hộ`
 
 ## Deferred
 

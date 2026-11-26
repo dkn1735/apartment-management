@@ -1,5 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/lib/api/api";
@@ -226,5 +226,86 @@ describe("Tạm dừng tiện ích trên chi tiết căn hộ (spec 0013, AC-14,
     await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
     expect(await screen.findByText(/Căn hộ đang bị tạm dừng tiện ích/)).toBeInTheDocument();
     await waitFor(() => expect(get.mock.calls.length).toBeGreaterThan(lanGetTruoc));
+  });
+
+  // covers: AC-3, AC-15
+  it("lý do chỉ có khoảng trắng bị chặn, không gọi API", async () => {
+    const user = userEvent.setup();
+    hienThi(["BAN_QUAN_LY"], true);
+    await user.click(await screen.findByRole("button", { name: "Tạm dừng tiện ích" }));
+    const lyDo = screen.getByRole("textbox", { name: /Lý do/ });
+    await user.type(lyDo, "   ");
+    expect(lyDo).toHaveAccessibleDescription("Còn 500/500 ký tự");
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    await waitFor(() => expect(lyDo).toHaveAccessibleDescription(/Vui lòng nhập lý do/));
+    expect(patch).not.toHaveBeenCalled();
+  });
+
+  // covers: AC-15 (đếm theo code point: mỗi emoji giảm 1)
+  it("số ký tự còn lại đếm emoji là một ký tự", async () => {
+    const user = userEvent.setup();
+    hienThi(["BAN_QUAN_LY"], true);
+    await user.click(await screen.findByRole("button", { name: "Tạm dừng tiện ích" }));
+    const lyDo = screen.getByRole("textbox", { name: /Lý do/ });
+    await user.click(lyDo);
+    await user.paste("😀😀");
+    expect(lyDo).toHaveAccessibleDescription("Còn 498/500 ký tự");
+  });
+
+  // covers: AC-15 (404 hiện trong hộp thoại, hộp thoại vẫn mở)
+  it("404 hiện thông báo lỗi trong hộp thoại", async () => {
+    const user = userEvent.setup();
+    patch.mockRejectedValueOnce(
+      new ApiError({ status: 404, errorCode: "NOT_FOUND", message: "Không tìm thấy dữ liệu yêu cầu", errors: [] }),
+    );
+    hienThi(["KE_TOAN"], true);
+    await user.click(await screen.findByRole("button", { name: "Tạm dừng tiện ích" }));
+    await user.type(screen.getByRole("textbox", { name: /Lý do/ }), "Nợ phí");
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    const dialog = screen.getByRole("dialog", { name: "Tạm dừng tiện ích căn hộ A-0101" });
+    expect(await within(dialog).findByText(/Không tìm thấy dữ liệu yêu cầu/)).toBeInTheDocument();
+    expect(notify.success).not.toHaveBeenCalled();
+  });
+
+  // covers: AC-15, AC-17 (mở khóa gửi false, báo toast; Esc đóng và focus về nút)
+  it("mở khóa: gửi biTamDungTienIch false, báo toast; Esc đóng hộp thoại và trả focus", async () => {
+    const user = userEvent.setup();
+    patch.mockResolvedValue(A0101);
+    hienThi(["BAN_QUAN_LY"], true, () => Promise.resolve(TAM_DUNG));
+    const nut = await screen.findByRole("button", { name: "Mở khóa tiện ích" });
+
+    await user.click(nut);
+    expect(screen.getByRole("dialog", { name: "Mở khóa tiện ích căn hộ A-0101" })).toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(nut).toHaveFocus();
+
+    await user.keyboard("{Enter}");
+    await user.type(screen.getByRole("textbox", { name: /Lý do/ }), "Đã thanh toán");
+    await user.click(screen.getByRole("button", { name: "Mở khóa" }));
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Đã mở khóa tiện ích căn hộ A-0101"));
+    expect(patch).toHaveBeenCalledWith("/api/v1/apartments/{apartmentId}/facility-suspension", {
+      params: { path: { apartmentId: "A-0101" } },
+      body: { biTamDungTienIch: false, lyDo: "Đã thanh toán" },
+    });
+  });
+
+  // covers: AC-5, AC-15 (câu 409 theo chiều đã yêu cầu)
+  it("409 khi mở khóa hiện câu căn đang dùng bình thường", async () => {
+    const user = userEvent.setup();
+    patch.mockRejectedValueOnce(
+      new ApiError({
+        status: 409,
+        errorCode: "CANHO_TIEN_ICH_KHONG_DOI",
+        message: "Căn hộ đang dùng tiện ích bình thường",
+        errors: [],
+      }),
+    );
+    hienThi(["KE_TOAN"], true, () => Promise.resolve(TAM_DUNG));
+    await user.click(await screen.findByRole("button", { name: "Mở khóa tiện ích" }));
+    await user.type(screen.getByRole("textbox", { name: /Lý do/ }), "x");
+    await user.click(screen.getByRole("button", { name: "Mở khóa" }));
+    const cau = await screen.findByText(/Căn hộ đang dùng tiện ích bình thường\./);
+    await waitFor(() => expect(cau.closest("[role='alert']")).toHaveFocus());
   });
 });

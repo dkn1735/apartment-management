@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.text.Normalizer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import tools.jackson.databind.json.JsonMapper;
 import vn.edu.hust.chungcu.MutableClock;
 import vn.edu.hust.chungcu.MutableClockConfiguration;
 import vn.edu.hust.chungcu.SeedTestcontainersConfiguration;
@@ -217,6 +219,57 @@ class TamDungTienIchIntegrationTest {
 		assertThat(trangThai).containsExactlyInAnyOrder(200, 409);
 		assertThat(this.nhatKy.theoDoiTuong("CanHo:" + this.ma)).extracting(d -> d.get("loai_thao_tac"))
 			.containsExactly("CANHO_THEM_CAN_HO", "CANHO_TAM_DUNG_TIEN_ICH");
+	}
+
+	// covers: AC-6 (hai yêu cầu ngược chiều song song xử lý lần lượt; nhật ký khớp thứ
+	// tự)
+	@Test
+	void haiYeuCauNguocChieuSongSong() throws Exception {
+		List<Integer> trangThai = songSong(CanHoApi.doiTienIch(this.bql, this.ma, true, "Tạm dừng"),
+				CanHoApi.doiTienIch(this.keToan, this.ma, false, "Mở khóa"));
+		List<Object> loai = this.nhatKy.theoDoiTuong("CanHo:" + this.ma)
+			.stream()
+			.map(d -> d.get("loai_thao_tac"))
+			.filter(l -> !"CANHO_THEM_CAN_HO".equals(l))
+			.toList();
+		Boolean coCuoi = this.jdbc.queryForObject("SELECT bi_tam_dung_tien_ich FROM can_ho WHERE ma_can_ho = ?",
+				Boolean.class, this.ma);
+		if (trangThai.equals(List.of(200, 200))) {
+			// tạm dừng chạy trước rồi mở khóa
+			assertThat(loai).containsExactly("CANHO_TAM_DUNG_TIEN_ICH", "CANHO_MO_KHOA_TIEN_ICH");
+			assertThat(coCuoi).isFalse();
+		}
+		else {
+			// mở khóa chạy trước gặp căn đang bình thường: 409, rồi tạm dừng 200
+			assertThat(trangThai).containsExactly(200, 409);
+			assertThat(loai).containsExactly("CANHO_TAM_DUNG_TIEN_ICH");
+			assertThat(coCuoi).isTrue();
+		}
+	}
+
+	// covers: AC-1 (trường khác trong body bị bỏ qua), AC-2 (lý do lưu NFC đã cắt, cột
+	// khác không đổi, người đổi là người gọi)
+	@Test
+	void truongLaBiBoQuaLyDoLuuNfcCotKhacGiuNguyen() throws Exception {
+		String chonCot = "SELECT ma_tang, dien_tich, trang_thai_su_dung FROM can_ho WHERE ma_can_ho = ?";
+		Map<String, Object> truoc = this.jdbc.queryForMap(chonCot, this.ma);
+		String nfd = Normalizer.normalize(" Nợ phí ", Normalizer.Form.NFD);
+		String body = JsonMapper.builder()
+			.build()
+			.writeValueAsString(Map.of("biTamDungTienIch", true, "lyDo", nfd, "trangThaiSuDung", "Đã bàn giao",
+					"dienTich", 999, "maNguoiDoi", "ND99999999", "tienIchDoiLuc", "2000-01-01T00:00:00Z"));
+		this.mockMvc.perform(CanHoApi.doiTienIchRaw(this.keToan, this.ma, body))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.lanDoiTienIch.lyDo").value("Nợ phí"))
+			.andExpect(jsonPath("$.data.lanDoiTienIch.doiLuc").value(MutableClock.MAC_DINH.toString()));
+
+		assertThat(this.jdbc.queryForMap(chonCot, this.ma)).isEqualTo(truoc);
+		Map<String, Object> tienIch = this.jdbc
+			.queryForMap("SELECT tien_ich_ly_do, tien_ich_doi_boi FROM can_ho WHERE ma_can_ho = ?", this.ma);
+		String luu = (String) tienIch.get("tien_ich_ly_do");
+		assertThat(luu).isEqualTo(Normalizer.normalize("Nợ phí", Normalizer.Form.NFC));
+		assertThat(Normalizer.isNormalized(luu, Normalizer.Form.NFC)).isTrue();
+		assertThat(tienIch.get("tien_ich_doi_boi")).isEqualTo(maNguoiDung(ToaNhaApi.KE_TOAN));
 	}
 
 	// AC-10: CHECK của V17 chặn cả khi sửa tay

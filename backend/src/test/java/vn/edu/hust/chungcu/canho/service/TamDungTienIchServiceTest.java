@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import tools.jackson.databind.json.JsonMapper;
 import vn.edu.hust.chungcu.auth.dto.PhamViTruyCap;
@@ -32,6 +33,9 @@ import vn.edu.hust.chungcu.canho.dto.LanDoiTienIchResponse;
 import vn.edu.hust.chungcu.canho.repository.CanHoGhi;
 import vn.edu.hust.chungcu.canho.repository.CanHoQuery;
 import vn.edu.hust.chungcu.common.error.ApiException;
+import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
+import vn.edu.hust.chungcu.nhatky.dto.LoaiThaoTac;
+import vn.edu.hust.chungcu.nhatky.dto.SuKienNhatKy;
 import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /**
@@ -95,6 +99,61 @@ class TamDungTienIchServiceTest {
 		verify(this.ghi).capNhatTienIch("A-0101", true, "Nợ phí", luc, "ND00000004");
 		verify(this.nhatKy).ghi(any());
 		assertThat(ketQua.lanDoiTienIch().hoTenNguoiDoi()).isEqualTo("Phạm Kế Toán");
+	}
+
+	// covers: AC-4 (khóa dòng không thấy dòng thì 404, không ghi gì)
+	@Test
+	void khoaDongKhongThayDongThi404() {
+		when(this.query.maToaNhaCua("A-0101")).thenReturn(Optional.of("A"));
+		when(this.ghi.khoaCoTienIch("A-0101")).thenReturn(Optional.empty());
+		assertThatThrownBy(() -> this.service.doi(KE_TOAN, "A-0101", yeuCau("true", "\"x\""))).isInstanceOfSatisfying(
+				ApiException.class, ex -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
+		verify(this.ghi, never()).capNhatTienIch(anyString(), anyBoolean(), anyString(), any(), anyString());
+		verifyNoInteractions(this.nhatKy);
+	}
+
+	// covers: AC-2 (giờ từ Clock, cắt về micro giây)
+	@Test
+	void doiLucCatVeMicroGiay() {
+		TamDungTienIchService service = new TamDungTienIchService(this.query, this.ghi, this.nhatKy,
+				new NguoiDoiTienIch(this.nguoiDung),
+				Clock.fixed(Instant.parse("2026-11-26T03:00:00.123456789Z"), ZoneOffset.UTC));
+		when(this.query.maToaNhaCua("A-0101")).thenReturn(Optional.of("A"));
+		when(this.ghi.khoaCoTienIch("A-0101")).thenReturn(Optional.of(false));
+		when(this.query.cua("A-0101")).thenReturn(Optional.of(can("A-0101", true, "ND00000004")));
+		service.doi(KE_TOAN, "A-0101", yeuCau("true", "\"x\""));
+		verify(this.ghi).capNhatTienIch("A-0101", true, "x", Instant.parse("2026-11-26T03:00:00.123456Z"),
+				"ND00000004");
+	}
+
+	// covers: AC-2, AC-7 (mở khóa ghi loại CANHO_MO_KHOA_TIEN_ICH, người thực hiện là
+	// người gọi)
+	@Test
+	void moKhoaGhiNhatKyDungLoaiVaNguoiGoi() {
+		when(this.query.maToaNhaCua("A-0101")).thenReturn(Optional.of("A"));
+		when(this.ghi.khoaCoTienIch("A-0101")).thenReturn(Optional.of(true));
+		when(this.query.cua("A-0101")).thenReturn(Optional.of(can("A-0101", false, "ND00000004")));
+		this.service.doi(KE_TOAN, "A-0101", yeuCau("false", "\" Đã thanh toán \""));
+		verify(this.ghi).capNhatTienIch("A-0101", false, "Đã thanh toán", Instant.parse("2026-11-26T03:00:00Z"),
+				"ND00000004");
+		ArgumentCaptor<SuKienNhatKy> suKien = ArgumentCaptor.forClass(SuKienNhatKy.class);
+		verify(this.nhatKy).ghi(suKien.capture());
+		assertThat(suKien.getValue().loai()).isEqualTo(LoaiThaoTac.CANHO_MO_KHOA_TIEN_ICH);
+		assertThat(suKien.getValue().maNguoiThucHien()).isEqualTo("ND00000004");
+		assertThat(suKien.getValue().doiTuong()).isEqualTo(DoiTuongTacDong.canHo("A-0101"));
+		assertThat(suKien.getValue().chiTiet()).isEqualTo(new ChiTietCanHo.TienIch("Đã thanh toán"));
+	}
+
+	// covers: AC-7 (tạm dừng ghi loại CANHO_TAM_DUNG_TIEN_ICH)
+	@Test
+	void tamDungGhiNhatKyLoaiTamDung() {
+		when(this.query.maToaNhaCua("A-0101")).thenReturn(Optional.of("A"));
+		when(this.ghi.khoaCoTienIch("A-0101")).thenReturn(Optional.of(false));
+		when(this.query.cua("A-0101")).thenReturn(Optional.of(can("A-0101", true, "ND00000004")));
+		this.service.doi(KE_TOAN, "A-0101", yeuCau("true", "\"Nợ phí\""));
+		ArgumentCaptor<SuKienNhatKy> suKien = ArgumentCaptor.forClass(SuKienNhatKy.class);
+		verify(this.nhatKy).ghi(suKien.capture());
+		assertThat(suKien.getValue().loai()).isEqualTo(LoaiThaoTac.CANHO_TAM_DUNG_TIEN_ICH);
 	}
 
 	@Test
