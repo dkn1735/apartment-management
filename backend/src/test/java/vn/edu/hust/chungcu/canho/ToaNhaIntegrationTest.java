@@ -86,11 +86,11 @@ class ToaNhaIntegrationTest {
 
 	static Stream<Arguments> taiKhoanSeed() {
 		return Stream.of(Arguments.of("0900000001", 403), Arguments.of("0900000002", 200),
-				Arguments.of("0900000003", 403), Arguments.of("0900000004", 200), Arguments.of("0900000005", 403),
+				Arguments.of("0900000003", 200), Arguments.of("0900000004", 200), Arguments.of("0900000005", 403),
 				Arguments.of("0900000006", 200), Arguments.of("0900000007", 403));
 	}
 
-	// AC-2, AC-3, AC-8
+	// AC-2, AC-3, AC-8; spec 0011 AC-10: Kỹ thuật xem được danh mục
 	@ParameterizedTest
 	@MethodSource("taiKhoanSeed")
 	void maTranVaiTro(String soDienThoai, int expected) throws Exception {
@@ -168,7 +168,7 @@ class ToaNhaIntegrationTest {
 			.contains("vaiTro=CU_DAN ")
 			.contains("method=GET ")
 			.contains("path=/api/v1/buildings ")
-			.contains("canCo=BAN_QUAN_LY,BAN_QUAN_TRI,KE_TOAN")
+			.contains("canCo=BAN_QUAN_LY,BAN_QUAN_TRI,KE_TOAN,KY_THUAT")
 			.doesNotContain("bimat")
 			.doesNotContain("page=2")
 			.doesNotContain(token);
@@ -191,7 +191,7 @@ class ToaNhaIntegrationTest {
 			.andExpect(jsonPath("$.data.items[0].tenToaNha").value("Tòa A"))
 			.andExpect(jsonPath("$.data.items[0].soTang").value(3))
 			.andExpect(jsonPath("$.data.items[0].diaChiKhuVuc").value("Khu đô thị mẫu, Hà Nội"))
-			.andExpect(jsonPath("$.data.items[0].soCanHo").value(3));
+			.andExpect(jsonPath("$.data.items[0].soCanHo").value(12));
 	}
 
 	// AC-7: trang vượt quá trả items rỗng, tổng vẫn đúng

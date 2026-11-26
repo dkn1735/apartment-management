@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import vn.edu.hust.chungcu.auth.repository.BangVaiTro;
 import vn.edu.hust.chungcu.common.error.ApiException;
+import vn.edu.hust.chungcu.common.error.LoiCoSoDuLieu;
 import vn.edu.hust.chungcu.common.error.ErrorCodes;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
 

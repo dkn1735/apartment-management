@@ -1,10 +1,10 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { CircleAlert, Plus, Search } from "lucide-react";
+import { CircleAlert, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { ChonLoc, OTimKiem } from "@/components/data/bo-loc";
 import { DataTable } from "@/components/data/data-table";
 import { dataTableColumns } from "@/components/data/data-table-columns";
 import { StatusBadge } from "@/components/data/status-badge";
@@ -14,18 +14,12 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { api, client, type ApiError } from "@/lib/api/api";
 import type { PageResponse } from "@/lib/api/page";
 import { useHoSo } from "@/lib/auth/use-ho-so";
 import { EMPTY_VALUE, formatNgayGio } from "@/lib/format";
 import { TONE_TRANG_THAI, TRANG_THAI, type TaiKhoanTomTat, type TrangThaiTaiKhoan } from "@/lib/tai-khoan";
 import { NHAN_VAI_TRO, THU_TU_VAI_TRO, type VaiTro } from "@/lib/vai-tro";
-
-const TAT_CA = "TAT_CA";
-const CHO_GO_MS = 300;
 
 /** Bộ lọc nằm trên URL (spec 0008, AC-17); thiếu là không lọc. */
 const THAM_SO_LOC = ["q", "vaiTro", "trangThai"] as const;
@@ -127,7 +121,13 @@ export function TaiKhoanView() {
           aria-label="Lọc tài khoản"
           className="grid gap-4 rounded-md border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <OTim giaTri={boLoc.q ?? ""} onTim={(q) => loc("q", q.trim())} />
+          <OTimKiem
+            nhan="Tìm tài khoản"
+            goiY="Họ tên (gõ không dấu được), số điện thoại, email hoặc mã"
+            className="sm:col-span-2 lg:col-span-1"
+            giaTri={boLoc.q ?? ""}
+            onTim={(q) => loc("q", q.trim())}
+          />
           {laAdmin && (
             <ChonLoc
               nhan="Vai trò"
@@ -200,99 +200,5 @@ export function TaiKhoanView() {
         )}
       </div>
     </>
-  );
-}
-
-/**
- * Ô tìm: gửi sau 300 ms ngừng gõ, hoặc ngay khi nhấn Enter. Ô không bị dựng lại khi URL đổi, để không mất focus
- * lúc đang gõ; chỉ lấy giá trị từ URL khi nó đổi từ bên ngoài (Back, Xóa bộ lọc), không phải do chính ô vừa gửi.
- */
-function OTim({ giaTri, onTim }: { giaTri: string; onTim(q: string): void }) {
-  const id = useId();
-  const [nhap, setNhap] = useState(giaTri);
-  const [daGui, setDaGui] = useState(giaTri);
-  const [giaTriTruoc, setGiaTriTruoc] = useState(giaTri);
-
-  // Đồng bộ trong lúc render khi prop đổi (mẫu "lưu prop trước đó" của React), không dùng effect
-  if (giaTri !== giaTriTruoc) {
-    setGiaTriTruoc(giaTri);
-    if (giaTri !== daGui.trim()) {
-      setNhap(giaTri);
-      setDaGui(giaTri);
-    }
-  }
-
-  function gui(q: string) {
-    setDaGui(q);
-    onTim(q);
-  }
-
-  useEffect(() => {
-    if (nhap.trim() === daGui.trim()) return;
-    const hen = setTimeout(() => {
-      setDaGui(nhap);
-      onTim(nhap);
-    }, CHO_GO_MS);
-    return () => clearTimeout(hen);
-  }, [nhap, daGui, onTim]);
-
-  return (
-    <div className="flex flex-col gap-1.5 sm:col-span-2 lg:col-span-1">
-      <Label htmlFor={id}>Tìm tài khoản</Label>
-      <div className="relative">
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-        />
-        <Input
-          id={id}
-          type="search"
-          className="pl-9"
-          value={nhap}
-          maxLength={100}
-          aria-describedby={`${id}-goi-y`}
-          onChange={(e) => setNhap(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              gui(nhap);
-            }
-          }}
-        />
-      </div>
-      <p id={`${id}-goi-y`} className="type-caption text-muted-foreground">
-        Họ tên (gõ không dấu được), số điện thoại, email hoặc mã
-      </p>
-    </div>
-  );
-}
-
-type ChonLocProps = {
-  nhan: string;
-  giaTri: string | undefined;
-  tatCa: string;
-  luaChon: readonly { value: string; label: string }[];
-  onChon(giaTri: string | undefined): void;
-};
-
-function ChonLoc({ nhan, giaTri, tatCa, luaChon, onChon }: ChonLocProps) {
-  const id = useId();
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{nhan}</Label>
-      <Select value={giaTri ?? TAT_CA} onValueChange={(v) => onChon(v === TAT_CA ? undefined : v)}>
-        <SelectTrigger id={id}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={TAT_CA}>{tatCa}</SelectItem>
-          {luaChon.map((lc) => (
-            <SelectItem key={lc.value} value={lc.value}>
-              {lc.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
   );
 }

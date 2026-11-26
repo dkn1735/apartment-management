@@ -14,6 +14,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,36 @@ public class OpenApiConfig {
 			.servers(List.of(new Server().url("/")))
 			.components(new Components().addSecuritySchemes(CSRF_SCHEME, csrf))
 			.addSecurityItem(new SecurityRequirement().addList(CSRF_SCHEME));
+	}
+
+	/**
+	 * Thuộc tính trỏ tới schema khác mà khai {@code nullable = true}: springdoc ghi
+	 * {@code $ref} cạnh {@code type: null}, và trình sinh kiểu bỏ mất {@code null}. Đổi
+	 * thành {@code oneOf: [$ref, null]} để frontend nhận đúng {@code T | null} (spec
+	 * 0013, DTO).
+	 */
+	@Bean
+	OpenApiCustomizer nullableRefCustomizer() {
+		return openApi -> {
+			if (openApi.getComponents() == null || openApi.getComponents().getSchemas() == null) {
+				return;
+			}
+			for (Schema<?> schema : openApi.getComponents().getSchemas().values()) {
+				Map<String, Schema> properties = schema.getProperties();
+				if (properties == null) {
+					continue;
+				}
+				properties.replaceAll((name, property) -> {
+					boolean nullableRef = property.get$ref() != null && property.getTypes() != null
+							&& property.getTypes().contains("null");
+					if (!nullableRef) {
+						return property;
+					}
+					return new Schema<>().description(property.getDescription())
+						.oneOf(List.of(new Schema<>().$ref(property.get$ref()), new Schema<>().types(Set.of("null"))));
+				});
+			}
+		};
 	}
 
 	@Bean

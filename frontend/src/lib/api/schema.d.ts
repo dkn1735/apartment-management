@@ -26,6 +26,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/apartments/{apartmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Xem chi tiết căn hộ (API-UC01-06)
+         * @description Nhân viên xem căn thuộc tòa trong phạm vi; cư dân chỉ xem căn đang cư trú. Ngoài phạm vi trả 404.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, CU_DAN
+         */
+        get: operations["chiTiet"];
+        /**
+         * Cập nhật thông tin căn hộ (API-UC01-08)
+         * @description Chỉ đổi diện tích và trạng thái sử dụng. Lần ghi sau thắng; nhật ký ghi giá trị cũ và mới.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        put: operations["sua"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{maNguoiDung}": {
         parameters: {
             query?: never;
@@ -97,6 +125,62 @@ export interface paths {
          *     Vai trò được phép: QUAN_TRI_VIEN, BAN_QUAN_LY
          */
         delete: operations["goVaiTroTaiKhoan"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/buildings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh mục cấu trúc tòa nhà (API-UC01-01)
+         * @description Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT
+         */
+        get: operations["danhSach"];
+        put?: never;
+        /**
+         * Thêm tòa nhà (API-UC01-02)
+         * @description Tạo tòa cùng đủ tầng 1 đến soTang trong một transaction. Mã hoặc tên trùng (không phân biệt hoa thường) trả 409.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["them"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/buildings/{buildingId}/floors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh sách tầng theo tòa nhà (API-UC01-03)
+         * @description Kèm số căn hộ của mỗi tầng. Tòa ngoài phạm vi trả 404.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, KY_THUAT
+         */
+        get: operations["danhSach_1"];
+        put?: never;
+        /**
+         * Thêm tầng mới vào tòa nhà (API-UC01-04)
+         * @description soTang phải bằng số tầng hiện có cộng một; sai thứ tự hoặc tòa đã đủ 99 tầng trả 422.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["them_1"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -234,6 +318,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/apartments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tìm kiếm và lọc danh sách căn hộ (API-UC01-05)
+         * @description Chỉ trả căn thuộc tòa trong phạm vi người gọi. Mọi bộ lọc tùy chọn và kết hợp bằng AND; soTang chỉ dùng được khi có maToaNha.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN
+         */
+        get: operations["timKiem"];
+        put?: never;
+        /**
+         * Tạo căn hộ (API-UC01-07)
+         * @description Mã căn do server ghép từ maTang và soCan (A-01 và 5 thành A-0105). Mã đã có trả 409.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["them_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts": {
         parameters: {
             query?: never;
@@ -284,6 +396,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/apartments/{apartmentId}/facility-suspension": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Tạm dừng hoặc mở khóa quyền tiện ích căn hộ (API-UC01-09)
+         * @description Lý do bắt buộc. Yêu cầu trùng trạng thái hiện có trả 409; mỗi lần đổi ghi một dòng nhật ký.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, KE_TOAN
+         */
+        patch: operations["doiTienIch"];
+        trace?: never;
+    };
     "/api/v1/system/audit-logs": {
         parameters: {
             query?: never;
@@ -326,7 +460,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/buildings": {
+    "/api/v1/common-areas": {
         parameters: {
             query?: never;
             header?: never;
@@ -334,12 +468,34 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Danh mục cấu trúc tòa nhà (API-UC01-01)
-         * @description Chỉ trả tòa nằm trong phạm vi của người gọi, kèm số căn hộ của mỗi tòa.
+         * Danh mục khu vực dùng chung (API-UC01-10)
+         * @description Chỉ khu vực thuộc tòa trong phạm vi người gọi. q tìm chứa trong tên, không phân biệt hoa thường, không bỏ dấu.
          *
-         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN
+         *     Vai trò được phép: BAN_QUAN_LY, KY_THUAT
          */
-        get: operations["danhSach"];
+        get: operations["danhSach_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/buildings/{buildingId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Thông tin một tòa nhà
+         * @description Ngoài danh mục 81 API (spec 0011). Tòa ngoài phạm vi hoặc không tồn tại trả 404.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT
+         */
+        get: operations["chiTiet_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -411,6 +567,53 @@ export interface components {
         DoiMatKhauResponse: {
             /** Format: date-time */
             capNhatLuc?: string;
+        };
+        SuaCanHoRequest: {
+            /** @example 72 */
+            dienTich: number;
+            /** @enum {string} */
+            trangThaiSuDung: "Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao";
+        };
+        ApiResponseCanHoResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["CanHoResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        CanHoResponse: {
+            /** @example A-0105 */
+            maCanHo: string;
+            /** @example A-01 */
+            maTang: string;
+            /**
+             * Format: int32
+             * @example 1
+             */
+            soTang: number;
+            /** @example A */
+            maToaNha: string;
+            /** @example Tòa A */
+            tenToaNha: string;
+            /** @example 75.5 */
+            dienTich: number;
+            /** @enum {string} */
+            trangThaiSuDung: "Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao";
+            biTamDungTienIch: boolean;
+            /** @description Lần đổi tiện ích gần nhất, null khi căn chưa từng đổi */
+            lanDoiTienIch: components["schemas"]["LanDoiTienIchResponse"] | null;
+        };
+        LanDoiTienIchResponse: {
+            /** @example Nợ phí quý 3 */
+            lyDo: string;
+            /** Format: date-time */
+            doiLuc: string;
+            /** @example ND00000123 */
+            maNguoiDoi: string | null;
+            /** @example Phạm Kế Toán */
+            hoTenNguoiDoi: string | null;
         };
         CapNhatTaiKhoanRequest: {
             hoTen: string;
@@ -500,6 +703,60 @@ export interface components {
             /** @description CU_DAN, 12 chữ số */
             soCccd?: string;
         };
+        ThemToaNhaRequest: {
+            /** @example B */
+            maToaNha: string;
+            /** @example Tòa B */
+            tenToaNha: string;
+            /**
+             * Format: int32
+             * @example 5
+             */
+            soTang: number;
+            /** @example Khu đô thị mẫu, Hà Nội */
+            diaChiKhuVuc: string;
+        };
+        ApiResponseToaNhaResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["ToaNhaResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        ToaNhaResponse: {
+            maToaNha: string;
+            tenToaNha: string;
+            /** Format: int32 */
+            soTang: number;
+            diaChiKhuVuc: string;
+            /** Format: int64 */
+            soCanHo: number;
+        };
+        ThemTangRequest: {
+            /**
+             * Format: int32
+             * @example 4
+             */
+            soTang: number;
+        };
+        ApiResponseTangResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["TangResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        TangResponse: {
+            maTang: string;
+            /** Format: int32 */
+            soTang: number;
+            /** Format: int64 */
+            soCanHo: number;
+        };
         ApiResponseLamMoiPhienResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -576,6 +833,22 @@ export interface components {
             /** Format: date-time */
             accessTokenHetHanLuc: string;
         };
+        ThemCanHoRequest: {
+            /** @example A-01 */
+            maTang: string;
+            /**
+             * Format: int32
+             * @example 5
+             */
+            soCan: number;
+            /** @example 70.5 */
+            dienTich: number;
+            /**
+             * @default Trống
+             * @enum {string}
+             */
+            trangThaiSuDung: "Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao";
+        };
         TaoTaiKhoanRequest: {
             /** @example Nguyễn Văn An */
             hoTen: string;
@@ -641,6 +914,12 @@ export interface components {
              */
             matKhauTam: string;
         };
+        DoiTienIchRequest: {
+            /** @description true là tạm dừng, false là mở khóa */
+            biTamDungTienIch: boolean;
+            /** @example Nợ phí quý 3 */
+            lyDo: string;
+        };
         ApiResponsePageResponseNhatKyResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -689,6 +968,33 @@ export interface components {
             ma: string;
             nhan: string;
         };
+        ApiResponsePageResponseKhuVucDungChungResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseKhuVucDungChungResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        KhuVucDungChungResponse: {
+            maKhuVuc: string;
+            tenKhuVuc: string;
+            viTri: string;
+            maToaNha: string;
+            tenToaNha: string;
+        };
+        PageResponseKhuVucDungChungResponse: {
+            items: components["schemas"]["KhuVucDungChungResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
         ApiResponsePageResponseToaNhaResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -709,14 +1015,25 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
-        ToaNhaResponse: {
-            maToaNha: string;
-            tenToaNha: string;
+        ApiResponsePageResponseTangResponse: {
+            success?: boolean;
             /** Format: int32 */
-            soTang: number;
-            diaChiKhuVuc: string;
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseTangResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseTangResponse: {
+            items: components["schemas"]["TangResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
             /** Format: int64 */
-            soCanHo: number;
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         ApiResponseHoSoResponse: {
             success?: boolean;
@@ -780,6 +1097,26 @@ export interface components {
         };
         VaiTroQuanTriVien: {
             maQuanTriVien: string;
+        };
+        ApiResponsePageResponseCanHoResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseCanHoResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseCanHoResponse: {
+            items: components["schemas"]["CanHoResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
         };
         ApiResponsePageResponseTaiKhoanTomTat: {
             success?: boolean;
@@ -859,6 +1196,90 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDoiMatKhauResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    chiTiet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sua: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuaCanHoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */
@@ -1091,6 +1512,184 @@ export interface operations {
             };
         };
     };
+    danhSach: {
+        parameters: {
+            query?: {
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseToaNhaResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    them: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemToaNhaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseToaNhaResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    danhSach_1: {
+        parameters: {
+            query?: {
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description soTang hoặc maTang, cộng ,asc hoặc ,desc */
+                sort?: string;
+            };
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseTangResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    them_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemTangRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTangResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     lamMoi: {
         parameters: {
             query?: never;
@@ -1296,6 +1895,107 @@ export interface operations {
             };
         };
     };
+    timKiem: {
+        parameters: {
+            query?: {
+                /** @description Mã tòa nhà */
+                maToaNha?: string;
+                /** @description Số tầng 1 đến 99, cần maToaNha */
+                soTang?: number;
+                /** @description Diện tích từ (m², gồm cả đầu này) */
+                dienTichTu?: number;
+                /** @description Diện tích đến (m², gồm cả đầu này) */
+                dienTichDen?: number;
+                /** @description Trạng thái sử dụng, lặp lại được */
+                trangThaiSuDung?: ("Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao")[];
+                /** @description Một phần mã căn, tối đa 20 ký tự */
+                q?: string;
+                /** @description true chỉ căn đang bị tạm dừng tiện ích, false chỉ căn bình thường */
+                biTamDungTienIch?: boolean;
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description maCanHo, dienTich hoặc trangThaiSuDung, cộng ,asc hoặc ,desc */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    them_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemCanHoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     traCuuTaiKhoan: {
         parameters: {
             query?: {
@@ -1429,6 +2129,50 @@ export interface operations {
             };
         };
     };
+    doiTienIch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoiTienIchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     traCuuNhatKy: {
         parameters: {
             query?: {
@@ -1520,14 +2264,18 @@ export interface operations {
             };
         };
     };
-    danhSach: {
+    danhSach_2: {
         parameters: {
             query?: {
+                /** @description Mã tòa nhà; bỏ trống là mọi tòa trong phạm vi */
+                maToaNha?: string;
+                /** @description Từ khóa trong tên khu vực, tối đa 100 ký tự */
+                q?: string;
                 /** @description Trang, bắt đầu từ 1 */
                 page?: number;
                 /** @description Số dòng mỗi trang, tối đa 100 */
                 size?: number;
-                /** @description maToaNha, tenToaNha hoặc soTang, cộng ,asc hoặc ,desc */
+                /** @description tenKhuVuc, maKhuVuc hoặc tenToaNha, cộng ,asc hoặc ,desc */
                 sort?: string;
             };
             header?: never;
@@ -1542,7 +2290,47 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponsePageResponseToaNhaResponse"];
+                    "*/*": components["schemas"]["ApiResponsePageResponseKhuVucDungChungResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    chiTiet_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseToaNhaResponse"];
                 };
             };
             /** @description Không đủ quyền (FORBIDDEN) */

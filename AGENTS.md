@@ -35,13 +35,15 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 - SOLID OOP: mỗi lớp một trách nhiệm (dưới khoảng 200 dòng), inject qua constructor, không service locator, ưu tiên composition hơn kế thừa quá một tầng, interface nhỏ và chỉ tạo khi có hơn một cách cài hoặc cần thay trong test.
 - Mỗi phân hệ là một package ngang hàng (`auth`, `canho`, ...), bên trong chia controller, service, repository, dto, entity. Phân hệ khác chỉ gọi qua service công khai, không đọc repository của nhau. Controller trả DTO hoặc record, không trả entity; service giữ transaction.
 - Lỗi: service ném `ApiException` (hoặc lớp con) với `errorCode` cố định viết hoa, mã riêng có tiền tố phân hệ (`AUTH_...`). Mọi lỗi đi qua `GlobalExceptionHandler`; không bắt lỗi rồi tự dựng response. Frontend gọi API chỉ qua hàm `api` và xử lý `ApiError` theo `errorCode`, không theo `message`. Thành công bọc bằng `ApiResponse.ok/created`. Lấy giờ qua bean `Clock`, không gọi `Instant.now()` trong nghiệp vụ.
+- Vi phạm ràng buộc của PostgreSQL (UNIQUE, khóa ngoại) đổi thành `ApiException` bằng helper dùng chung `common.error.LoiCoSoDuLieu` (đọc tên ràng buộc và SQLSTATE), không tự viết lại trong từng phân hệ.
 - Đặt tên: khái niệm nghiệp vụ dùng tiếng Việt không dấu (`CanHoService`, `maCanHo`, bảng `can_ho`), khái niệm kỹ thuật dùng tiếng Anh (`Controller`, `Repository`, `Dto`). Component React PascalCase, hook `useXxx`. Chữ viết tắt trong tên field Java viết như một từ (`maNvbql`, `soCccd`, không phải `maNVBQL`) để naming strategy ánh xạ đúng sang cột `ma_nvbql`, `so_cccd`; sai thì Hibernate `validate` báo lỗi lúc khởi động. Thông báo cho người dùng viết tiếng Việt có dấu, lưu UTF-8 NFC.
 - Phân quyền: mỗi handler controller mang đúng một annotation ở mức method, `@ChoPhep(VaiTro...)`, `@DaDangNhap` hoặc `@CongKhai` (package `auth.phanquyen`), không dùng `@PreAuthorize`; `PhanQuyenCoverageTest` báo đỏ khi thiếu. Giới hạn theo dữ liệu đi qua `PhamViTruyCapService`. Trang mới của giao diện khai trong ma trận `frontend/src/lib/phan-quyen/muc-chuc-nang.ts` để có menu và được chặn trang ([spec 0006](docs/specs/0006-phan-quyen-bo-cuc-app/index.md)).
 - Database: đổi schema bằng một file Flyway `V<n>` mới trong `backend/src/main/resources/db/migration`, không sửa file `V<n>` đã chạy. Quy ước (mã tự sinh tiền tố cộng 8 chữ số, collation `vi-VN-x-icu`, CHECK định dạng, mọi khóa ngoại có index) ở [spec 0002](docs/specs/0002-mo-hinh-du-lieu/index.md). Dữ liệu mẫu ở `db/seed`, chỉ nạp khi bật profile `seed`; test mặc định chạy trên database trống, test cần seed dùng `SeedTestcontainersConfiguration`.
 - Email: gửi qua `common.email.EmailSender`, sau commit (`@TransactionalEventListener(AFTER_COMMIT)`) và trên bean `emailExecutor` có giới hạn, không gửi trong transaction hay trên executor mặc định. Profile `prod` cần `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `APP_PUBLIC_URL` (thiếu thì không khởi động); link gửi đi chỉ dựng từ `app.public-url` ([spec 0010](docs/specs/0010-quen-mat-khau-email/index.md)).
 - Giao diện đạt WCAG AA: dùng được hoàn toàn bằng bàn phím, focus nhìn thấy được, mọi ô nhập có nhãn, lỗi gắn với ô nhập, đủ tương phản.
 - Test: unit test cho service (inject fake qua constructor), integration test với PostgreSQL thật qua Testcontainers cho API và repository (không dùng H2). Frontend: Vitest + Testing Library.
-- Commit theo Conventional Commits, phạm vi là phân hệ: `feat(auth): ...`, `fix(common): ...`, `chore(tooling): ...`.
+- Commit theo Conventional Commits, phạm vi là phân hệ: `feat(auth): ...`, `fix(common): ...`, `chore(tooling): ...`. Mỗi tính năng (feat) gom thành một commit khi xong, không chia nhỏ theo milestone hay từng bước, để lịch sử dễ theo dõi.
+- Agent luôn phản hồi người dùng bằng tiếng Việt có dấu (giữ nguyên tên kỹ thuật, code, lệnh bằng tiếng Anh).
 
 ## Tooling
 
@@ -58,14 +60,11 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 
 - integration: on
 - branch prefix: feat/
-- commit: per-milestone
+- commit: per-feature
 
 ## Agent skills
 
-- [java-springboot](.agents/skills/java-springboot/): `github/awesome-copilot`, quy ước Spring Boot 4 (controller, JPA, cấu hình). Riêng lỗi thì theo vỏ bọc của spec 0001, không theo `ProblemDetail`.
-- [next-dev-loop](.agents/skills/next-dev-loop/): `vercel/next.js`, kiểm tra hành vi Next.js khi `pnpm dev` đang chạy.
-- [ui-styling](.claude/skills/ui-styling/): Tailwind CSS + shadcn/ui.
-- [design-system](.claude/skills/design-system/): token và component spec, dùng ở tính năng 4.
+Chỉ còn bộ skill quy trình `jsmastery-pro/skills` trong `.claude/skills/` (`architect`, `audit`, `check`, `debug`, `develop`, `document`, `scope`, `sync`, `test`). Các skill triển khai cũ (`java-springboot`, `next-dev-loop`, `tanstack-table`, `ui-styling`, `design-system`, ...) đã gỡ vì không dùng; spec cũ còn nhắc tới chúng là ghi chép lịch sử. Lỗi vẫn theo vỏ bọc của spec 0001, không theo `ProblemDetail`.
 
 Declined: thêm skill cho ESLint, Prettier, Lefthook, Spring Java Format, GitHub Actions · MCP servers: next-devtools (connected, cần `pnpm dev` đang chạy)
 

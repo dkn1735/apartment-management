@@ -1,6 +1,6 @@
 # Scope: Hệ thống Quản lý Chung cư
 
-Hệ thống quản lý vận hành chung cư cho ban quản lý (BQL), kỹ thuật, kế toán, ban quản trị (BQT) và cư dân: căn hộ, cư trú, điện nước, phí, thanh toán, sự cố, bảo trì, tiện ích, thông báo, khảo sát và báo cáo. Đồ án IT3930 của nhóm 2 người, backend Java Spring Boot, frontend NextJS, cơ sở dữ liệu PostgreSQL. Đợt này làm nền tảng và phân hệ Xác thực & Bảo mật trước; 12 phân hệ nghiệp vụ nằm ở mục Deferred.
+Hệ thống quản lý vận hành chung cư cho ban quản lý (BQL), kỹ thuật, kế toán, ban quản trị (BQT) và cư dân: căn hộ, cư trú, điện nước, phí, thanh toán, sự cố, bảo trì, tiện ích, thông báo, khảo sát và báo cáo. Đồ án IT3930 của nhóm 2 người, backend Java Spring Boot, frontend NextJS, cơ sở dữ liệu PostgreSQL. Đợt này làm nền tảng và phân hệ Xác thực & Bảo mật trước, rồi tới UC01 Căn hộ & Tòa nhà; 11 phân hệ nghiệp vụ còn lại nằm ở mục Deferred.
 
 **Build approach:** Tracer Bullet (mỗi lát cắt chạy thật xuyên suốt DB, API và giao diện; lát sau làm dày thêm một đoạn của đường đã chạy).
 **Workflow:** Beta (sau `/develop` chạy `/check verify`, rồi `/test`). Đây là mức kỹ lưỡng mặc định của dự án. `/architect` là điểm dừng đầu tiên nên ghé khi một tính năng còn quyết định chưa chốt, nhưng bạn có thể bỏ qua nếu đã biết cách làm. Tính năng nào cũng có thể mang tag riêng (ví dụ `· GA`) để làm kỹ hơn hoặc nhẹ hơn.
@@ -26,6 +26,9 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 11  | Quản lý tài khoản (Admin)            | Slice 7    | done        |
 | 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done        |
 | 13  | Quên mật khẩu qua email              | Slice 9    | done        |
+| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done        |
+| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done        |
+| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | in-progress |
 
 ## Foundations
 
@@ -227,12 +230,65 @@ spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/
 - [x] Review it (fresh model): `/check review quên mật khẩu qua email`
 - [x] Document it: `/document quên mật khẩu qua email`
 
+## Slice 10: Tòa nhà, tầng & khu vực dùng chung
+
+### 14. Tòa nhà, tầng & khu vực dùng chung · done
+
+Phần đầu của UC01. BQL xem danh mục tòa nhà (số tầng, số căn hộ), thêm tòa nhà và thêm tầng; BQL và kỹ thuật xem danh mục khu vực dùng chung (API-UC01-01 đến 04, API-UC01-10). Đây là khung không gian mà mọi phân hệ sau dựa vào.
+**Done when:** BQL thêm được tòa nhà và tầng, mã trùng hoặc tầng sai quan hệ phân cấp bị từ chối với mã lỗi rõ ràng; danh mục tòa nhà, tầng và khu vực dùng chung hiện đúng cho đúng vai trò, trên cả API lẫn giao diện.
+spec [0011](../specs/0011-toa-nha-tang-khu-vuc/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `backend/src/main/resources/db/migration/V15__toa_nha_tang.sql`, `frontend/src/app/(app)/toa-nha/`, `frontend/src/app/(app)/khu-vuc-chung/`
+
+- [x] Design it (spec): `/architect tòa nhà, tầng & khu vực dùng chung`
+- [x] Build it: `/develop tòa nhà, tầng & khu vực dùng chung`
+  - [x] Đường mỏng thêm tòa: V15, `ToaNhaGhi`, `POST /buildings`, nhật ký, dialog trên `/toa-nha` (AC-1, AC-2, AC-3, AC-6, AC-7, AC-13, AC-14, AC-15, AC-19)
+  - [x] Chi tiết tòa và danh sách tầng: `GET /buildings/{id}`, `GET .../floors`, mở UC01-01 cho Kỹ thuật, trang `/toa-nha/[maToaNha]` (AC-8, AC-9, AC-10, AC-16)
+  - [x] Thêm tầng dưới khóa dòng, dialog xác nhận và xử lý 422, test chạy song song (AC-4, AC-5, AC-7, AC-14, AC-17)
+  - [x] Khu vực dùng chung: seed `R__seed_02_khong_gian.sql`, `GET /common-areas`, trang `/khu-vuc-chung` (AC-11, AC-12, AC-13, AC-18)
+- [x] Verify it: `/check verify tòa nhà, tầng & khu vực dùng chung`
+- [x] Test it: `/test tòa nhà, tầng & khu vực dùng chung`
+
+## Slice 11: Tìm kiếm & quản lý căn hộ
+
+### 15. Tìm kiếm & quản lý căn hộ · done
+
+BQL, kế toán và BQT tìm căn hộ có phân trang theo tòa, tầng, diện tích, trạng thái sử dụng; BQL tạo và sửa căn hộ; BQL và cư dân xem chi tiết căn hộ (API-UC01-05 đến 08). Phần nhân khẩu, phương tiện, đồng hồ trong trang chi tiết chỉ hiện khi UC02 và UC03 đã có.
+**Done when:** tìm và lọc trả đúng kết quả có phân trang; mã căn hộ trùng hoặc không hợp lệ theo tầng bị từ chối; cư dân chỉ xem được căn hộ của mình; sửa diện tích và trạng thái sử dụng được ghi nhật ký kiểm toán.
+
+spec [0012](../specs/0012-tim-kiem-quan-ly-can-ho/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `backend/src/main/resources/db/migration/V16__can_ho.sql`, `backend/src/main/resources/db/seed/R__seed_03_can_ho.sql`, `frontend/src/app/(app)/can-ho/`, `frontend/src/app/(app)/can-ho-cua-toi/`
+
+- [x] Design it (spec): `/architect tìm kiếm & quản lý căn hộ`
+- [x] Build it: `/develop tìm kiếm & quản lý căn hộ`
+  - [x] Đường mỏng danh sách căn: `GET /apartments` có phân trang, sort, trang `/can-ho` (AC-1, AC-4, AC-15, AC-21)
+  - [x] Tạo căn: V16, mã do server ghép, `POST /apartments`, kiểm trùng và chạy song song, nhật ký, dialog "Thêm căn hộ" (AC-7, AC-8, AC-9, AC-10, AC-14, AC-18)
+  - [x] Bộ lọc và seed: `R__seed_03_can_ho.sql`, sửa 4 assert seed, lọc tòa, tầng, diện tích, trạng thái, `q` trên URL (AC-1, AC-2, AC-3, AC-16, AC-17)
+  - [x] Chi tiết và sửa: `GET` và `PUT /apartments/{id}` dưới khóa dòng, nhật ký cũ mới, trang `/can-ho/[maCanHo]` (AC-5, AC-6, AC-11, AC-12, AC-13, AC-14, AC-19)
+  - [x] Căn hộ của tôi: `/can-ho-cua-toi` và trang chi tiết của cư dân (AC-6, AC-19, AC-20, AC-21)
+- [x] Verify it: `/check verify tìm kiếm & quản lý căn hộ`
+- [x] Test it: `/test tìm kiếm & quản lý căn hộ`
+
+## Slice 12: Tạm dừng quyền tiện ích căn hộ
+
+### 16. Tạm dừng quyền tiện ích căn hộ · in-progress
+
+BQL hoặc kế toán bật, tắt cờ tạm dừng tiện ích của một căn hộ khi nợ phí quá hạn (API-UC01-09). Cần chốt cờ này bật tay hay tự động theo công nợ (UC04 chưa có), và ai được mở khóa.
+**Done when:** người có quyền bật và tắt được cờ kèm lý do, thay đổi được ghi nhật ký kiểm toán, và trạng thái cờ hiện trên trang chi tiết căn hộ để phân hệ tiện ích (UC09) đọc được sau này.
+
+spec [0013](../specs/0013-tam-dung-tien-ich-can-ho/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `frontend/src/app/(app)/can-ho/`
+
+- [x] Design it (spec): `/architect tạm dừng quyền tiện ích căn hộ`
+- [x] Build it: `/develop tạm dừng quyền tiện ích căn hộ`
+  - [x] Đường mỏng tạm dừng: V17, `TamDungTienIchService` dưới khóa dòng, `PATCH /facility-suspension`, 409 khi không đổi, nhật ký hai loại, nút và dialog trên `/can-ho/[maCanHo]` (AC-1, AC-2, AC-3, AC-4, AC-5, AC-7, AC-10, AC-13, AC-15, AC-17)
+  - [x] Hiện lần đổi: `lanDoiTienIch` có họ tên trên mọi response căn, ẩn người đổi với cư dân, hai dòng mới trên trang chi tiết (AC-8, AC-9, AC-14, AC-17)
+  - [x] Bộ lọc và seed: tham số `biTamDungTienIch`, ô lọc "Tiện ích", căn `A-0204` bị tạm dừng trong seed (AC-11, AC-12, AC-16, AC-17)
+  - [x] Song song và hoàn tất: test hai yêu cầu cùng lúc, sửa constructor trong test, kiểm kiểu OpenAPI, `mvnw verify` (AC-6, AC-13)
+- [x] Verify it: `/check verify tạm dừng quyền tiện ích căn hộ`
+- [x] Test it: `/test tạm dừng quyền tiện ích căn hộ`
+
 ## Deferred
 
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
 
 - **Giới hạn đăng nhập theo IP**: chống dò rải trên nhiều tài khoản và giảm việc cố tình khóa tài khoản người khác; cần chốt có tin `X-Forwarded-For` sau proxy hay không · needs a decision · from spec 0009
-- **UC01 Căn hộ & Tòa nhà**: tòa nhà, tầng, căn hộ, khu vực dùng chung (10 API) · needs a decision
 - **UC02 Cư trú & Nhân khẩu**: hồ sơ cư trú, phương tiện (7 API) · needs a decision
 - **UC03 Chỉ số tiêu thụ**: đồng hồ điện nước, ghi chỉ số, ngoại lệ (6 API) · needs a decision
 - **UC04 Tài chính & Công nợ**: biểu phí, tính phí, phát hành, đối soát (9 API) · needs a decision · GA
@@ -244,7 +300,11 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 - **UC10 Thông báo & truyền thông**: soạn, phát hành, lượt đọc (5 API) · needs a decision
 - **UC11 Khảo sát & biểu quyết**: đợt khảo sát, nộp phiếu, kết quả (6 API) · needs a decision
 - **UC12 Báo cáo & thống kê**: KPI, báo cáo, xuất file nền (5 API) · needs a decision
-- **Gán nhân viên vào tòa nhà**: bảng gán để `phamVi.maToaNha` của nhân viên đúng khi khu có nhiều nhóm phụ trách riêng; hiện giả định nhân viên phụ trách mọi tòa · needs a decision · from spec 0004
+- **Gán nhân viên vào tòa nhà**: bảng gán để `phamVi.maToaNha` của nhân viên đúng khi khu có nhiều nhóm phụ trách riêng; hiện giả định nhân viên phụ trách mọi tòa; khi làm, tòa vừa thêm cần gán cho người tạo · needs a decision · from spec 0004, spec 0011
+- **Sửa và xóa tòa nhà, tầng**: sửa tên, địa chỉ tòa; xóa tòa hoặc tầng chưa có căn hộ (ngoài 81 API) · needs a decision · from spec 0011
+- **Xóa căn hộ và đổi tầng của căn nhập nhầm**: xóa căn chưa có dữ liệu liên quan, chuyển căn sang tầng khác (ngoài 81 API) · needs a decision · from spec 0012
+- **Luật giữa trạng thái căn và hồ sơ cư trú**: chặn hay tự đổi `trang_thai_su_dung` theo hồ sơ cư trú, làm cùng UC02 · needs a decision · from spec 0012
+- **Tầng hầm và đánh số tầng đặc biệt**: tầng hầm, tầng lửng, bỏ số 13; mô hình hiện chỉ có tầng 1 đến 99 liên tục · needs a decision · from spec 0011
 
 ## Legend
 

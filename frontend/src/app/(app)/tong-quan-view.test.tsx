@@ -35,7 +35,7 @@ describe("Trang Tổng quan (spec 0006, AC-14, AC-16)", () => {
   });
 
   it("có vai trò nhưng chưa có chức năng thì có link Xem hồ sơ", () => {
-    state.current = coVaiTro(["CU_DAN"]);
+    state.current = coVaiTro(["BAO_VE"]);
     render(<TongQuanView />);
     expect(screen.getByText("Các chức năng cho vai trò của bạn đang được xây dựng")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Xem hồ sơ" })).toHaveAttribute("href", "/ho-so");
