@@ -11,24 +11,24 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 
 ## At a glance
 
-| #   | Feature                              | Phase      | Status      |
-| --- | ------------------------------------ | ---------- | ----------- |
-| 1   | Stack & kiến trúc                    | Foundation | done        |
-| 2   | Quy chuẩn code & công cụ             | Foundation | done        |
-| 3   | Mô hình dữ liệu                      | Foundation | done        |
-| 4   | Design system & nền tảng giao diện   | Foundation | done        |
-| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done        |
-| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done        |
-| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done        |
-| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done        |
-| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done        |
-| 10  | Đổi mật khẩu                         | Slice 6    | done        |
-| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done        |
-| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done        |
-| 13  | Quên mật khẩu qua email              | Slice 9    | done        |
-| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done        |
-| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done        |
-| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | in-progress |
+| #   | Feature                              | Phase      | Status |
+| --- | ------------------------------------ | ---------- | ------ |
+| 1   | Stack & kiến trúc                    | Foundation | done   |
+| 2   | Quy chuẩn code & công cụ             | Foundation | done   |
+| 3   | Mô hình dữ liệu                      | Foundation | done   |
+| 4   | Design system & nền tảng giao diện   | Foundation | done   |
+| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done   |
+| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done   |
+| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done   |
+| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done   |
+| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done   |
+| 10  | Đổi mật khẩu                         | Slice 6    | done   |
+| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done   |
+| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done   |
+| 13  | Quên mật khẩu qua email              | Slice 9    | done   |
+| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done   |
+| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done   |
+| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done   |
 
 ## Foundations
 
@@ -268,7 +268,7 @@ spec [0012](../specs/0012-tim-kiem-quan-ly-can-ho/index.md) · code in `backend/
 
 ## Slice 12: Tạm dừng quyền tiện ích căn hộ
 
-### 16. Tạm dừng quyền tiện ích căn hộ · in-progress
+### 16. Tạm dừng quyền tiện ích căn hộ · done
 
 BQL hoặc kế toán bật, tắt cờ tạm dừng tiện ích của một căn hộ khi nợ phí quá hạn (API-UC01-09). Cần chốt cờ này bật tay hay tự động theo công nợ (UC04 chưa có), và ai được mở khóa.
 **Done when:** người có quyền bật và tắt được cờ kèm lý do, thay đổi được ghi nhật ký kiểm toán, và trạng thái cờ hiện trên trang chi tiết căn hộ để phân hệ tiện ích (UC09) đọc được sau này.

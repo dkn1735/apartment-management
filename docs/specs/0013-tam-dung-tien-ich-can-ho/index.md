@@ -1,7 +1,7 @@
 # 0013. Tạm dừng quyền tiện ích căn hộ: bật tắt tay kèm lý do, lưu lần đổi gần nhất trên căn, lịch sử ở nhật ký
 
 **Date**: 2026-11-26
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
