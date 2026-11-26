@@ -1,9 +1,9 @@
 # Scope: Hệ thống Quản lý Chung cư
 
-Hệ thống quản lý vận hành chung cư cho ban quản lý (BQL), kỹ thuật, kế toán, ban quản trị (BQT) và cư dân: căn hộ, cư trú, điện nước, phí, thanh toán, sự cố, bảo trì, tiện ích, thông báo, khảo sát và báo cáo. Đồ án IT3930 của nhóm 2 người, backend Java Spring Boot, frontend NextJS, cơ sở dữ liệu PostgreSQL. Đợt này làm nền tảng và phân hệ Xác thực & Bảo mật trước, rồi tới UC01 Căn hộ & Tòa nhà; 11 phân hệ nghiệp vụ còn lại nằm ở mục Deferred.
+Hệ thống quản lý vận hành chung cư cho ban quản lý (BQL), kỹ thuật, kế toán, ban quản trị (BQT) và cư dân: căn hộ, cư trú, điện nước, phí, thanh toán, sự cố, bảo trì, tiện ích, thông báo, khảo sát và báo cáo. Đồ án IT3930 của nhóm 2 người, backend Java Spring Boot, frontend NextJS, cơ sở dữ liệu PostgreSQL. Đợt này làm nền tảng và phân hệ Xác thực & Bảo mật trước, rồi tới UC01 Căn hộ & Tòa nhà và UC02 Cư trú & Nhân khẩu; 10 phân hệ nghiệp vụ còn lại nằm ở mục Deferred.
 
 **Build approach:** Tracer Bullet (mỗi lát cắt chạy thật xuyên suốt DB, API và giao diện; lát sau làm dày thêm một đoạn của đường đã chạy).
-**Workflow:** Beta (sau `/develop` chạy `/check verify`, rồi `/test`). Đây là mức kỹ lưỡng mặc định của dự án. `/architect` là điểm dừng đầu tiên nên ghé khi một tính năng còn quyết định chưa chốt, nhưng bạn có thể bỏ qua nếu đã biết cách làm. Tính năng nào cũng có thể mang tag riêng (ví dụ `· GA`) để làm kỹ hơn hoặc nhẹ hơn.
+**Workflow:** Beta (sau `/develop` chạy `/check verify`, rồi `/test`). Đây là mức kỹ lưỡng mặc định của dự án. Từ tính năng 17 trở đi, mỗi tính năng đi theo năm bước: `/architect` một spec cho cả backend lẫn frontend, `/develop <feature> backend`, `/check verify <feature> backend` (chỉ API và database), `/develop <feature> frontend`, rồi `/check verify <feature>` cho cả hai phần; sau đó `/test` như cũ. Nhánh git theo phân hệ (`feat/<phân hệ>`, ví dụ `feat/cutru`), mỗi tính năng nhỏ trong phân hệ là một commit khi xong cả backend lẫn frontend. `/architect` là điểm dừng đầu tiên nên ghé khi một tính năng còn quyết định chưa chốt, nhưng bạn có thể bỏ qua nếu đã biết cách làm. Tính năng nào cũng có thể mang tag riêng (ví dụ `· GA`) để làm kỹ hơn hoặc nhẹ hơn.
 
 _Đây là gợi ý để việc xây dựng có trật tự, không phải yêu cầu bắt buộc. Bỏ qua phần nào không hợp: nếu bạn đã biết cách làm một tính năng, cứ dùng `/develop` và bỏ qua `/architect`. Bạn là người quyết định khi nào một tính năng là `done`._
 
@@ -11,24 +11,27 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 
 ## At a glance
 
-| #   | Feature                              | Phase      | Status |
-| --- | ------------------------------------ | ---------- | ------ |
-| 1   | Stack & kiến trúc                    | Foundation | done   |
-| 2   | Quy chuẩn code & công cụ             | Foundation | done   |
-| 3   | Mô hình dữ liệu                      | Foundation | done   |
-| 4   | Design system & nền tảng giao diện   | Foundation | done   |
-| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done   |
-| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done   |
-| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done   |
-| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done   |
-| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done   |
-| 10  | Đổi mật khẩu                         | Slice 6    | done   |
-| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done   |
-| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done   |
-| 13  | Quên mật khẩu qua email              | Slice 9    | done   |
-| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done   |
-| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done   |
-| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done   |
+| #   | Feature                              | Phase      | Status  |
+| --- | ------------------------------------ | ---------- | ------- |
+| 1   | Stack & kiến trúc                    | Foundation | done    |
+| 2   | Quy chuẩn code & công cụ             | Foundation | done    |
+| 3   | Mô hình dữ liệu                      | Foundation | done    |
+| 4   | Design system & nền tảng giao diện   | Foundation | done    |
+| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done    |
+| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done    |
+| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done    |
+| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done    |
+| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done    |
+| 10  | Đổi mật khẩu                         | Slice 6    | done    |
+| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done    |
+| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done    |
+| 13  | Quên mật khẩu qua email              | Slice 9    | done    |
+| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done    |
+| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done    |
+| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done    |
+| 17  | Hồ sơ cư trú căn hộ                  | Slice 13   | in-progress |
+| 18  | Đề nghị cư trú & tra cứu hồ sơ       | Slice 14   | done        |
+| 19  | Phương tiện gửi xe căn hộ            | Slice 15   | planned |
 
 ## Foundations
 
@@ -284,12 +287,62 @@ spec [0013](../specs/0013-tam-dung-tien-ich-can-ho/index.md) · code in `backend
 - [x] Verify it: `/check verify tạm dừng quyền tiện ích căn hộ`
 - [x] Test it: `/test tạm dừng quyền tiện ích căn hộ`
 
+## Slice 13: Hồ sơ cư trú căn hộ
+
+### 17. Hồ sơ cư trú căn hộ · in-progress
+
+Phần đầu của UC02, nối tiếp `CuTruService` đang cấp phạm vi căn hộ cho cư dân. BQL ghi nhận và cập nhật hồ sơ cư trú cho cư dân đã có tài khoản (`cu_dan`), BQL và cư dân xem nhân khẩu đang ở cùng lịch sử cư trú ngay trên trang chi tiết căn hộ (`API-UC02-01` đến `03`), đồng thời chốt luôn luật đồng bộ với `trang_thai_su_dung` của căn hộ.
+**Done when:** BQL thêm, sửa và kết thúc được hồ sơ cư trú kèm nhật ký kiểm toán; nhân khẩu và lịch sử hiện đúng trên `/can-ho/[maCanHo]` và `/can-ho-cua-toi` mà không lộ dữ liệu cá nhân ngoài phạm vi; trạng thái sử dụng của căn hộ và quyền xem căn của cư dân phản ánh đúng hồ sơ hợp lệ.
+
+spec [0014](../specs/0014-ho-so-cu-tru-can-ho/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/cutru/`, `frontend/src/lib/cu-tru.ts`, `frontend/src/app/(app)/can-ho/`, `frontend/src/components/ui/`
+
+- [x] Design it (spec): `/architect hồ sơ cư trú căn hộ`
+- [x] Build backend: `/develop hồ sơ cư trú căn hộ backend`
+  - [x] Đường mỏng đọc và thêm hồ sơ: `V18`, `CuTruDinhDanhService`, `CanHoCuTruService`, `GET .../residents`, `resident-options`, `POST /residency-records`, nhật ký và đồng bộ căn (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-9, AC-10, AC-12, AC-13)
+  - [x] Làm dày sửa, kết thúc và chặn sửa tay căn hộ: `PUT /residency-records/{id}`, hủy sớm `sapBatDau`, kiểm 422 ở `SuaCanHoService` và `ThemCanHoService` (AC-7, AC-8, AC-10, AC-12, AC-13)
+  - [x] Job hết hạn đầu ngày, seed và OpenAPI: `HoSoCuTruHetHanJob` kèm chạy bù lúc khởi động, `R__seed_04_cu_tru.sql`, `mvnw verify` (AC-11, AC-12, AC-13, AC-14)
+- [ ] Verify backend: `/check verify hồ sơ cư trú căn hộ backend`
+- [x] Build frontend: `/develop hồ sơ cư trú căn hộ frontend`
+  - [x] Khối Hồ sơ cư trú trên `ChiTietCanHo`: hai tab Hiện tại và Lịch sử, phân quyền hiển thị, ẩn PII và trạng thái tải, rỗng, lỗi độc lập (AC-15, AC-16, AC-18)
+  - [x] Hộp thoại thao tác BQL và hoàn tất: Thêm, Sửa, Kết thúc hoặc Hủy cư trú, sửa `ThemCanHoDialog`, làm mới cache và kiểm tra WCAG AA (AC-17, AC-18)
+- [ ] Verify it: `/check verify hồ sơ cư trú căn hộ`
+- [x] Test it: `/test hồ sơ cư trú căn hộ`
+
+## Slice 14: Đề nghị cư trú & tra cứu hồ sơ
+
+### 18. Đề nghị cư trú & tra cứu hồ sơ · done
+
+Cư dân gửi đề nghị thêm nhân khẩu hoặc đăng ký tạm trú từ `/can-ho-cua-toi` ở trạng thái chờ xác minh (`API-UC02-04`), và BQL dùng màn hình tập trung `/ho-so-cu-tru` để lọc hồ sơ toàn tòa cũng như duyệt hoặc từ chối đề nghị mà không phải mở từng căn. Cần chốt cách lưu hồ sơ khi chưa có nhân viên xác minh và luồng từ chối đề nghị.
+**Done when:** cư dân gửi được đề nghị cho căn hộ mình đang ở và theo dõi được trạng thái trên web; BQL lọc được danh sách hồ sơ cư trú có phân trang trên `/ho-so-cu-tru`, xử lý được hàng đợi chờ xác minh và mọi quyết định đều có nhật ký kiểm toán.
+
+spec [0015](../specs/0015-de-nghi-cu-tru-tra-cuu/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/cutru/`, `frontend/src/lib/cu-tru.ts`, `frontend/src/app/(app)/can-ho/`, `frontend/src/app/(app)/ho-so-cu-tru/`, `frontend/src/lib/phan-quyen/muc-chuc-nang.ts`
+
+- [x] Design it (spec): `/architect đề nghị cư trú & tra cứu hồ sơ`
+- [x] Build backend: `/develop đề nghị cư trú & tra cứu hồ sơ backend`
+  - [x] Đường mỏng đề nghị cư trú: `V19`, gửi đề nghị `resident-request`, mảng `deNghiCuTru` trên căn hộ (AC-1, AC-2, AC-3, AC-8, AC-11, AC-12, AC-13)
+  - [x] Vòng đời đề nghị: `approve`, `reject`, `cancel` dưới khóa dòng, đồng bộ căn và khóa trạng thái kết thúc (AC-4, AC-5, AC-6, AC-7, AC-11, AC-12, AC-13)
+  - [x] Tra cứu tập trung toàn tòa: `GET /residency-records` có phân trang và bộ lọc, seed đề nghị mẫu, OpenAPI (AC-9, AC-10, AC-12, AC-13, AC-14)
+- [x] Verify backend: `/check verify đề nghị cư trú & tra cứu hồ sơ backend`
+- [x] Build frontend: `/develop đề nghị cư trú & tra cứu hồ sơ frontend`
+  - [x] Luồng đề nghị trên trang căn hộ và `/can-ho-cua-toi`: tab Đề nghị cư trú, hộp thoại gửi, hủy, duyệt, từ chối (AC-15, AC-18)
+  - [x] Màn hình tập trung `/ho-so-cu-tru` và hoàn tất: thanh lọc nhanh kèm số đếm, bảng sắp xếp, thêm hồ sơ chọn căn, WCAG AA (AC-16, AC-17, AC-18)
+- [x] Verify it: `/check verify đề nghị cư trú & tra cứu hồ sơ`
+- [x] Test it: `/test đề nghị cư trú & tra cứu hồ sơ`
+
+## Slice 15: Phương tiện gửi xe căn hộ
+
+### 19. Phương tiện gửi xe căn hộ · needs a decision
+
+BQL, kế toán và cư dân xem danh sách phương tiện của căn hộ; BQL và cư dân đăng ký xe mới gắn với chủ sở hữu; BQL đổi trạng thái thẻ xe để phục vụ tính phí gửi xe ở UC04 (`API-UC02-05` đến `07`). Cần chốt quy ước biển số (kể cả xe đạp và đăng ký lại biển số đã hủy), điều kiện chủ xe cư trú tại căn và trạng thái ban đầu khi cư dân tự gửi đăng ký.
+**Done when:** BQL và cư dân đăng ký được phương tiện trên trang căn hộ, biển số trùng đang hoạt động bị từ chối với mã lỗi rõ ràng; BQL chuyển được trạng thái đăng ký xe kèm nhật ký kiểm toán; BQL, kế toán và cư dân thấy đúng danh sách phương tiện trong phạm vi của mình.
+
+- [ ] Design it (spec): `/architect phương tiện gửi xe căn hộ`
+
 ## Deferred
 
 Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi phân hệ sẽ được chia thành các tính năng nhỏ khi bạn chạy lại `/scope` tới lượt nó.
 
 - **Giới hạn đăng nhập theo IP**: chống dò rải trên nhiều tài khoản và giảm việc cố tình khóa tài khoản người khác; cần chốt có tin `X-Forwarded-For` sau proxy hay không · needs a decision · from spec 0009
-- **UC02 Cư trú & Nhân khẩu**: hồ sơ cư trú, phương tiện (7 API) · needs a decision
 - **UC03 Chỉ số tiêu thụ**: đồng hồ điện nước, ghi chỉ số, ngoại lệ (6 API) · needs a decision
 - **UC04 Tài chính & Công nợ**: biểu phí, tính phí, phát hành, đối soát (9 API) · needs a decision · GA
 - **UC05 Thanh toán trực tuyến**: cổng thanh toán, webhook, biên nhận (5 API) · needs a decision · GA
@@ -303,8 +356,9 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 - **Gán nhân viên vào tòa nhà**: bảng gán để `phamVi.maToaNha` của nhân viên đúng khi khu có nhiều nhóm phụ trách riêng; hiện giả định nhân viên phụ trách mọi tòa; khi làm, tòa vừa thêm cần gán cho người tạo · needs a decision · from spec 0004, spec 0011
 - **Sửa và xóa tòa nhà, tầng**: sửa tên, địa chỉ tòa; xóa tòa hoặc tầng chưa có căn hộ (ngoài 81 API) · needs a decision · from spec 0011
 - **Xóa căn hộ và đổi tầng của căn nhập nhầm**: xóa căn chưa có dữ liệu liên quan, chuyển căn sang tầng khác (ngoài 81 API) · needs a decision · from spec 0012
-- **Luật giữa trạng thái căn và hồ sơ cư trú**: chặn hay tự đổi `trang_thai_su_dung` theo hồ sơ cư trú, làm cùng UC02 · needs a decision · from spec 0012
 - **Tầng hầm và đánh số tầng đặc biệt**: tầng hầm, tầng lửng, bỏ số 13; mô hình hiện chỉ có tầng 1 đến 99 liên tục · needs a decision · from spec 0011
+- **Nhân khẩu phụ thuộc không có tài khoản**: ghi nhận trẻ nhỏ hoặc người phụ thuộc chưa có số điện thoại và email riêng trong `cu_dan` · needs a decision
+- **Tra cứu phương tiện toàn tòa**: màn hình danh sách để BQL và kế toán tìm xe theo biển số, loại xe và trạng thái thẻ xe trên toàn khu (ngoài 81 API) · needs a decision
 
 ## Legend
 
@@ -312,15 +366,32 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 
 **Feature lifecycle**: scope cập nhật khi một tính năng tiến lên; mỗi dòng là trạng thái nó hiển thị và ai đặt nó:
 
-| State                        | Set by                                                                            | The feature shows                                                                                                                                                                             |
-| ---------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `planned` · needs a decision | `/scope`                                                                          | một ô: `Design it (spec): /architect <feature>`                                                                                                                                               |
-| `in-progress` (designed)     | **`/architect` khi chốt spec**                                                    | `Design it` đã tick; có link spec; `Build it: /develop <feature>` kèm **2 đến 5 mốc**; các ô kết thúc theo tier (`Verify it` từ Alpha, `Test it` từ Beta, `Review it` + `Document it` ở GA)   |
-| `in-progress` (building)     | `/develop`                                                                        | các ô mốc được tick dần; có đường dẫn code                                                                                                                                                    |
-| `in-progress` (verified)     | `/check verify`                                                                   | `Build it` và các mốc đã tick; `Verify it` đã tick                                                                                                                                            |
-| `done`                       | **bạn, khi bạn thấy đủ** (skill nào cũng đặt được khi bạn bảo); `/sync` đối chiếu | các ô bạn đã chạy được tick, ô bỏ qua ghi là skipped; bước cuối của tier (`Prototype` sau `/develop`; `Alpha` sau `/check verify`; `Beta`/`GA` sau `/test`) là thời điểm gợi ý để gọi là xong |
+| State                            | Set by                                                                            | The feature shows                                                                                                                                                                                                                                                                                                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `planned` · needs a decision     | `/scope`                                                                          | một ô: `Design it (spec): /architect <feature>`                                                                                                                                                                                                                                                                                                                         |
+| `in-progress` (designed)         | **`/architect` khi chốt spec**                                                    | `Design it` đã tick (một spec cho cả backend và frontend); có link spec; `Build backend: /develop <feature> backend` và `Build frontend: /develop <feature> frontend`, mỗi ô kèm các mốc của phần đó (tổng **2 đến 5 mốc**); `Verify backend` sau `Build backend`; các ô kết thúc theo tier (`Verify it` từ Alpha, `Test it` từ Beta, `Review it` + `Document it` ở GA) |
+| `in-progress` (building)         | `/develop`                                                                        | các ô mốc được tick dần; có đường dẫn code                                                                                                                                                                                                                                                                                                                              |
+| `in-progress` (backend verified) | `/check verify <feature> backend`                                                 | `Build backend` và các mốc của nó đã tick; `Verify backend` đã tick                                                                                                                                                                                                                                                                                                     |
+| `in-progress` (verified)         | `/check verify <feature>`                                                         | `Build frontend` và các mốc đã tick; `Verify it` (cả backend lẫn frontend) đã tick                                                                                                                                                                                                                                                                                      |
+| `done`                           | **bạn, khi bạn thấy đủ** (skill nào cũng đặt được khi bạn bảo); `/sync` đối chiếu | các ô bạn đã chạy được tick, ô bỏ qua ghi là skipped; bước cuối của tier (`Prototype` sau `/develop`; `Alpha` sau `/check verify`; `Beta`/`GA` sau `/test`) là thời điểm gợi ý để gọi là xong                                                                                                                                                                           |
 
 - **Bước tiếp theo** = ô đầu tiên chưa tick (luôn là một lệnh hoặc một mốc được theo dõi).
+- **Hình dạng ô từ tính năng 17** (tính năng 1 đến 16 giữ nguyên dạng cũ làm lịch sử):
+
+  ```markdown
+  - [ ] Design it (spec): `/architect <feature>`
+  - [ ] Build backend: `/develop <feature> backend`
+    - [ ] <mốc backend> (AC-...)
+  - [ ] Verify backend: `/check verify <feature> backend`
+  - [ ] Build frontend: `/develop <feature> frontend`
+    - [ ] <mốc frontend> (AC-...)
+  - [ ] Verify it: `/check verify <feature>`
+  - [ ] Test it: `/test <feature>`
+  ```
+
+  `Verify backend` chỉ gọi API và xem database (không mở giao diện); `Verify it` chạy lại toàn bộ đường đi qua giao diện. Tính năng chỉ có backend thì bỏ `Build frontend` và gộp hai lần verify làm một. Commit một lần sau `Verify it`.
+
+- **Git**: một nhánh cho mỗi phân hệ, `feat/<phân hệ>` theo tên package (`feat/canho`, `feat/cutru`); mỗi tính năng nhỏ trong phân hệ là đúng một commit `feat(<phân hệ>): ...`, tạo khi đã xong cả backend lẫn frontend.
 - **needs a decision** = chạy `/architect` trước; nếu không có tag này thì đi thẳng `/develop` (hoặc `/audit` cho quy chuẩn & công cụ). Tag mất đi khi spec được chốt.
 - **Việc build chi tiết nằm trong `## Build plan` của spec, không nằm ở đây**: scope chỉ giữ phần tóm tắt theo mốc.
 - **Status** `planned` → `in-progress` → `done`, cộng thêm `existing` (có trước workflow) và `dropped` (bỏ khỏi phạm vi, giữ lại làm lịch sử).
