@@ -64,10 +64,7 @@ docker compose -f docker-compose.prod.yml up --build   # bản demo cả ba ph�
 
 ## Agent skills
 
-- [java-springboot](.agents/skills/java-springboot/): `github/awesome-copilot`, quy ước Spring Boot 4 (controller, JPA, cấu hình). Riêng lỗi thì theo vỏ bọc của spec 0001, không theo `ProblemDetail`.
-- [next-dev-loop](.agents/skills/next-dev-loop/): `vercel/next.js`, kiểm tra hành vi Next.js khi `pnpm dev` đang chạy.
-- [ui-styling](.claude/skills/ui-styling/): Tailwind CSS + shadcn/ui.
-- [design-system](.claude/skills/design-system/): token và component spec, dùng ở tính năng 4.
+Chỉ còn bộ skill quy trình `jsmastery-pro/skills` trong `.claude/skills/` (`architect`, `audit`, `check`, `debug`, `develop`, `document`, `scope`, `sync`, `test`). Các skill triển khai cũ (`java-springboot`, `next-dev-loop`, `tanstack-table`, `ui-styling`, `design-system`, ...) đã gỡ vì không dùng; spec cũ còn nhắc tới chúng là ghi chép lịch sử. Lỗi vẫn theo vỏ bọc của spec 0001, không theo `ProblemDetail`.
 
 Declined: thêm skill cho ESLint, Prettier, Lefthook, Spring Java Format, GitHub Actions · MCP servers: next-devtools (connected, cần `pnpm dev` đang chạy)
 

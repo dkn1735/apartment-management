@@ -37,18 +37,6 @@
       "skillPath": "skills/document/SKILL.md",
       "computedHash": "2d4ab42a4ffe7cc64c340fefdbcaa2ce2a84110d9885c0c99b70a696024710d0"
     },
-    "java-springboot": {
-      "source": "github/awesome-copilot",
-      "sourceType": "github",
-      "skillPath": "skills/java-springboot/SKILL.md",
-      "computedHash": "7a3a5343773c126e788966041eca919180e3347f01b66d5dea8dd9923cafd897"
-    },
-    "next-dev-loop": {
-      "source": "vercel/next.js",
-      "sourceType": "github",
-      "skillPath": "skills/next-dev-loop/SKILL.md",
-      "computedHash": "abe7b5e77b26f95ab21304b10ce1003a41e4e75b601505d76c8a0294e33a450d"
-    },
     "scope": {
       "source": "jsmastery-pro/skills",
       "sourceType": "github",
@@ -60,12 +48,6 @@
       "sourceType": "github",
       "skillPath": "skills/sync/SKILL.md",
       "computedHash": "5a88ad828e9845a79162c7b7c05222ac530dd1ca862a4a4e16092a40bdb4f59c"
-    },
-    "tanstack-table": {
-      "source": "tanstack-skills/tanstack-skills",
-      "sourceType": "github",
-      "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
-      "computedHash": "235873fdbb88facf6b7df204a71b822e575e72cf3ce2c0628a0405b0d0db2620"
     },
     "test": {
       "source": "jsmastery-pro/skills",
