@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,9 +25,11 @@ import vn.edu.hust.chungcu.auth.phanquyen.ChoPhep;
 import vn.edu.hust.chungcu.auth.service.PhamViTruyCapService;
 import vn.edu.hust.chungcu.canho.dto.BoLocCanHo;
 import vn.edu.hust.chungcu.canho.dto.CanHoResponse;
+import vn.edu.hust.chungcu.canho.dto.DoiTienIchRequest;
 import vn.edu.hust.chungcu.canho.dto.SuaCanHoRequest;
 import vn.edu.hust.chungcu.canho.dto.ThemCanHoRequest;
 import vn.edu.hust.chungcu.canho.service.SuaCanHoService;
+import vn.edu.hust.chungcu.canho.service.TamDungTienIchService;
 import vn.edu.hust.chungcu.canho.service.ThemCanHoService;
 import vn.edu.hust.chungcu.canho.service.TimCanHoService;
 import vn.edu.hust.chungcu.common.api.ApiResponse;
@@ -43,13 +46,16 @@ public class CanHoController {
 
 	private final SuaCanHoService suaCanHo;
 
+	private final TamDungTienIchService tamDungTienIch;
+
 	private final PhamViTruyCapService phamViTruyCap;
 
 	public CanHoController(TimCanHoService timCanHo, ThemCanHoService themCanHo, SuaCanHoService suaCanHo,
-			PhamViTruyCapService phamViTruyCap) {
+			TamDungTienIchService tamDungTienIch, PhamViTruyCapService phamViTruyCap) {
 		this.timCanHo = timCanHo;
 		this.themCanHo = themCanHo;
 		this.suaCanHo = suaCanHo;
+		this.tamDungTienIch = tamDungTienIch;
 		this.phamViTruyCap = phamViTruyCap;
 	}
 
@@ -74,6 +80,8 @@ public class CanHoController {
 									"Đã bàn giao" }))) @RequestParam(required = false) List<String> trangThaiSuDung,
 			@Parameter(description = "Một phần mã căn, tối đa 20 ký tự",
 					schema = @Schema(type = "string", maxLength = 20)) @RequestParam(required = false) String q,
+			@Parameter(description = "true chỉ căn đang bị tạm dừng tiện ích, false chỉ căn bình thường",
+					schema = @Schema(type = "boolean")) @RequestParam(required = false) String biTamDungTienIch,
 			@Parameter(description = "Trang, bắt đầu từ 1",
 					schema = @Schema(type = "integer", minimum = "1", defaultValue = "1")) @RequestParam(
 							required = false) String page,
@@ -83,7 +91,8 @@ public class CanHoController {
 			@Parameter(description = "maCanHo, dienTich hoặc trangThaiSuDung, cộng ,asc hoặc ,desc",
 					schema = @Schema(type = "string", defaultValue = TimCanHoService.SAP_XEP_MAC_DINH)) @RequestParam(
 							required = false) String sort) {
-		BoLocCanHo boLoc = new BoLocCanHo(maToaNha, soTang, dienTichTu, dienTichDen, trangThaiSuDung, q);
+		BoLocCanHo boLoc = new BoLocCanHo(maToaNha, soTang, dienTichTu, dienTichDen, trangThaiSuDung, q,
+				biTamDungTienIch);
 		return ApiResponse.ok(this.timCanHo.timKiem(boLoc, page, size, sort, this.phamViTruyCap.cuaNguoiDangGoi()),
 				"Tìm kiếm và lọc danh sách căn hộ thành công");
 	}
@@ -114,6 +123,17 @@ public class CanHoController {
 			@RequestBody SuaCanHoRequest request) {
 		return ApiResponse.ok(this.suaCanHo.sua(this.phamViTruyCap.cuaNguoiDangGoi(), apartmentId, request),
 				"Cập nhật thông tin căn hộ thành công");
+	}
+
+	@Operation(summary = "Tạm dừng hoặc mở khóa quyền tiện ích căn hộ (API-UC01-09)",
+			description = "Lý do bắt buộc. Yêu cầu trùng trạng thái hiện có trả 409; mỗi lần đổi ghi một dòng nhật ký.")
+	@ChoPhep({ BAN_QUAN_LY, KE_TOAN })
+	@PatchMapping("/{apartmentId}/facility-suspension")
+	public ResponseEntity<ApiResponse<CanHoResponse>> doiTienIch(@PathVariable String apartmentId,
+			@RequestBody DoiTienIchRequest request) {
+		CanHoResponse canHo = this.tamDungTienIch.doi(this.phamViTruyCap.cuaNguoiDangGoi(), apartmentId, request);
+		return ApiResponse.ok(canHo, canHo.biTamDungTienIch() ? "Tạm dừng quyền tiện ích căn hộ thành công"
+				: "Mở khóa quyền tiện ích căn hộ thành công");
 	}
 
 }

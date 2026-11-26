@@ -12,6 +12,11 @@ public final class CanHoErrorCodes {
 	/** Mã căn ghép từ tầng và số căn đã có (spec 0012, AC-9). */
 	public static final String CANHO_CAN_HO_DA_TON_TAI = "CANHO_CAN_HO_DA_TON_TAI";
 
+	/**
+	 * Yêu cầu tạm dừng hay mở khóa trùng trạng thái tiện ích hiện có (spec 0013, AC-5).
+	 */
+	public static final String CANHO_TIEN_ICH_KHONG_DOI = "CANHO_TIEN_ICH_KHONG_DOI";
+
 	private CanHoErrorCodes() {
 	}
 

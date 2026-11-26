@@ -4,6 +4,7 @@ import type { VaiTro } from "@/lib/vai-tro";
 
 export type CanHo = components["schemas"]["CanHoResponse"];
 export type TrangThaiSuDung = CanHo["trangThaiSuDung"];
+export type LanDoiTienIch = components["schemas"]["LanDoiTienIchResponse"];
 
 /** Gốc khóa query của căn hộ; invalidate gốc này làm mới danh sách và chi tiết căn (spec 0012, AC-18, AC-19). */
 export const CAN_HO_QUERY_KEY = ["can-ho"] as const;
@@ -63,4 +64,16 @@ export function maCanSeTao(maTang: string | undefined, soCan: string): string | 
 /** Vai trò tạo và sửa được căn hộ (AC-15, AC-18, AC-19). */
 export function duocQuanLyCanHo(vaiTro: readonly VaiTro[] | undefined): boolean {
   return vaiTro?.includes("BAN_QUAN_LY") ?? false;
+}
+
+/** Vai trò tạm dừng và mở khóa được tiện ích căn hộ (spec 0013, AC-15). */
+export function duocDoiTienIch(vaiTro: readonly VaiTro[] | undefined): boolean {
+  return (vaiTro?.includes("BAN_QUAN_LY") || vaiTro?.includes("KE_TOAN")) ?? false;
+}
+
+/** Lý do tối đa 500 ký tự, đếm theo code point như server (spec 0013, Thuật ngữ). */
+export const LY_DO_TOI_DA = 500;
+
+export function doDaiLyDo(lyDo: string): number {
+  return [...lyDo.trim()].length;
 }

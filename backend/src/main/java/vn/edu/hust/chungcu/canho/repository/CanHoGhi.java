@@ -1,6 +1,8 @@
 package vn.edu.hust.chungcu.canho.repository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -41,6 +43,34 @@ public class CanHoGhi {
 			.param("ma", maCanHo)
 			.query((rs, rowNum) -> new GiaTri(rs.getBigDecimal("dien_tich"), rs.getString("trang_thai_su_dung")))
 			.optional();
+	}
+
+	/**
+	 * Khóa dòng căn tới hết transaction và đọc cờ tạm dừng tiện ích (spec 0013, AC-2,
+	 * AC-6).
+	 */
+	public Optional<Boolean> khoaCoTienIch(String maCanHo) {
+		return this.jdbc.sql("SELECT bi_tam_dung_tien_ich FROM can_ho WHERE ma_can_ho = :ma FOR UPDATE")
+			.param("ma", maCanHo)
+			.query(Boolean.class)
+			.optional();
+	}
+
+	/**
+	 * Đặt cờ và lần đổi tiện ích bằng một lệnh; gọi sau {@link #khoaCoTienIch} trong cùng
+	 * transaction.
+	 */
+	public void capNhatTienIch(String maCanHo, boolean tamDung, String lyDo, Instant luc, String maNguoiDoi) {
+		this.jdbc.sql("""
+				UPDATE can_ho SET bi_tam_dung_tien_ich = :tamDung, tien_ich_ly_do = :lyDo,
+				       tien_ich_doi_luc = :luc, tien_ich_doi_boi = :nguoiDoi
+				WHERE ma_can_ho = :ma""")
+			.param("tamDung", tamDung)
+			.param("lyDo", lyDo)
+			.param("luc", luc.atOffset(ZoneOffset.UTC))
+			.param("nguoiDoi", maNguoiDoi)
+			.param("ma", maCanHo)
+			.update();
 	}
 
 	/** Gọi sau {@link #khoaDong} trong cùng transaction. */

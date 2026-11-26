@@ -9,6 +9,7 @@ import { ChiTietCanHo } from "./chi-tiet-can-ho";
 
 const get = vi.hoisted(() => vi.fn());
 const put = vi.hoisted(() => vi.fn());
+const patch = vi.hoisted(() => vi.fn());
 const notify = vi.hoisted(() => ({ success: vi.fn() }));
 const hoSo = vi.hoisted(() => ({ vaiTro: ["BAN_QUAN_LY"] as string[] }));
 
@@ -19,7 +20,7 @@ vi.mock("@/lib/auth/use-ho-so", async (importOriginal) => ({
 
 vi.mock("@/lib/api/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/api")>();
-  return { ...actual, client: { GET: get, PUT: put }, api: (p: Promise<unknown>) => p };
+  return { ...actual, client: { GET: get, PUT: put, PATCH: patch }, api: (p: Promise<unknown>) => p };
 });
 
 vi.mock("@/components/feedback/notify", async (importOriginal) => ({
@@ -36,6 +37,18 @@ const A0101 = {
   dienTich: 75.5,
   trangThaiSuDung: "Đang sử dụng",
   biTamDungTienIch: false,
+  lanDoiTienIch: null,
+};
+
+const TAM_DUNG = {
+  ...A0101,
+  biTamDungTienIch: true,
+  lanDoiTienIch: {
+    lyDo: "Nợ phí quý 3\n<b>hai kỳ</b>",
+    doiLuc: "2026-11-26T03:00:00Z",
+    maNguoiDoi: "ND00000004",
+    hoTenNguoiDoi: "Phạm Kế Toán",
+  },
 };
 
 function hienThi(vaiTro: string[], choPhepSua: boolean, ketQua: () => Promise<unknown> = () => Promise.resolve(A0101)) {
@@ -51,6 +64,7 @@ function hienThi(vaiTro: string[], choPhepSua: boolean, ketQua: () => Promise<un
 beforeEach(() => {
   get.mockReset();
   put.mockReset();
+  patch.mockReset();
   notify.success.mockReset();
 });
 
@@ -121,5 +135,96 @@ describe("Chi tiết căn hộ (spec 0012, AC-19)", () => {
     );
     await user.click(screen.getByRole("button", { name: "Lưu thay đổi" }));
     expect(await screen.findByText(/Không tìm thấy dữ liệu yêu cầu/)).toBeInTheDocument();
+  });
+});
+
+describe("Tạm dừng tiện ích trên chi tiết căn hộ (spec 0013, AC-14, AC-15, AC-17)", () => {
+  it("hiện lý do tạm dừng nguyên văn và người đổi", async () => {
+    hienThi(["BAN_QUAN_LY"], true, () => Promise.resolve(TAM_DUNG));
+    await screen.findByRole("heading", { name: "Căn hộ A-0101" });
+    expect(screen.getByText("Lý do tạm dừng")).toBeInTheDocument();
+    expect(screen.getByText(/<b>hai kỳ<\/b>/)).toBeInTheDocument();
+    expect(screen.getByText("26/11/2026 10:00 bởi Phạm Kế Toán (ND00000004)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mở khóa tiện ích" })).toBeInTheDocument();
+  });
+
+  it("cư dân: lý do mở khóa, không có người đổi, không có nút", async () => {
+    const moKhoa = {
+      ...A0101,
+      lanDoiTienIch: { lyDo: "Đã thanh toán", doiLuc: "2026-11-26T03:00:00Z", maNguoiDoi: null, hoTenNguoiDoi: null },
+    };
+    hienThi(["CU_DAN"], false, () => Promise.resolve(moKhoa));
+    await screen.findByRole("heading", { name: "Căn hộ A-0101" });
+    expect(screen.getByText("Lý do mở khóa")).toBeInTheDocument();
+    expect(screen.getByText("26/11/2026 10:00")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /tiện ích/ })).not.toBeInTheDocument();
+  });
+
+  it("chỉ hiện mã khi không có họ tên người đổi", async () => {
+    hienThi(["BAN_QUAN_LY"], true, () =>
+      Promise.resolve({ ...TAM_DUNG, lanDoiTienIch: { ...TAM_DUNG.lanDoiTienIch, hoTenNguoiDoi: null } }),
+    );
+    expect(await screen.findByText("26/11/2026 10:00 bởi ND00000004")).toBeInTheDocument();
+  });
+
+  it("BQT không thấy nút đổi tiện ích", async () => {
+    hienThi(["BAN_QUAN_TRI"], true);
+    await screen.findByRole("heading", { name: "Căn hộ A-0101" });
+    expect(screen.queryByRole("button", { name: "Tạm dừng tiện ích" })).not.toBeInTheDocument();
+  });
+
+  it("Kế toán tạm dừng: chặn lý do rỗng, gửi đúng body, báo toast, focus về nút; axe sạch", async () => {
+    const user = userEvent.setup();
+    patch.mockResolvedValue(TAM_DUNG);
+    hienThi(["KE_TOAN"], true);
+    const nut = await screen.findByRole("button", { name: "Tạm dừng tiện ích" });
+    await user.click(nut);
+    const dialog = screen.getByRole("dialog", { name: "Tạm dừng tiện ích căn hộ A-0101" });
+    const lyDo = screen.getByRole("textbox", { name: /Lý do/ });
+    expect(lyDo).toHaveAccessibleDescription("Còn 500/500 ký tự");
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    await waitFor(() => expect(lyDo).toHaveAccessibleDescription(/Vui lòng nhập lý do/));
+    expect(patch).not.toHaveBeenCalled();
+    await user.type(lyDo, "Nợ phí");
+    expect(lyDo).toHaveAccessibleDescription("Còn 494/500 ký tự");
+    await expectNoA11yViolations(dialog);
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    await waitFor(() => expect(notify.success).toHaveBeenCalledWith("Đã tạm dừng tiện ích căn hộ A-0101"));
+    expect(patch).toHaveBeenCalledWith("/api/v1/apartments/{apartmentId}/facility-suspension", {
+      params: { path: { apartmentId: "A-0101" } },
+      body: { biTamDungTienIch: true, lyDo: "Nợ phí" },
+    });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(nut).toHaveFocus();
+  });
+
+  it("lỗi 400 hiện dưới ô lý do; 409 hiện trong hộp thoại và làm mới căn", async () => {
+    const user = userEvent.setup();
+    patch.mockRejectedValueOnce(
+      new ApiError({
+        status: 400,
+        errorCode: "VALIDATION_FAILED",
+        message: "Dữ liệu không hợp lệ",
+        errors: [{ field: "lyDo", message: "Lý do tối đa 500 ký tự" }],
+      }),
+    );
+    hienThi(["BAN_QUAN_LY"], true);
+    await user.click(await screen.findByRole("button", { name: "Tạm dừng tiện ích" }));
+    const lyDo = screen.getByRole("textbox", { name: /Lý do/ });
+    await user.type(lyDo, "x");
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    await waitFor(() => expect(lyDo).toHaveAccessibleDescription(/Lý do tối đa 500 ký tự/));
+    patch.mockRejectedValueOnce(
+      new ApiError({
+        status: 409,
+        errorCode: "CANHO_TIEN_ICH_KHONG_DOI",
+        message: "Căn hộ đang bị tạm dừng tiện ích",
+        errors: [],
+      }),
+    );
+    const lanGetTruoc = get.mock.calls.length;
+    await user.click(screen.getByRole("button", { name: "Tạm dừng" }));
+    expect(await screen.findByText(/Căn hộ đang bị tạm dừng tiện ích/)).toBeInTheDocument();
+    await waitFor(() => expect(get.mock.calls.length).toBeGreaterThan(lanGetTruoc));
   });
 });

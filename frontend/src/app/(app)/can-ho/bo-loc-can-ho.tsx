@@ -26,9 +26,19 @@ export type BoLoc = {
   dienTichDen?: string;
   trangThaiSuDung: string[];
   q?: string;
+  /** Lọc cờ tạm dừng tiện ích (spec 0013, AC-16). */
+  biTamDungTienIch?: "true" | "false";
 };
 
-export const THAM_SO_LOC = ["maToaNha", "soTang", "dienTichTu", "dienTichDen", "trangThaiSuDung", "q"] as const;
+export const THAM_SO_LOC = [
+  "maToaNha",
+  "soTang",
+  "dienTichTu",
+  "dienTichDen",
+  "trangThaiSuDung",
+  "q",
+  "biTamDungTienIch",
+] as const;
 
 const TAT_CA = "TAT_CA";
 const SAI_DIEN_TICH = "Diện tích lọc phải từ 0 đến 1000, tối đa 2 chữ số thập phân";
@@ -47,6 +57,7 @@ const schema = z
     dienTichDen: dienTichLoc,
     trangThaiSuDung: z.array(z.string()),
     q: z.string().trim().max(20, "Từ khóa tìm kiếm tối đa 20 ký tự"),
+    biTamDungTienIch: z.string(),
   })
   .refine(
     (v) => {
@@ -59,7 +70,10 @@ const schema = z
 
 type Values = z.output<typeof schema>;
 
-/** Đọc bộ lọc từ URL; chuỗi rỗng coi như không gửi. `soTang` không có `maToaNha` thì bỏ (AC-17). */
+/**
+ * Đọc bộ lọc từ URL; chuỗi rỗng coi như không gửi. `soTang` không có `maToaNha` thì bỏ (AC-17). Giá trị lạ của
+ * `biTamDungTienIch` thì bỏ (spec 0013, AC-16).
+ */
 export function docBoLoc(searchParams: URLSearchParams): BoLoc {
   const lay = (ten: string) => searchParams.get(ten)?.trim() || undefined;
   const maToaNha = lay("maToaNha");
@@ -70,7 +84,12 @@ export function docBoLoc(searchParams: URLSearchParams): BoLoc {
     dienTichDen: lay("dienTichDen"),
     trangThaiSuDung: searchParams.getAll("trangThaiSuDung").filter((v) => v.trim() !== ""),
     q: lay("q"),
+    biTamDungTienIch: docTienIch(lay("biTamDungTienIch")),
   };
+}
+
+function docTienIch(giaTri: string | undefined): BoLoc["biTamDungTienIch"] {
+  return giaTri === "true" || giaTri === "false" ? giaTri : undefined;
 }
 
 export function dangLoc(boLoc: BoLoc): boolean {
@@ -100,6 +119,7 @@ export function BoLocCanHo({ boLoc, toaNha, loiServer, onApDung }: BoLocCanHoPro
       dienTichDen: boLoc.dienTichDen ?? "",
       trangThaiSuDung: boLoc.trangThaiSuDung,
       q: boLoc.q ?? "",
+      biTamDungTienIch: boLoc.biTamDungTienIch ?? TAT_CA,
     },
   });
   const { setError } = form;
@@ -143,6 +163,7 @@ export function BoLocCanHo({ boLoc, toaNha, loiServer, onApDung }: BoLocCanHoPro
           dienTichDen: chuanHoaDienTich(values.dienTichDen) || undefined,
           trangThaiSuDung: TRANG_THAI_SU_DUNG.filter((tt) => values.trangThaiSuDung.includes(tt)),
           q: values.q.trim() || undefined,
+          biTamDungTienIch: docTienIch(values.biTamDungTienIch),
         });
       })}
     >
@@ -194,6 +215,18 @@ export function BoLocCanHo({ boLoc, toaNha, loiServer, onApDung }: BoLocCanHoPro
         name="dienTichDen"
         label="Diện tích đến (m²)"
         render={(field) => <Input inputMode="decimal" autoComplete="off" {...field} />}
+      />
+      <FormField
+        control={form.control}
+        name="biTamDungTienIch"
+        label="Tiện ích"
+        render={(field) => (
+          <SelectControl field={field}>
+            <SelectItem value={TAT_CA}>Tất cả</SelectItem>
+            <SelectItem value="true">Đang tạm dừng</SelectItem>
+            <SelectItem value="false">Bình thường</SelectItem>
+          </SelectControl>
+        )}
       />
       <Controller
         control={form.control}

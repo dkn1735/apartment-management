@@ -95,6 +95,7 @@ export function CanHoView() {
                 ? (boLoc.trangThaiSuDung as CanHo["trangThaiSuDung"][])
                 : undefined,
               q: boLoc.q,
+              biTamDungTienIch: boLoc.biTamDungTienIch ? boLoc.biTamDungTienIch === "true" : undefined,
             },
           },
         }),

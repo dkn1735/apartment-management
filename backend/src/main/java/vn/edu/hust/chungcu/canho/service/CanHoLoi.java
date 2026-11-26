@@ -44,6 +44,15 @@ final class CanHoLoi {
 				List.of(new FieldError("soCan", "Tầng này đã có căn số " + soCan + " (" + maCanHo + ")")));
 	}
 
+	/**
+	 * 409 {@code CANHO_TIEN_ICH_KHONG_DOI}, câu theo cờ hiện tại, không có mục lỗi (spec
+	 * 0013, AC-5).
+	 */
+	static ApiException tienIchKhongDoi(boolean dangTamDung) {
+		return new ApiException(HttpStatus.CONFLICT, CanHoErrorCodes.CANHO_TIEN_ICH_KHONG_DOI,
+				dangTamDung ? "Căn hộ đang bị tạm dừng tiện ích" : "Căn hộ đang dùng tiện ích bình thường");
+	}
+
 	/** 422 {@code CANHO_TANG_SAI_THU_TU} với câu của mục {@code soTang}. */
 	static ApiException saiThuTu(String cauSoTang) {
 		return new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, CanHoErrorCodes.CANHO_TANG_SAI_THU_TU,

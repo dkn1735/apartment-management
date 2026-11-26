@@ -310,7 +310,8 @@ class SchemaMigrationTest {
 				"khu_vuc_dung_chung.ten_khu_vuc", "bieu_phi_dich_vu.ten_bieu_phi", "chi_tiet_khoan_phi.ten_khoan_muc",
 				"tien_ich_noi_khu.ten_tien_ich", "thiet_bi_ky_thuat.ten_thiet_bi", "mau_checklist.ten_checklist",
 				"hang_muc_checklist.ten_hang_muc_kiem_tra", "ke_hoach_bao_tri.ten_ke_hoach", "tep_dinh_kem.ten_tep",
-				"phieu_yeu_cau_ho_tro.tieu_de", "thong_bao_van_hanh.tieu_de", "dot_khao_sat.tieu_de");
+				"phieu_yeu_cau_ho_tro.tieu_de", "thong_bao_van_hanh.tieu_de", "dot_khao_sat.tieu_de",
+				"can_ho.tien_ich_ly_do");
 	}
 
 	// AC-9

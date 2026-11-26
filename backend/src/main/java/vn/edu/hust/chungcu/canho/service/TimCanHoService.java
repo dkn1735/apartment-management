@@ -40,8 +40,11 @@ public class TimCanHoService {
 
 	private final CanHoQuery query;
 
-	public TimCanHoService(CanHoQuery query) {
+	private final NguoiDoiTienIch nguoiDoi;
+
+	public TimCanHoService(CanHoQuery query, NguoiDoiTienIch nguoiDoi) {
 		this.query = query;
+		this.nguoiDoi = nguoiDoi;
 	}
 
 	@Transactional(readOnly = true)
@@ -63,15 +66,18 @@ public class TimCanHoService {
 			return PageResponse.of(List.of(), trang, 0);
 		}
 		CanHoQuery.DieuKien dk = new CanHoQuery.DieuKien(toa, loc.soTang(), loc.dienTichTu(), loc.dienTichDen(),
-				loc.trangThai(), loc.q());
+				loc.trangThai(), loc.q(), loc.biTamDungTienIch());
 		long tong = this.query.dem(dk);
-		List<CanHoResponse> items = (trang.offset() < tong) ? this.query.tim(dk, trang) : List.of();
+		List<CanHoResponse> items = (trang.offset() < tong) ? this.nguoiDoi.ganHoTen(this.query.tim(dk, trang))
+				: List.of();
 		return PageResponse.of(items, trang, tong);
 	}
 
 	/**
 	 * Xem được khi có vai trò nhân viên đọc căn hộ và căn thuộc tòa trong phạm vi, hoặc
 	 * có {@code CU_DAN} và căn nằm trong phạm vi căn (AC-6). Mọi trường hợp khác là 404.
+	 * Người chỉ xem được nhờ điều kiện cư dân không thấy người đổi tiện ích (spec 0013,
+	 * AC-9).
 	 */
 	@Transactional(readOnly = true)
 	public CanHoResponse chiTiet(String apartmentId, PhamViTruyCap phamVi) {
@@ -83,12 +89,12 @@ public class TimCanHoService {
 		if (!laCuDanCuaCan && !laNhanVienCuaToa) {
 			throw khongThay();
 		}
-		return canHo;
+		return laNhanVienCuaToa ? this.nguoiDoi.ganHoTen(canHo) : this.nguoiDoi.anNguoiDoi(canHo);
 	}
 
 	/**
 	 * Kiểm theo AC-2, AC-3; lỗi theo thứ tự soTang, dienTichTu, dienTichDen, trạng thái,
-	 * q.
+	 * q, biTamDungTienIch (spec 0013, AC-11).
 	 */
 	static BoLocDaKiem kiem(BoLocCanHo boLoc, List<FieldError> loi) {
 		String maToaNha = NhapLieuCanHo.gon(NhapLieu.chuanHoaMaToaNha(boLoc.maToaNha()));
@@ -115,7 +121,8 @@ public class TimCanHoService {
 		if (q != null && NhapLieu.doDai(q) > TU_KHOA_TOI_DA) {
 			loi.add(new FieldError("q", "Từ khóa tìm kiếm tối đa 20 ký tự"));
 		}
-		return new BoLocDaKiem(maToaNha, soTang, tu, den, trangThai, q);
+		Boolean tamDung = NhapLieuTienIch.boLoc(boLoc.biTamDungTienIch(), loi);
+		return new BoLocDaKiem(maToaNha, soTang, tu, den, trangThai, q, tamDung);
 	}
 
 	/** Bỏ giá trị rỗng và giá trị lặp; một giá trị sai thì một mục lỗi. */
@@ -147,7 +154,7 @@ public class TimCanHoService {
 
 	/** Bộ lọc đã chuẩn hóa và hợp lệ; {@code null} là không lọc. */
 	record BoLocDaKiem(String maToaNha, Integer soTang, BigDecimal dienTichTu, BigDecimal dienTichDen,
-			List<String> trangThai, String q) {
+			List<String> trangThai, String q, Boolean biTamDungTienIch) {
 	}
 
 }

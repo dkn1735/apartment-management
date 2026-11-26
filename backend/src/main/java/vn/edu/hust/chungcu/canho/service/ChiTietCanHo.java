@@ -25,6 +25,13 @@ final class ChiTietCanHo {
 	record Sua(ThayDoi<BigDecimal> dienTich, ThayDoi<String> trangThaiSuDung) implements ChiTietNhatKy {
 	}
 
+	/**
+	 * {@code CANHO_TAM_DUNG_TIEN_ICH} và {@code CANHO_MO_KHOA_TIEN_ICH}: lý do đã cắt
+	 * (spec 0013, AC-7).
+	 */
+	record TienIch(String lyDo) implements ChiTietNhatKy {
+	}
+
 	/** Giá trị trước và sau một lần sửa. */
 	record ThayDoi<T>(T cu, T moi) {
 	}

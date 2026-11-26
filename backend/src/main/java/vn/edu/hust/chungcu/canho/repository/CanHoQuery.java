@@ -3,6 +3,7 @@ package vn.edu.hust.chungcu.canho.repository;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import vn.edu.hust.chungcu.canho.dto.CanHoResponse;
+import vn.edu.hust.chungcu.canho.dto.LanDoiTienIchResponse;
 import vn.edu.hust.chungcu.common.api.TrangYeuCau;
 
 /**
@@ -29,7 +31,8 @@ public class CanHoQuery {
 
 	private static final String COT = """
 			SELECT c.ma_can_ho, c.ma_tang, g.so_tang, g.ma_toa_nha, t.ten_toa_nha, c.dien_tich,
-			       c.trang_thai_su_dung, c.bi_tam_dung_tien_ich
+			       c.trang_thai_su_dung, c.bi_tam_dung_tien_ich, c.tien_ich_ly_do, c.tien_ich_doi_luc,
+			       c.tien_ich_doi_boi
 			""";
 
 	private static final String TU = """
@@ -44,9 +47,10 @@ public class CanHoQuery {
 	 *
 	 * @param maToaNha tòa được xem, không rỗng
 	 * @param q mã căn chứa chuỗi này, ký tự đại diện chưa thoát
+	 * @param biTamDungTienIch chỉ căn có cờ này (spec 0013, AC-11)
 	 */
 	public record DieuKien(List<String> maToaNha, Integer soTang, BigDecimal dienTichTu, BigDecimal dienTichDen,
-			List<String> trangThaiSuDung, String q) {
+			List<String> trangThaiSuDung, String q, Boolean biTamDungTienIch) {
 	}
 
 	private final JdbcClient jdbc;
@@ -130,13 +134,24 @@ public class CanHoQuery {
 			sql.append(" AND c.ma_can_ho LIKE :mau");
 			thamSo.put("mau", mau(dk.q()));
 		}
+		if (dk.biTamDungTienIch() != null) {
+			sql.append(" AND c.bi_tam_dung_tien_ich = :tamDung");
+			thamSo.put("tamDung", dk.biTamDungTienIch());
+		}
 		return sql.toString();
 	}
 
+	/**
+	 * Họ tên người đổi tiện ích để {@code null}; {@code NguoiDoiTienIch} điền sau (spec
+	 * 0013, AC-8).
+	 */
 	private static CanHoResponse dong(ResultSet rs, int rowNum) throws SQLException {
+		OffsetDateTime doiLuc = rs.getObject("tien_ich_doi_luc", OffsetDateTime.class);
+		LanDoiTienIchResponse lanDoi = (doiLuc != null) ? new LanDoiTienIchResponse(rs.getString("tien_ich_ly_do"),
+				doiLuc.toInstant(), rs.getString("tien_ich_doi_boi"), null) : null;
 		return new CanHoResponse(rs.getString("ma_can_ho"), rs.getString("ma_tang"), rs.getInt("so_tang"),
 				rs.getString("ma_toa_nha"), rs.getString("ten_toa_nha"), rs.getBigDecimal("dien_tich"),
-				rs.getString("trang_thai_su_dung"), rs.getBoolean("bi_tam_dung_tien_ich"));
+				rs.getString("trang_thai_su_dung"), rs.getBoolean("bi_tam_dung_tien_ich"), lanDoi);
 	}
 
 }

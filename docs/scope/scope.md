@@ -26,9 +26,9 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 11  | Quản lý tài khoản (Admin)            | Slice 7    | done        |
 | 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done        |
 | 13  | Quên mật khẩu qua email              | Slice 9    | done        |
-| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | in-progress |
-| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | in-progress |
-| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | planned     |
+| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done        |
+| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done        |
+| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | in-progress |
 
 ## Foundations
 
@@ -232,7 +232,7 @@ spec [0010](../specs/0010-quen-mat-khau-email/index.md) · code in `backend/src/
 
 ## Slice 10: Tòa nhà, tầng & khu vực dùng chung
 
-### 14. Tòa nhà, tầng & khu vực dùng chung · in-progress
+### 14. Tòa nhà, tầng & khu vực dùng chung · done
 
 Phần đầu của UC01. BQL xem danh mục tòa nhà (số tầng, số căn hộ), thêm tòa nhà và thêm tầng; BQL và kỹ thuật xem danh mục khu vực dùng chung (API-UC01-01 đến 04, API-UC01-10). Đây là khung không gian mà mọi phân hệ sau dựa vào.
 **Done when:** BQL thêm được tòa nhà và tầng, mã trùng hoặc tầng sai quan hệ phân cấp bị từ chối với mã lỗi rõ ràng; danh mục tòa nhà, tầng và khu vực dùng chung hiện đúng cho đúng vai trò, trên cả API lẫn giao diện.
@@ -249,7 +249,7 @@ spec [0011](../specs/0011-toa-nha-tang-khu-vuc/index.md) · code in `backend/src
 
 ## Slice 11: Tìm kiếm & quản lý căn hộ
 
-### 15. Tìm kiếm & quản lý căn hộ · in-progress
+### 15. Tìm kiếm & quản lý căn hộ · done
 
 BQL, kế toán và BQT tìm căn hộ có phân trang theo tòa, tầng, diện tích, trạng thái sử dụng; BQL tạo và sửa căn hộ; BQL và cư dân xem chi tiết căn hộ (API-UC01-05 đến 08). Phần nhân khẩu, phương tiện, đồng hồ trong trang chi tiết chỉ hiện khi UC02 và UC03 đã có.
 **Done when:** tìm và lọc trả đúng kết quả có phân trang; mã căn hộ trùng hoặc không hợp lệ theo tầng bị từ chối; cư dân chỉ xem được căn hộ của mình; sửa diện tích và trạng thái sử dụng được ghi nhật ký kiểm toán.
@@ -263,17 +263,26 @@ spec [0012](../specs/0012-tim-kiem-quan-ly-can-ho/index.md) · code in `backend/
   - [x] Bộ lọc và seed: `R__seed_03_can_ho.sql`, sửa 4 assert seed, lọc tòa, tầng, diện tích, trạng thái, `q` trên URL (AC-1, AC-2, AC-3, AC-16, AC-17)
   - [x] Chi tiết và sửa: `GET` và `PUT /apartments/{id}` dưới khóa dòng, nhật ký cũ mới, trang `/can-ho/[maCanHo]` (AC-5, AC-6, AC-11, AC-12, AC-13, AC-14, AC-19)
   - [x] Căn hộ của tôi: `/can-ho-cua-toi` và trang chi tiết của cư dân (AC-6, AC-19, AC-20, AC-21)
-- [ ] Verify it: `/check verify tìm kiếm & quản lý căn hộ`
-- [ ] Test it: `/test tìm kiếm & quản lý căn hộ`
+- [x] Verify it: `/check verify tìm kiếm & quản lý căn hộ`
+- [x] Test it: `/test tìm kiếm & quản lý căn hộ`
 
 ## Slice 12: Tạm dừng quyền tiện ích căn hộ
 
-### 16. Tạm dừng quyền tiện ích căn hộ · needs a decision
+### 16. Tạm dừng quyền tiện ích căn hộ · in-progress
 
 BQL hoặc kế toán bật, tắt cờ tạm dừng tiện ích của một căn hộ khi nợ phí quá hạn (API-UC01-09). Cần chốt cờ này bật tay hay tự động theo công nợ (UC04 chưa có), và ai được mở khóa.
 **Done when:** người có quyền bật và tắt được cờ kèm lý do, thay đổi được ghi nhật ký kiểm toán, và trạng thái cờ hiện trên trang chi tiết căn hộ để phân hệ tiện ích (UC09) đọc được sau này.
 
-- [ ] Design it (spec): `/architect tạm dừng quyền tiện ích căn hộ`
+spec [0013](../specs/0013-tam-dung-tien-ich-can-ho/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/canho/`, `frontend/src/app/(app)/can-ho/`
+
+- [x] Design it (spec): `/architect tạm dừng quyền tiện ích căn hộ`
+- [x] Build it: `/develop tạm dừng quyền tiện ích căn hộ`
+  - [x] Đường mỏng tạm dừng: V17, `TamDungTienIchService` dưới khóa dòng, `PATCH /facility-suspension`, 409 khi không đổi, nhật ký hai loại, nút và dialog trên `/can-ho/[maCanHo]` (AC-1, AC-2, AC-3, AC-4, AC-5, AC-7, AC-10, AC-13, AC-15, AC-17)
+  - [x] Hiện lần đổi: `lanDoiTienIch` có họ tên trên mọi response căn, ẩn người đổi với cư dân, hai dòng mới trên trang chi tiết (AC-8, AC-9, AC-14, AC-17)
+  - [x] Bộ lọc và seed: tham số `biTamDungTienIch`, ô lọc "Tiện ích", căn `A-0204` bị tạm dừng trong seed (AC-11, AC-12, AC-16, AC-17)
+  - [x] Song song và hoàn tất: test hai yêu cầu cùng lúc, sửa constructor trong test, kiểm kiểu OpenAPI, `mvnw verify` (AC-6, AC-13)
+- [ ] Verify it: `/check verify tạm dừng quyền tiện ích căn hộ`
+- [ ] Test it: `/test tạm dừng quyền tiện ích căn hộ`
 
 ## Deferred
 

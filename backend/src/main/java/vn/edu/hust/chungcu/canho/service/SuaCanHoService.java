@@ -30,10 +30,13 @@ public class SuaCanHoService {
 
 	private final NhatKyService nhatKy;
 
-	public SuaCanHoService(CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy) {
+	private final NguoiDoiTienIch nguoiDoi;
+
+	public SuaCanHoService(CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy, NguoiDoiTienIch nguoiDoi) {
 		this.query = query;
 		this.ghi = ghi;
 		this.nhatKy = nhatKy;
+		this.nguoiDoi = nguoiDoi;
 	}
 
 	/**
@@ -53,7 +56,7 @@ public class SuaCanHoService {
 			this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.CANHO_SUA_CAN_HO, phamVi.maNguoiDung(),
 					DoiTuongTacDong.canHo(ma), thayDoi));
 		}
-		return this.query.cua(ma).orElseThrow(SuaCanHoService::khongThay);
+		return this.nguoiDoi.ganHoTen(this.query.cua(ma).orElseThrow(SuaCanHoService::khongThay));
 	}
 
 	/** Thứ tự mục lỗi của AC-12: dienTich, trangThaiSuDung. */

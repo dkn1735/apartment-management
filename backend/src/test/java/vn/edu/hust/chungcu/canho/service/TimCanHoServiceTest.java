@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import vn.edu.hust.chungcu.auth.dto.PhamViTruyCap;
 import vn.edu.hust.chungcu.auth.dto.VaiTro;
+import vn.edu.hust.chungcu.auth.service.NguoiDungTraCuuService;
 import vn.edu.hust.chungcu.canho.dto.BoLocCanHo;
 import vn.edu.hust.chungcu.canho.dto.CanHoResponse;
 import vn.edu.hust.chungcu.canho.repository.CanHoQuery;
@@ -27,30 +28,31 @@ import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
 class TimCanHoServiceTest {
 
 	private static final CanHoResponse A0201 = new CanHoResponse("A-0201", "A-02", 2, "A", "Tòa A",
-			new BigDecimal("75.50"), "Đang sử dụng", false);
+			new BigDecimal("75.50"), "Đang sử dụng", false, null);
 
 	@Test
 	void chuanHoaBoLoc() {
 		List<FieldError> loi = new ArrayList<>();
 		TimCanHoService.BoLocDaKiem loc = TimCanHoService.kiem(new BoLocCanHo(" a ", " 2 ", "50", "",
-				Arrays.asList(" Trống ", "", null, "Trống", "Đã bàn giao"), " a-01 "), loi);
+				Arrays.asList(" Trống ", "", null, "Trống", "Đã bàn giao"), " a-01 ", " true "), loi);
 		assertThat(loi).isEmpty();
 		assertThat(loc).isEqualTo(new TimCanHoService.BoLocDaKiem("A", 2, new BigDecimal("50"), null,
-				List.of("Trống", "Đã bàn giao"), "A-01"));
+				List.of("Trống", "Đã bàn giao"), "A-01", true));
 	}
 
 	@Test
 	void mucLoiTheoThuTu() {
 		List<FieldError> loi = new ArrayList<>();
-		TimCanHoService.kiem(new BoLocCanHo(null, "2", "80", "50", List.of("X", "Y"), "x".repeat(21)), loi);
-		assertThat(loi).extracting(FieldError::field).containsExactly("soTang", "dienTichDen", "trangThaiSuDung", "q");
+		TimCanHoService.kiem(new BoLocCanHo(null, "2", "80", "50", List.of("X", "Y"), "x".repeat(21), "TRUE"), loi);
+		assertThat(loi).extracting(FieldError::field)
+			.containsExactly("soTang", "dienTichDen", "trangThaiSuDung", "q", "biTamDungTienIch");
 	}
 
 	@Test
 	void phamViRongKhongChaySql() {
 		CanHoQuery query = mock(CanHoQuery.class);
-		TimCanHoService service = new TimCanHoService(query);
-		var trang = service.timKiem(new BoLocCanHo(null, null, null, null, null, null), null, null, null,
+		TimCanHoService service = new TimCanHoService(query, new NguoiDoiTienIch(mock(NguoiDungTraCuuService.class)));
+		var trang = service.timKiem(new BoLocCanHo(null, null, null, null, null, null, null), null, null, null,
 				phamVi(Set.of(VaiTro.BAN_QUAN_LY), List.of(), List.of()));
 		assertThat(trang.totalItems()).isZero();
 		verifyNoInteractions(query);
@@ -60,7 +62,7 @@ class TimCanHoServiceTest {
 	void cuDanXemCanCuaMinhNhanVienXemTheoToa() {
 		CanHoQuery query = mock(CanHoQuery.class);
 		when(query.cua(any())).thenReturn(Optional.of(A0201));
-		TimCanHoService service = new TimCanHoService(query);
+		TimCanHoService service = new TimCanHoService(query, new NguoiDoiTienIch(mock(NguoiDungTraCuuService.class)));
 		assertThat(service.chiTiet("a-0201", phamVi(Set.of(VaiTro.CU_DAN), List.of(), List.of("A-0201"))))
 			.isEqualTo(A0201);
 		assertThat(service.chiTiet("A-0201", phamVi(Set.of(VaiTro.KE_TOAN), List.of("A"), List.of()))).isEqualTo(A0201);

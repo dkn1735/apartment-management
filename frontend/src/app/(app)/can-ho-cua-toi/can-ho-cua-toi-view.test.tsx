@@ -32,6 +32,7 @@ const can = (ma: string) => ({
   dienTich: 75.5,
   trangThaiSuDung: "Đang sử dụng",
   biTamDungTienIch: false,
+  lanDoiTienIch: null,
 });
 
 function hienThi(maCanHo: string[]) {

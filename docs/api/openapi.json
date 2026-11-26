@@ -1021,6 +1021,14 @@
             "maxLength" : 20
           }
         }, {
+          "name" : "biTamDungTienIch",
+          "in" : "query",
+          "description" : "true chỉ căn đang bị tạm dừng tiện ích, false chỉ căn bình thường",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
           "name" : "page",
           "in" : "query",
           "description" : "Trang, bắt đầu từ 1",
@@ -1298,6 +1306,64 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiResponseDatLaiMatKhauResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/apartments/{apartmentId}/facility-suspension" : {
+      "patch" : {
+        "tags" : [ "Căn hộ" ],
+        "summary" : "Tạm dừng hoặc mở khóa quyền tiện ích căn hộ (API-UC01-09)",
+        "description" : "Lý do bắt buộc. Yêu cầu trùng trạng thái hiện có trả 409; mỗi lần đổi ghi một dòng nhật ký.\n\nVai trò được phép: BAN_QUAN_LY, KE_TOAN",
+        "operationId" : "doiTienIch",
+        "parameters" : [ {
+          "name" : "apartmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DoiTienIchRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponseCanHoResponse"
                 }
               }
             }
@@ -1809,9 +1875,39 @@
           },
           "biTamDungTienIch" : {
             "type" : "boolean"
+          },
+          "lanDoiTienIch" : {
+            "description" : "Lần đổi tiện ích gần nhất, null khi căn chưa từng đổi",
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/LanDoiTienIchResponse"
+            }, {
+              "type" : "null"
+            } ]
           }
         },
-        "required" : [ "biTamDungTienIch", "dienTich", "maCanHo", "maTang", "maToaNha", "soTang", "tenToaNha", "trangThaiSuDung" ]
+        "required" : [ "biTamDungTienIch", "dienTich", "lanDoiTienIch", "maCanHo", "maTang", "maToaNha", "soTang", "tenToaNha", "trangThaiSuDung" ]
+      },
+      "LanDoiTienIchResponse" : {
+        "type" : "object",
+        "properties" : {
+          "lyDo" : {
+            "type" : "string",
+            "example" : "Nợ phí quý 3"
+          },
+          "doiLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "maNguoiDoi" : {
+            "type" : [ "string", "null" ],
+            "example" : "ND00000123"
+          },
+          "hoTenNguoiDoi" : {
+            "type" : [ "string", "null" ],
+            "example" : "Phạm Kế Toán"
+          }
+        },
+        "required" : [ "doiLuc", "hoTenNguoiDoi", "lyDo", "maNguoiDoi" ]
       },
       "CapNhatTaiKhoanRequest" : {
         "type" : "object",
@@ -2532,6 +2628,21 @@
           }
         },
         "required" : [ "matKhauTam" ]
+      },
+      "DoiTienIchRequest" : {
+        "type" : "object",
+        "properties" : {
+          "biTamDungTienIch" : {
+            "type" : "boolean",
+            "description" : "true là tạm dừng, false là mở khóa"
+          },
+          "lyDo" : {
+            "type" : "string",
+            "example" : "Nợ phí quý 3",
+            "maxLength" : 500
+          }
+        },
+        "required" : [ "biTamDungTienIch", "lyDo" ]
       },
       "ApiResponsePageResponseNhatKyResponse" : {
         "type" : "object",

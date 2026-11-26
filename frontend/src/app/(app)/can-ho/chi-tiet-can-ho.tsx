@@ -13,8 +13,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api, client, type ApiError } from "@/lib/api/api";
 import { useHoSo } from "@/lib/auth/use-ho-so";
-import { duocQuanLyCanHo, formatDienTich, khoaChiTietCanHo, toneTrangThai, type CanHo } from "@/lib/can-ho";
-import { formatSo } from "@/lib/format";
+import {
+  duocDoiTienIch,
+  duocQuanLyCanHo,
+  formatDienTich,
+  khoaChiTietCanHo,
+  toneTrangThai,
+  type CanHo,
+} from "@/lib/can-ho";
+import { formatNgayGio, formatSo } from "@/lib/format";
+import { DoiTienIchDialog } from "./doi-tien-ich-dialog";
 import { SuaCanHoDialog } from "./sua-can-ho-dialog";
 
 export type DichQuayLai = { href: string; label: string };
@@ -23,7 +31,7 @@ type ChiTietCanHoProps = {
   maCanHo: string;
   /** Đích của link quay lại; bỏ trống khi trang này đã là trang gốc. */
   quayLai?: DichQuayLai;
-  /** Trang nhân viên cho BQL sửa; trang cư dân thì không. */
+  /** Trang nhân viên cho BQL sửa và đổi tiện ích; trang cư dân thì không. */
   choPhepSua?: boolean;
 };
 
@@ -90,6 +98,7 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
         actions={
           <div className="flex flex-wrap items-start gap-3">
             {nutQuayLai}
+            {choPhepSua && duocDoiTienIch(vaiTro) && <DoiTienIchDialog canHo={canHo} />}
             {choPhepSua && duocQuanLyCanHo(vaiTro) && <SuaCanHoDialog canHo={canHo} />}
           </div>
         }
@@ -103,7 +112,12 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
   );
 }
 
+/** Các dòng thông tin căn; có lần đổi tiện ích thì thêm lý do và thời điểm (spec 0013, AC-14). */
 export function thongTin(canHo: CanHo) {
+  const lanDoi = canHo.lanDoiTienIch;
+  const nguoiDoi = lanDoi?.maNguoiDoi
+    ? ` bởi ${lanDoi.hoTenNguoiDoi ? `${lanDoi.hoTenNguoiDoi} (${lanDoi.maNguoiDoi})` : lanDoi.maNguoiDoi}`
+    : "";
   return [
     { label: "Mã căn hộ", value: canHo.maCanHo },
     { label: "Tòa nhà", value: `${canHo.tenToaNha} (${canHo.maToaNha})` },
@@ -121,5 +135,14 @@ export function thongTin(canHo: CanHo) {
         "Đang dùng bình thường"
       ),
     },
+    ...(lanDoi
+      ? [
+          {
+            label: canHo.biTamDungTienIch ? "Lý do tạm dừng" : "Lý do mở khóa",
+            value: <span className="whitespace-pre-line">{lanDoi.lyDo}</span>,
+          },
+          { label: "Cập nhật lúc", value: `${formatNgayGio(lanDoi.doiLuc)}${nguoiDoi}` },
+        ]
+      : []),
   ];
 }

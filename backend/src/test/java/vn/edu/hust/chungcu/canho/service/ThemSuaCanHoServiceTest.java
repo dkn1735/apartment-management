@@ -24,6 +24,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import vn.edu.hust.chungcu.auth.dto.PhamViTruyCap;
 import vn.edu.hust.chungcu.auth.dto.VaiTro;
+import vn.edu.hust.chungcu.auth.service.NguoiDungTraCuuService;
 import vn.edu.hust.chungcu.canho.dto.SuaCanHoRequest;
 import vn.edu.hust.chungcu.canho.dto.ThemCanHoRequest;
 import vn.edu.hust.chungcu.canho.repository.CanHoGhi;
@@ -38,6 +39,8 @@ class ThemSuaCanHoServiceTest {
 
 	private static final JsonMapper JSON = JsonMapper.builder().build();
 
+	private static final NguoiDoiTienIch NGUOI_DOI = new NguoiDoiTienIch(mock(NguoiDungTraCuuService.class));
+
 	private static final PhamViTruyCap BQL = new PhamViTruyCap("ND00000002", Set.of(VaiTro.BAN_QUAN_LY), List.of("A"),
 			List.of());
 
@@ -46,7 +49,8 @@ class ThemSuaCanHoServiceTest {
 		TangQuery tang = mock(TangQuery.class);
 		when(tang.maToaNhaCua("B-01")).thenReturn(Optional.of("B"));
 		CanHoQuery query = mock(CanHoQuery.class);
-		ThemCanHoService service = new ThemCanHoService(tang, query, mock(CanHoGhi.class), mock(NhatKyService.class));
+		ThemCanHoService service = new ThemCanHoService(tang, query, mock(CanHoGhi.class), mock(NhatKyService.class),
+				NGUOI_DOI);
 		assertThatThrownBy(() -> service.them(BQL, them(" b-01 ", "5", "50", null))).isInstanceOfSatisfying(
 				ApiException.class,
 				ex -> assertThat(ex.getErrors()).extracting(FieldError::message).containsExactly("Tầng không tồn tại"));
@@ -60,7 +64,7 @@ class ThemSuaCanHoServiceTest {
 		CanHoGhi ghi = mock(CanHoGhi.class);
 		NhatKyService nhatKy = mock(NhatKyService.class);
 		doThrow(trungKhoa("can_ho_pkey")).when(ghi).them(anyString(), anyString(), any(), anyString());
-		ThemCanHoService service = new ThemCanHoService(tang, mock(CanHoQuery.class), ghi, nhatKy);
+		ThemCanHoService service = new ThemCanHoService(tang, mock(CanHoQuery.class), ghi, nhatKy, NGUOI_DOI);
 		assertThatThrownBy(() -> service.them(BQL, them("A-01", "5", "50", null)))
 			.isInstanceOfSatisfying(ApiException.class, ex -> {
 				assertThat(ex.getStatus()).isEqualTo(HttpStatus.CONFLICT);
@@ -78,7 +82,8 @@ class ThemSuaCanHoServiceTest {
 		CanHoGhi ghi = mock(CanHoGhi.class);
 		DuplicateKeyException khac = trungKhoa("uq_khac");
 		doThrow(khac).when(ghi).them(anyString(), anyString(), any(), anyString());
-		ThemCanHoService service = new ThemCanHoService(tang, mock(CanHoQuery.class), ghi, mock(NhatKyService.class));
+		ThemCanHoService service = new ThemCanHoService(tang, mock(CanHoQuery.class), ghi, mock(NhatKyService.class),
+				NGUOI_DOI);
 		assertThatThrownBy(() -> service.them(BQL, them("A-01", "5", "50", null))).isSameAs(khac);
 	}
 
@@ -113,7 +118,7 @@ class ThemSuaCanHoServiceTest {
 		CanHoQuery query = mock(CanHoQuery.class);
 		when(query.maToaNhaCua("B-0101")).thenReturn(Optional.of("B"));
 		CanHoGhi ghi = mock(CanHoGhi.class);
-		SuaCanHoService service = new SuaCanHoService(query, ghi, mock(NhatKyService.class));
+		SuaCanHoService service = new SuaCanHoService(query, ghi, mock(NhatKyService.class), NGUOI_DOI);
 		assertThatThrownBy(
 				() -> service.sua(BQL, "b-0101", new SuaCanHoRequest(JSON.readTree("50"), JSON.valueToTree("Trống"))))
 			.isInstanceOfSatisfying(ApiException.class,

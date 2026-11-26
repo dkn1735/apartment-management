@@ -1,6 +1,7 @@
 package vn.edu.hust.chungcu.canho;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
@@ -55,6 +56,18 @@ final class CanHoApi {
 
 	static MockHttpServletRequestBuilder suaRaw(String token, String ma, String body) {
 		return json(put("/api/v1/apartments/" + ma), token, body);
+	}
+
+	/** {@code PATCH .../facility-suspension} (spec 0013). */
+	static MockHttpServletRequestBuilder doiTienIch(String token, String ma, Object tamDung, Object lyDo) {
+		Map<String, Object> body = new LinkedHashMap<>();
+		body.put("biTamDungTienIch", tamDung);
+		body.put("lyDo", lyDo);
+		return doiTienIchRaw(token, ma, JSON.writeValueAsString(body));
+	}
+
+	static MockHttpServletRequestBuilder doiTienIchRaw(String token, String ma, String body) {
+		return json(patch("/api/v1/apartments/" + ma + "/facility-suspension"), token, body);
 	}
 
 	private static MockHttpServletRequestBuilder json(MockHttpServletRequestBuilder r, String token, String body) {

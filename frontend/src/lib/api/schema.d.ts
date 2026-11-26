@@ -396,6 +396,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/apartments/{apartmentId}/facility-suspension": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Tạm dừng hoặc mở khóa quyền tiện ích căn hộ (API-UC01-09)
+         * @description Lý do bắt buộc. Yêu cầu trùng trạng thái hiện có trả 409; mỗi lần đổi ghi một dòng nhật ký.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, KE_TOAN
+         */
+        patch: operations["doiTienIch"];
+        trace?: never;
+    };
     "/api/v1/system/audit-logs": {
         parameters: {
             query?: never;
@@ -580,6 +602,18 @@ export interface components {
             /** @enum {string} */
             trangThaiSuDung: "Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao";
             biTamDungTienIch: boolean;
+            /** @description Lần đổi tiện ích gần nhất, null khi căn chưa từng đổi */
+            lanDoiTienIch: components["schemas"]["LanDoiTienIchResponse"] | null;
+        };
+        LanDoiTienIchResponse: {
+            /** @example Nợ phí quý 3 */
+            lyDo: string;
+            /** Format: date-time */
+            doiLuc: string;
+            /** @example ND00000123 */
+            maNguoiDoi: string | null;
+            /** @example Phạm Kế Toán */
+            hoTenNguoiDoi: string | null;
         };
         CapNhatTaiKhoanRequest: {
             hoTen: string;
@@ -879,6 +913,12 @@ export interface components {
              * @example XXXXXXXXXXXX
              */
             matKhauTam: string;
+        };
+        DoiTienIchRequest: {
+            /** @description true là tạm dừng, false là mở khóa */
+            biTamDungTienIch: boolean;
+            /** @example Nợ phí quý 3 */
+            lyDo: string;
         };
         ApiResponsePageResponseNhatKyResponse: {
             success?: boolean;
@@ -1870,6 +1910,8 @@ export interface operations {
                 trangThaiSuDung?: ("Trống" | "Đang sử dụng" | "Đang sửa chữa" | "Đã bàn giao")[];
                 /** @description Một phần mã căn, tối đa 20 ký tự */
                 q?: string;
+                /** @description true chỉ căn đang bị tạm dừng tiện ích, false chỉ căn bình thường */
+                biTamDungTienIch?: boolean;
                 /** @description Trang, bắt đầu từ 1 */
                 page?: number;
                 /** @description Số dòng mỗi trang, tối đa 100 */
@@ -2065,6 +2107,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseDatLaiMatKhauResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    doiTienIch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoiTienIchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseCanHoResponse"];
                 };
             };
             /** @description Không đủ quyền (FORBIDDEN) */

@@ -33,6 +33,7 @@ const CAN_HO = {
       dienTich: 75.5,
       trangThaiSuDung: "Đang sử dụng",
       biTamDungTienIch: true,
+      lanDoiTienIch: null,
     },
   ],
   page: 1,
@@ -85,6 +86,7 @@ describe("Trang Căn hộ (spec 0012, AC-17, AC-18)", () => {
           dienTichDen: undefined,
           trangThaiSuDung: ["Trống", "Đã bàn giao"],
           q: "01",
+          biTamDungTienIch: undefined,
         },
       },
     });
@@ -121,6 +123,30 @@ describe("Trang Căn hộ (spec 0012, AC-17, AC-18)", () => {
     expect(url.getAll("trangThaiSuDung")).toEqual(["Trống", "Đang sửa chữa"]);
     expect(url.has("page")).toBe(false);
     expect(url.has("soTang")).toBe(false);
+  });
+
+  it("ô lọc Tiện ích đọc và ghi biTamDungTienIch trên URL, giá trị lạ bị bỏ (spec 0013, AC-16)", async () => {
+    const user = userEvent.setup();
+    hienThi("biTamDungTienIch=true&page=2");
+    await screen.findByRole("link", { name: "A-0101" });
+    const lanGoi = get.mock.calls.find(([path]) => path === "/api/v1/apartments")!;
+    expect(lanGoi[1].params.query.biTamDungTienIch).toBe(true);
+    const o = screen.getByRole("combobox", { name: "Tiện ích" });
+    expect(o).toHaveTextContent("Đang tạm dừng");
+    await user.click(o);
+    await user.click(await screen.findByRole("option", { name: "Bình thường" }));
+    await user.click(screen.getByRole("button", { name: "Lọc" }));
+    await waitFor(() => expect(mockPush).toHaveBeenCalled());
+    expect(urlCuoi().get("biTamDungTienIch")).toBe("false");
+    expect(urlCuoi().has("page")).toBe(false);
+  });
+
+  it("giá trị lạ của biTamDungTienIch không gửi cho API", async () => {
+    hienThi("biTamDungTienIch=TRUE");
+    await screen.findByRole("link", { name: "A-0101" });
+    const lanGoi = get.mock.calls.find(([path]) => path === "/api/v1/apartments")!;
+    expect(lanGoi[1].params.query.biTamDungTienIch).toBeUndefined();
+    expect(screen.getByRole("combobox", { name: "Tiện ích" })).toHaveTextContent("Tất cả");
   });
 
   it("đổi tòa thì bỏ tầng", async () => {

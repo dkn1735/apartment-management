@@ -40,11 +40,15 @@ public class ThemCanHoService {
 
 	private final NhatKyService nhatKy;
 
-	public ThemCanHoService(TangQuery tangQuery, CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy) {
+	private final NguoiDoiTienIch nguoiDoi;
+
+	public ThemCanHoService(TangQuery tangQuery, CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy,
+			NguoiDoiTienIch nguoiDoi) {
 		this.tangQuery = tangQuery;
 		this.query = query;
 		this.ghi = ghi;
 		this.nhatKy = nhatKy;
+		this.nguoiDoi = nguoiDoi;
 	}
 
 	@Transactional
@@ -66,7 +70,7 @@ public class ThemCanHoService {
 		}
 		this.nhatKy.ghi(new SuKienNhatKy(LoaiThaoTac.CANHO_THEM_CAN_HO, phamVi.maNguoiDung(), DoiTuongTacDong.canHo(ma),
 				new ChiTietCanHo.Them(moi.maTang(), moi.dienTich(), moi.trangThai())));
-		return this.query.cua(ma).orElseThrow();
+		return this.nguoiDoi.ganHoTen(this.query.cua(ma).orElseThrow());
 	}
 
 	/** Kiểm theo thứ tự trường của AC-8: maTang, soCan, dienTich, trangThaiSuDung. */

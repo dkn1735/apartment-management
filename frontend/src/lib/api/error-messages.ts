@@ -42,6 +42,8 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   // Spec 0011: tòa nhà và tầng
   CANHO_TOA_NHA_DA_TON_TAI: "Tòa nhà đã tồn tại.",
   CANHO_TANG_SAI_THU_TU: "Tầng mới phải nối tiếp tầng cao nhất của tòa.",
+  // Spec 0013: tạm dừng tiện ích; hộp thoại tự chọn câu theo chiều đã yêu cầu
+  CANHO_TIEN_ICH_KHONG_DOI: "Trạng thái tiện ích của căn hộ đã thay đổi, vui lòng tải lại.",
 };
 
 /** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */
