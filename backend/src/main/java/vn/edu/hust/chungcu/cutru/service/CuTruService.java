@@ -35,4 +35,16 @@ public class CuTruService {
 		return this.hoSoCuTru.coHoSoConHieuLuc(maCanHo, HoSoCuTru.HOP_LE, ngay);
 	}
 
+	/** Cư dân có hồ sơ hợp lệ còn hiệu lực tại căn vào {@code ngay} (spec 0016). */
+	@Transactional(readOnly = true)
+	public boolean dangCuTruHopLe(String maCanHo, String maCuDan, LocalDate ngay) {
+		return maCuDanDangCuTru(maCanHo, ngay).contains(maCuDan);
+	}
+
+	/** Mã mọi cư dân đang cư trú hợp lệ tại căn vào {@code ngay} (spec 0016, AC-4). */
+	@Transactional(readOnly = true)
+	public List<String> maCuDanDangCuTru(String maCanHo, LocalDate ngay) {
+		return this.hoSoCuTru.findMaCuDanConHieuLuc(maCanHo, HoSoCuTru.HOP_LE, ngay);
+	}
+
 }

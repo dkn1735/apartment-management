@@ -77,3 +77,17 @@ describe("mã lỗi căn hộ và hồ sơ cư trú (spec 0014, 0015)", () => {
     expect(messageFor(error(status, errorCode))).toBe(expected);
   });
 });
+
+// spec 0016, AC-16
+describe("mã lỗi phương tiện", () => {
+  it.each([
+    [422, "PHUONGTIEN_CHU_XE_KHONG_CU_TRU"],
+    [422, "PHUONGTIEN_TAI_KHOAN_NGUNG_HOAT_DONG"],
+    [422, "PHUONGTIEN_VUOT_SO_DON_CHO_DUYET"],
+    [409, "PHUONGTIEN_TRUNG_BIEN_SO"],
+    [409, "PHUONGTIEN_CHUYEN_TRANG_THAI_KHONG_HOP_LE"],
+    [409, "PHUONGTIEN_DON_KHONG_CON_CHO_DUYET"],
+  ])("%s %s có câu riêng, không rơi về câu chung", (status, ma) => {
+    expect(messageFor(error(status, ma))).not.toBe(messageFor(error(status, "XYZ")));
+  });
+});

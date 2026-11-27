@@ -31,7 +31,10 @@ public enum LoaiThaoTac {
 	CUTRU_THEM_HO_SO("Thêm hồ sơ cư trú"), CUTRU_CAP_NHAT_HO_SO("Cập nhật hồ sơ cư trú"),
 	CUTRU_KET_THUC_HO_SO("Kết thúc hồ sơ cư trú"), CUTRU_GUI_DE_NGHI("Gửi đề nghị cư trú"),
 	CUTRU_DUYET_DE_NGHI("Duyệt đề nghị cư trú"), CUTRU_TU_CHOI_DE_NGHI("Từ chối đề nghị cư trú"),
-	CUTRU_HUY_DE_NGHI("Hủy đề nghị cư trú");
+	CUTRU_HUY_DE_NGHI("Hủy đề nghị cư trú"),
+
+	PHUONGTIEN_DANG_KY("Đăng ký phương tiện"), PHUONGTIEN_DOI_TRANG_THAI("Đổi trạng thái phương tiện"),
+	PHUONGTIEN_RUT_DON("Rút đơn đăng ký phương tiện");
 
 	private final String nhan;
 

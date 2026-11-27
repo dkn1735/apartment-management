@@ -31,7 +31,7 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 | 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done        |
 | 17  | Hồ sơ cư trú căn hộ                  | Slice 13   | done        |
 | 18  | Đề nghị cư trú & tra cứu hồ sơ       | Slice 14   | done        |
-| 19  | Phương tiện gửi xe căn hộ            | Slice 15   | planned |
+| 19  | Phương tiện gửi xe căn hộ            | Slice 15   | done        |
 
 ## Foundations
 
@@ -331,12 +331,24 @@ spec [0015](../specs/0015-de-nghi-cu-tru-tra-cuu/index.md) · code in `backend/s
 
 ## Slice 15: Phương tiện gửi xe căn hộ
 
-### 19. Phương tiện gửi xe căn hộ · needs a decision
+### 19. Phương tiện gửi xe căn hộ · done
 
 BQL, kế toán và cư dân xem danh sách phương tiện của căn hộ; BQL và cư dân đăng ký xe mới gắn với chủ sở hữu; BQL đổi trạng thái thẻ xe để phục vụ tính phí gửi xe ở UC04 (`API-UC02-05` đến `07`). Cần chốt quy ước biển số (kể cả xe đạp và đăng ký lại biển số đã hủy), điều kiện chủ xe cư trú tại căn và trạng thái ban đầu khi cư dân tự gửi đăng ký.
 **Done when:** BQL và cư dân đăng ký được phương tiện trên trang căn hộ, biển số trùng đang hoạt động bị từ chối với mã lỗi rõ ràng; BQL chuyển được trạng thái đăng ký xe kèm nhật ký kiểm toán; BQL, kế toán và cư dân thấy đúng danh sách phương tiện trong phạm vi của mình.
 
-- [ ] Design it (spec): `/architect phương tiện gửi xe căn hộ`
+spec [0016](../specs/0016-phuong-tien-gui-xe-can-ho/index.md) · code in `backend/src/main/java/vn/edu/hust/chungcu/phuongtien/`, `backend/src/main/resources/db/migration/V20__phuong_tien_gui_xe.sql`, `backend/src/main/resources/db/seed/R__seed_05_phuong_tien.sql`, `frontend/src/lib/phuong-tien.ts`, `frontend/src/app/(app)/can-ho/`
+
+- [x] Design it (spec): `/architect phương tiện gửi xe căn hộ`
+- [x] Build backend: `/develop phương tiện gửi xe căn hộ backend`
+  - [x] Đường mỏng: `V20`, package `phuongtien`, xem danh sách theo góc nhìn và BQL đăng ký, chống trùng biển kể cả khi chạy song song (AC-1 đến AC-8, AC-12)
+  - [x] Làm dày: đơn cư dân giới hạn 10, ma trận đổi trạng thái kèm kiểm lại chủ xe và biển khi duyệt, rút đơn (AC-5, AC-7, AC-9, AC-10, AC-11, AC-12)
+  - [x] Dữ liệu mẫu `R__seed_05` và khóa OpenAPI (AC-13)
+- [x] Verify backend: `/check verify phương tiện gửi xe căn hộ backend`
+- [x] Build frontend: `/develop phương tiện gửi xe căn hộ frontend`
+  - [x] Khối Phương tiện hai tab trên trang căn hộ, hiện theo vai trò (AC-14)
+  - [x] Hộp thoại đăng ký, đổi trạng thái, rút đơn, câu lỗi và WCAG AA (AC-15, AC-16)
+- [x] Verify it: `/check verify phương tiện gửi xe căn hộ`
+- [x] Test it: `/test phương tiện gửi xe căn hộ`
 
 ## Deferred
 
@@ -359,6 +371,8 @@ Ngoài phạm vi đợt này, ghi lại để kế hoạch trung thực. Mỗi p
 - **Tầng hầm và đánh số tầng đặc biệt**: tầng hầm, tầng lửng, bỏ số 13; mô hình hiện chỉ có tầng 1 đến 99 liên tục · needs a decision · from spec 0011
 - **Nhân khẩu phụ thuộc không có tài khoản**: ghi nhận trẻ nhỏ hoặc người phụ thuộc chưa có số điện thoại và email riêng trong `cu_dan` · needs a decision
 - **Tra cứu phương tiện toàn tòa**: màn hình danh sách để BQL và kế toán tìm xe theo biển số, loại xe và trạng thái thẻ xe trên toàn khu (ngoài 81 API) · needs a decision
+- **Sửa thông tin phương tiện**: BQL sửa nhãn hiệu màu sắc hoặc biển số của xe đã đăng ký thay vì hủy rồi đăng ký lại (ngoài 81 API) · needs a decision · from spec 0016
+- **Tự tạm dừng thẻ xe khi chủ xe thôi cư trú**: nối sự kiện sau commit từ `cutru` sang `phuongtien` nếu nhãn cảnh báo không đủ · needs a decision · from spec 0016
 
 ## Legend
 

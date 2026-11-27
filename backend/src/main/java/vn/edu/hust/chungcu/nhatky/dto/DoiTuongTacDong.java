@@ -53,6 +53,11 @@ public record DoiTuongTacDong(String loai, String ma) {
 		return new DoiTuongTacDong("HoSoCuTru", maHoSo);
 	}
 
+	/** Phương tiện {@code PhuongTien:<maPhuongTien>} (spec 0016, AC-12). */
+	public static DoiTuongTacDong phuongTien(String maPhuongTien) {
+		return new DoiTuongTacDong("PhuongTien", maPhuongTien);
+	}
+
 	@Override
 	public String toString() {
 		return dang(this.loai, this.ma);

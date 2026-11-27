@@ -230,7 +230,7 @@ class SchemaMigrationTest {
 		Connection connection = DataSourceUtils.getConnection(this.dataSource);
 		try {
 			for (String seed : List.of("R__seed_01_xac_thuc.sql", "R__seed_02_khong_gian.sql", "R__seed_03_can_ho.sql",
-					"R__seed_04_cu_tru.sql")) {
+					"R__seed_04_cu_tru.sql", "R__seed_05_phuong_tien.sql")) {
 				ScriptUtils.executeSqlScript(connection,
 						new EncodedResource(new ClassPathResource("db/seed/" + seed), StandardCharsets.UTF_8));
 			}
@@ -239,6 +239,65 @@ class SchemaMigrationTest {
 			DataSourceUtils.releaseConnection(connection, this.dataSource);
 		}
 		assertThat(soDongMoiBang()).isEqualTo(truoc);
+	}
+
+	// Spec 0016, AC-1
+	@Test
+	void v20CoRangBuocVaIndexCuaPhuongTien() {
+		assertThat(this.jdbc.queryForList("SELECT conname FROM pg_constraint WHERE conrelid = 'phuong_tien'::regclass",
+				String.class))
+			.contains("chk_phuongtien_bien_so_bat_buoc", "chk_phuongtien_bien_so_dinh_dang", "chk_phuongtien_trangthai",
+					"fk_phuongtien_cudan_dangky", "fk_phuongtien_nvbql_capnhat")
+			.doesNotContain("phuong_tien_bien_so_key");
+		assertThat(this.jdbc.queryForList("SELECT indexname FROM pg_indexes WHERE tablename = 'phuong_tien'",
+				String.class))
+			.contains("uq_phuong_tien_bien_so_hieu_luc", "idx_phuong_tien_ma_cu_dan_dang_ky",
+					"idx_phuong_tien_ma_nvbql_cap_nhat");
+	}
+
+	// Spec 0016, AC-1: hai dòng đang giữ biển không được cùng biển
+	@Test
+	@Transactional
+	void haiXeCungGiuMotBienBiTuChoi() {
+		assertSqlState("23505", () -> this.jdbc.update(chenXe("'30A12345'", "Tạm dừng", "Ô tô")));
+	}
+
+	// Spec 0016, AC-1
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("xeSai")
+	@Transactional
+	void dbTuChoiPhuongTienSai(String truongHop, String sql) {
+		assertSqlState(CHECK_VIOLATION, () -> this.jdbc.update(sql));
+	}
+
+	static Stream<Arguments> xeSai() {
+		return Stream.of(Arguments.of("xe máy thiếu biển", chenXe("NULL", "Chờ duyệt", "Xe máy")),
+				Arguments.of("biển chưa chuẩn hóa", chenXe("'30a-123'", "Chờ duyệt", "Ô tô")),
+				Arguments.of("trạng thái lạ", chenXe("'30A99999'", "Khóa", "Ô tô")));
+	}
+
+	private static String chenXe(String bienSo, String trangThai, String loai) {
+		return """
+				INSERT INTO phuong_tien (ma_can_ho, ma_cu_dan_so_huu, loai_phuong_tien, bien_so, trang_thai_dang_ky)
+				SELECT 'A-0201', c.ma_cu_dan, '%s', %s, '%s' FROM cu_dan c LIMIT 1""".formatted(loai, bienSo,
+				trangThai);
+	}
+
+	// Spec 0016, AC-13
+	@Test
+	void seedPhuongTienPhuDuLoaiVaTrangThai() {
+		assertThat(count("SELECT count(*) FROM phuong_tien")).isEqualTo(7);
+		assertThat(count("SELECT count(DISTINCT loai_phuong_tien) FROM phuong_tien")).isEqualTo(4);
+		assertThat(count("SELECT count(DISTINCT trang_thai_dang_ky) FROM phuong_tien")).isEqualTo(5);
+		assertThat(count("SELECT count(*) FROM phuong_tien WHERE loai_phuong_tien = 'Xe đạp' AND bien_so IS NULL"))
+			.isEqualTo(1);
+		assertThat(count("""
+				SELECT count(*) FROM phuong_tien p WHERE NOT EXISTS (
+					SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_can_ho = p.ma_can_ho AND h.ma_cu_dan = p.ma_cu_dan_so_huu
+					AND h.trang_thai_ho_so = 'Hợp lệ')""")).isZero();
+		assertThat(count("""
+				SELECT count(*) FROM phuong_tien
+				WHERE trang_thai_dang_ky IN ('Tạm dừng', 'Từ chối') AND ly_do_trang_thai IS NULL""")).isZero();
 	}
 
 	// Spec 0008, AC-18

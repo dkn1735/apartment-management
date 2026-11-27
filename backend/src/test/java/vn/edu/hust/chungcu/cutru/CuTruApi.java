@@ -109,6 +109,11 @@ final class CuTruApi {
 	}
 
 	static void donDep(JdbcTemplate jdbc) {
+		// Xe của căn thử giữ khóa ngoại tới căn và cư dân thử, phải xóa trước (spec 0016)
+		jdbc.update("""
+				DELETE FROM phuong_tien WHERE ma_can_ho LIKE 'T%' OR ma_cu_dan_so_huu IN (
+				    SELECT c.ma_cu_dan FROM cu_dan c JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = c.ma_nguoi_dung
+				    WHERE n.so_dien_thoai LIKE '0944%')""");
 		jdbc.update("""
 				DELETE FROM ho_so_cu_tru WHERE ma_can_ho LIKE 'T%' OR ma_cu_dan IN (
 				    SELECT c.ma_cu_dan FROM cu_dan c JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = c.ma_nguoi_dung

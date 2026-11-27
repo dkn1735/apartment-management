@@ -28,4 +28,11 @@ public interface HoSoCuTruRepository extends JpaRepository<HoSoCuTru, String> {
 			and (h.ngayKetThuc is null or h.ngayKetThuc >= :ngay)""")
 	boolean coHoSoConHieuLuc(String maCanHo, String trangThai, LocalDate ngay);
 
+	/** Cư dân của các hồ sơ ở trạng thái {@code trangThai} còn hiệu lực tại căn. */
+	@Query("""
+			select distinct h.maCuDan from HoSoCuTru h
+			where h.maCanHo = :maCanHo and h.trangThaiHoSo = :trangThai and h.ngayBatDau <= :ngay
+			and (h.ngayKetThuc is null or h.ngayKetThuc >= :ngay)""")
+	List<String> findMaCuDanConHieuLuc(String maCanHo, String trangThai, LocalDate ngay);
+
 }

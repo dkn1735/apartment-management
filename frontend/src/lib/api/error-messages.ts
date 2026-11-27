@@ -58,6 +58,16 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
     "Căn hộ đang có tối đa 10 đề nghị chờ xác minh, vui lòng chờ Ban quản lý xử lý hoặc hủy đề nghị cũ.",
   CUTRU_DE_NGHI_KHONG_CON_CHO_XAC_MINH: "Đề nghị cư trú không còn ở trạng thái chờ xác minh.",
   CUTRU_DE_NGHI_DA_QUA_NGAY_KET_THUC: "Đề nghị cư trú đã qua ngày kết thúc, vui lòng từ chối để cư dân gửi lại.",
+  // Spec 0016: phương tiện gửi xe căn hộ
+  PHUONGTIEN_CHU_XE_KHONG_CU_TRU: "Chủ xe không đang cư trú hợp lệ tại căn hộ này.",
+  PHUONGTIEN_TAI_KHOAN_NGUNG_HOAT_DONG:
+    "Tài khoản của chủ xe đã ngừng hoạt động, không thể đăng ký hoặc kích hoạt phương tiện.",
+  PHUONGTIEN_VUOT_SO_DON_CHO_DUYET:
+    "Căn hộ đang có tối đa 10 đơn đăng ký xe chờ duyệt, vui lòng chờ Ban quản lý xử lý hoặc rút đơn cũ.",
+  PHUONGTIEN_TRUNG_BIEN_SO: "Biển số này đang được đăng ký cho một phương tiện khác.",
+  PHUONGTIEN_CHUYEN_TRANG_THAI_KHONG_HOP_LE:
+    "Không thể chuyển phương tiện từ trạng thái hiện tại sang trạng thái đã chọn.",
+  PHUONGTIEN_DON_KHONG_CON_CHO_DUYET: "Đơn đăng ký phương tiện không còn ở trạng thái chờ duyệt.",
 };
 
 /** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */

@@ -23,8 +23,10 @@ import {
 } from "@/lib/can-ho";
 import { formatNgayGio, formatSo } from "@/lib/format";
 import { hienKhoiHoSoCuTru } from "@/lib/cu-tru";
+import { coTheDangKyPhuongTien, hienKhoiPhuongTien } from "@/lib/phuong-tien";
 import { DoiTienIchDialog } from "./doi-tien-ich-dialog";
 import { KhoiHoSoCuTru } from "./khoi-ho-so-cu-tru";
+import { KhoiPhuongTien } from "./khoi-phuong-tien";
 import { SuaCanHoDialog } from "./sua-can-ho-dialog";
 
 export type DichQuayLai = { href: string; label: string };
@@ -94,6 +96,8 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
   const canHo = query.data;
   const laBql = choPhepSua && duocQuanLyCanHo(vaiTro);
   const hienCuTru = hienKhoiHoSoCuTru(vaiTro, choPhepSua);
+  const hienPhuongTien = hienKhoiPhuongTien(vaiTro, choPhepSua);
+  const choPhepDangKyXe = coTheDangKyPhuongTien(vaiTro, choPhepSua);
   return (
     <>
       <PageHeader
@@ -113,6 +117,14 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
         </CardContent>
       </Card>
       {hienCuTru && <KhoiHoSoCuTru maCanHo={canHo.maCanHo} laBql={laBql} />}
+      {hienPhuongTien && (
+        <KhoiPhuongTien
+          maCanHo={canHo.maCanHo}
+          laBql={laBql}
+          laGocNhinNhanVien={choPhepSua}
+          choPhepDangKy={choPhepDangKyXe}
+        />
+      )}
     </>
   );
 }

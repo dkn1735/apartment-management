@@ -11,6 +11,64 @@
     "csrfHeader" : [ ]
   } ],
   "paths" : {
+    "/api/v1/vehicles/{vehicleId}/status" : {
+      "put" : {
+        "tags" : [ "Phương tiện" ],
+        "summary" : "Đổi trạng thái thẻ xe (API-UC02-07)",
+        "description" : "Duyệt, từ chối, tạm dừng, kích hoạt lại hoặc hủy. Từ chối và Đã hủy là trạng thái cuối. Duyệt và kích hoạt lại kiểm lại chủ xe còn cư trú và tài khoản chưa ngừng hoạt động.\n\nVai trò được phép: BAN_QUAN_LY",
+        "operationId" : "doiTrangThai",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DoiTrangThaiPhuongTienRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePhuongTienResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/residency-records/{recordId}" : {
       "put" : {
         "tags" : [ "Cư trú" ],
@@ -477,6 +535,104 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ApiResponseTaiKhoanChiTietResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vehicles" : {
+      "post" : {
+        "tags" : [ "Phương tiện" ],
+        "summary" : "Đăng ký phương tiện gửi xe (API-UC02-06)",
+        "description" : "BQL đăng ký thì thẻ xe hoạt động ngay; cư dân gửi thì thành đơn chờ duyệt, tối đa 10 đơn mỗi căn. Chủ xe phải đang cư trú hợp lệ tại căn. Biển số được chuẩn hóa, chỉ xe đạp được để trống.\n\nVai trò được phép: BAN_QUAN_LY, CU_DAN",
+        "operationId" : "dangKy",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DangKyPhuongTienRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePhuongTienResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/vehicles/{vehicleId}/cancel" : {
+      "post" : {
+        "tags" : [ "Phương tiện" ],
+        "summary" : "Rút đơn đăng ký phương tiện của chính mình",
+        "description" : "Người gửi rút đơn còn chờ duyệt. Đơn không phải của mình trả 404.\n\nVai trò được phép: CU_DAN",
+        "operationId" : "rut",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePhuongTienResponse"
                 }
               }
             }
@@ -2191,12 +2347,60 @@
         }
       }
     },
+    "/api/v1/apartments/{apartmentId}/vehicles" : {
+      "get" : {
+        "tags" : [ "Phương tiện" ],
+        "summary" : "Danh sách phương tiện của căn hộ (API-UC02-05)",
+        "description" : "BQL, BQT và kế toán của tòa thấy đủ. Cư dân đang ở căn thấy mọi xe đang gửi nhưng đơn và lịch sử chỉ của xe liên quan tới mình, không kèm người cập nhật. Ngoài phạm vi trả 404.\n\nVai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, CU_DAN",
+        "operationId" : "xem",
+        "parameters" : [ {
+          "name" : "apartmentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiResponsePhuongTienCanHoResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Không đủ quyền (FORBIDDEN)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "default" : {
+            "description" : "Lỗi theo vỏ bọc chung",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/apartments/{apartmentId}/residents" : {
       "get" : {
         "tags" : [ "Cư trú" ],
         "summary" : "Tra cứu hồ sơ cư trú của căn hộ (API-UC02-01)",
         "description" : "BQL của tòa thấy đủ. Cư dân đang ở căn thấy người đang cư trú, hồ sơ sắp bắt đầu và lịch sử của riêng mình, không kèm số CCCD, điện thoại, email hay người xác minh. Ngoài phạm vi trả 404.\n\nVai trò được phép: BAN_QUAN_LY, CU_DAN",
-        "operationId" : "xem",
+        "operationId" : "xem_1",
         "parameters" : [ {
           "name" : "apartmentId",
           "in" : "path",
@@ -2290,6 +2494,114 @@
   },
   "components" : {
     "schemas" : {
+      "DoiTrangThaiPhuongTienRequest" : {
+        "type" : "object",
+        "properties" : {
+          "trangThaiDangKy" : {
+            "type" : "string",
+            "enum" : [ "Đang hoạt động", "Tạm dừng", "Từ chối", "Đã hủy" ]
+          },
+          "lyDo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Bắt buộc khi tạm dừng, từ chối hoặc hủy",
+            "maxLength" : 500
+          }
+        },
+        "required" : [ "trangThaiDangKy" ]
+      },
+      "ApiResponsePhuongTienResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PhuongTienResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PhuongTienResponse" : {
+        "type" : "object",
+        "properties" : {
+          "maPhuongTien" : {
+            "type" : "string",
+            "example" : "PT00000001"
+          },
+          "maCanHo" : {
+            "type" : "string",
+            "example" : "A-0101"
+          },
+          "loaiPhuongTien" : {
+            "type" : "string",
+            "enum" : [ "Ô tô", "Xe máy", "Xe máy điện", "Xe đạp" ]
+          },
+          "bienSo" : {
+            "type" : [ "string", "null" ],
+            "example" : "30A12345"
+          },
+          "nhanHieuMauSac" : {
+            "type" : [ "string", "null" ],
+            "example" : "Toyota trắng"
+          },
+          "trangThaiDangKy" : {
+            "type" : "string",
+            "enum" : [ "Chờ duyệt", "Đang hoạt động", "Tạm dừng", "Từ chối", "Đã hủy" ]
+          },
+          "maCuDanSoHuu" : {
+            "type" : "string",
+            "example" : "CD00000001"
+          },
+          "hoTenChuXe" : {
+            "type" : "string",
+            "example" : "Vũ Cư Dân"
+          },
+          "chuXeConCuTru" : {
+            "type" : "boolean",
+            "description" : "Chủ xe đang cư trú hợp lệ hôm nay tại căn của xe"
+          },
+          "maCuDanDangKy" : {
+            "type" : [ "string", "null" ],
+            "example" : "CD00000002"
+          },
+          "hoTenNguoiDangKy" : {
+            "type" : [ "string", "null" ]
+          },
+          "lyDoTrangThai" : {
+            "type" : [ "string", "null" ]
+          },
+          "maNvbqlCapNhat" : {
+            "type" : [ "string", "null" ],
+            "example" : "BQL00000001"
+          },
+          "hoTenNguoiCapNhat" : {
+            "type" : [ "string", "null" ]
+          },
+          "taoLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "capNhatLuc" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "coTheRutDon" : {
+            "type" : "boolean",
+            "description" : "Người xem là người gửi đơn đang chờ duyệt"
+          }
+        },
+        "required" : [ "bienSo", "capNhatLuc", "chuXeConCuTru", "coTheRutDon", "hoTenChuXe", "hoTenNguoiCapNhat", "hoTenNguoiDangKy", "loaiPhuongTien", "lyDoTrangThai", "maCanHo", "maCuDanDangKy", "maCuDanSoHuu", "maNvbqlCapNhat", "maPhuongTien", "nhanHieuMauSac", "taoLuc", "trangThaiDangKy" ]
+      },
       "CapNhatHoSoCuTruRequest" : {
         "type" : "object",
         "properties" : {
@@ -2793,6 +3105,33 @@
           }
         },
         "required" : [ "phienBan" ]
+      },
+      "DangKyPhuongTienRequest" : {
+        "type" : "object",
+        "properties" : {
+          "maCanHo" : {
+            "type" : "string",
+            "example" : "A-0101"
+          },
+          "maCuDanSoHuu" : {
+            "type" : "string",
+            "example" : "CD00000001"
+          },
+          "loaiPhuongTien" : {
+            "type" : "string",
+            "enum" : [ "Ô tô", "Xe máy", "Xe máy điện", "Xe đạp" ]
+          },
+          "bienSo" : {
+            "type" : [ "string", "null" ],
+            "description" : "Bắt buộc trừ khi loại là Xe đạp",
+            "example" : "30A-123.45"
+          },
+          "nhanHieuMauSac" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100
+          }
+        },
+        "required" : [ "loaiPhuongTien", "maCanHo", "maCuDanSoHuu" ]
       },
       "ThemHoSoCuTruRequest" : {
         "type" : "object",
@@ -4054,6 +4393,46 @@
           }
         },
         "required" : [ "items", "page", "size", "totalItems", "totalPages" ]
+      },
+      "ApiResponsePhuongTienCanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "success" : {
+            "type" : "boolean"
+          },
+          "code" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PhuongTienCanHoResponse"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PhuongTienCanHoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "dangGui" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PhuongTienResponse"
+            }
+          },
+          "donVaLichSu" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PhuongTienResponse"
+            }
+          }
+        },
+        "required" : [ "dangGui", "donVaLichSu" ]
       },
       "ApiResponseHoSoCuTruCanHoResponse" : {
         "type" : "object",
