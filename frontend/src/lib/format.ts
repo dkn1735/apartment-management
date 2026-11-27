@@ -76,3 +76,9 @@ export function formatNgay(value: string | null | undefined): string {
   const p = parts(value);
   return p ? `${p.day}/${p.month}/${p.year}` : EMPTY_VALUE;
 }
+
+/** Ngày hôm nay dạng `yyyy-MM-dd` theo giờ Việt Nam (`Asia/Ho_Chi_Minh`), dùng điền sẵn ô ngày (spec 0014). */
+export function ngayHomNay(now: Date = new Date()): string {
+  const map = Object.fromEntries(ngayGioFormat.formatToParts(now).map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day}`;
+}

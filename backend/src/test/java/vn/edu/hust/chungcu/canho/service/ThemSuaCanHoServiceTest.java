@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +33,7 @@ import vn.edu.hust.chungcu.canho.repository.CanHoQuery;
 import vn.edu.hust.chungcu.canho.repository.TangQuery;
 import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
+import vn.edu.hust.chungcu.cutru.service.CuTruService;
 import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /** Tạo và sửa căn hộ với repository giả (spec 0012, AC-8, AC-9, AC-12, AC-14). */
@@ -118,12 +120,49 @@ class ThemSuaCanHoServiceTest {
 		CanHoQuery query = mock(CanHoQuery.class);
 		when(query.maToaNhaCua("B-0101")).thenReturn(Optional.of("B"));
 		CanHoGhi ghi = mock(CanHoGhi.class);
-		SuaCanHoService service = new SuaCanHoService(query, ghi, mock(NhatKyService.class), NGUOI_DOI);
+		SuaCanHoService service = new SuaCanHoService(query, ghi, mock(NhatKyService.class), NGUOI_DOI,
+				mock(CuTruService.class), Clock.systemUTC());
 		assertThatThrownBy(
 				() -> service.sua(BQL, "b-0101", new SuaCanHoRequest(JSON.readTree("50"), JSON.valueToTree("Trống"))))
 			.isInstanceOfSatisfying(ApiException.class,
 					ex -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.NOT_FOUND));
 		verifyNoInteractions(ghi);
+	}
+
+	// Spec 0014, AC-10: trạng thái sửa tay phải khớp hồ sơ cư trú hôm nay
+	@Test
+	void trangThaiPhaiKhopCuTru() {
+		for (String trangThai : List.of("Trống", "Đã bàn giao")) {
+			assertThatThrownBy(() -> SuaCanHoService.kiemKhopCuTru(true, trangThai))
+				.isInstanceOfSatisfying(ApiException.class, ex -> {
+					assertThat(ex.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+					assertThat(ex.getErrorCode()).isEqualTo("CANHO_TRANG_THAI_MAU_THUAN_CU_TRU");
+				});
+		}
+		assertThatThrownBy(() -> SuaCanHoService.kiemKhopCuTru(false, "Đang sử dụng")).isInstanceOf(ApiException.class);
+		SuaCanHoService.kiemKhopCuTru(true, "Đang sử dụng");
+		SuaCanHoService.kiemKhopCuTru(true, "Đang sửa chữa");
+		SuaCanHoService.kiemKhopCuTru(false, "Đang sửa chữa");
+		SuaCanHoService.kiemKhopCuTru(false, "Trống");
+	}
+
+	// covers: AC-10
+	@Test
+	void themCanHoDangSuDungThi422TruocKiemTrung() {
+		TangQuery tang = mock(TangQuery.class);
+		when(tang.maToaNhaCua("A-01")).thenReturn(Optional.of("A"));
+		CanHoQuery query = mock(CanHoQuery.class);
+		CanHoGhi ghi = mock(CanHoGhi.class);
+		NhatKyService nhatKy = mock(NhatKyService.class);
+		ThemCanHoService service = new ThemCanHoService(tang, query, ghi, nhatKy, NGUOI_DOI);
+
+		assertThatThrownBy(() -> service.them(BQL, them("A-01", "5", "60", "Đang sử dụng")))
+			.isInstanceOfSatisfying(ApiException.class, ex -> {
+				assertThat(ex.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+				assertThat(ex.getErrorCode()).isEqualTo("CANHO_TRANG_THAI_MAU_THUAN_CU_TRU");
+				assertThat(ex.getErrors()).extracting(FieldError::field).containsExactly("trangThaiSuDung");
+			});
+		verifyNoInteractions(query, ghi, nhatKy);
 	}
 
 	private static ThemCanHoRequest them(String maTang, String soCan, String dienTich, String trangThai) {

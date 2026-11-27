@@ -163,7 +163,8 @@ class SchemaMigrationTest {
 	// AC-6
 	@Test
 	void seedCoTamTaiKhoanPhuDuVaiTro() {
-		assertThat(count("SELECT count(*) FROM nguoi_dung_he_thong WHERE so_dien_thoai LIKE '09000000%'")).isEqualTo(8);
+		assertThat(count("SELECT count(*) FROM nguoi_dung_he_thong WHERE so_dien_thoai LIKE '09000000%'"))
+			.isEqualTo(10);
 		for (String bangVaiTro : List.of("quan_tri_vien", "nhan_vien_bql", "nhan_vien_ky_thuat", "ke_toan",
 				"nhan_vien_bao_ve", "thanh_vien_ban_quan_tri", "cu_dan")) {
 			assertThat(count("SELECT count(*) FROM " + bangVaiTro)).as(bangVaiTro).isPositive();
@@ -185,7 +186,7 @@ class SchemaMigrationTest {
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		List<String> hashes = this.jdbc.queryForList(
 				"SELECT mat_khau_hash FROM nguoi_dung_he_thong WHERE so_dien_thoai LIKE '09000000%'", String.class);
-		assertThat(hashes).hasSize(8).allMatch((hash) -> encoder.matches("ChungCu@2026", hash));
+		assertThat(hashes).hasSize(10).allMatch((hash) -> encoder.matches("ChungCu@2026", hash));
 	}
 
 	// AC-6
@@ -196,7 +197,23 @@ class SchemaMigrationTest {
 		assertThat(count("SELECT count(*) FROM can_ho")).isEqualTo(12);
 		// Spec 0011, AC-12
 		assertThat(count("SELECT count(*) FROM khu_vuc_dung_chung WHERE ma_toa_nha = 'A'")).isEqualTo(3);
-		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(3);
+		assertThat(count("SELECT count(*) FROM ho_so_cu_tru WHERE trang_thai_ho_so = 'Hợp lệ'")).isEqualTo(5);
+		// Spec 0015, AC-14: hai đề nghị mẫu tại A-0101 do cư dân 0900000006 đứng đơn
+		assertThat(count("""
+				SELECT count(*) FROM ho_so_cu_tru h
+				JOIN cu_dan g ON g.ma_cu_dan = h.ma_cu_dan_de_nghi
+				JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = g.ma_nguoi_dung AND n.so_dien_thoai = '0900000006'
+				WHERE h.ma_can_ho = 'A-0101' AND h.trang_thai_ho_so IN ('Chờ xác minh', 'Từ chối')""")).isEqualTo(2);
+		// Spec 0014, AC-14: mọi căn seed khớp luật đồng bộ trạng thái với hồ sơ cư trú
+		// hôm nay
+		assertThat(
+				count("""
+						SELECT count(*) FROM can_ho c
+						WHERE (c.trang_thai_su_dung = 'Đang sử dụng') <> EXISTS (
+							SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_can_ho = c.ma_can_ho AND h.trang_thai_ho_so = 'Hợp lệ'
+							AND h.ngay_bat_dau <= DATE '2026-11-16' AND (h.ngay_ket_thuc IS NULL OR h.ngay_ket_thuc >= DATE '2026-11-16'))
+						AND c.trang_thai_su_dung <> 'Đang sửa chữa'"""))
+			.isZero();
 		assertThat(count("""
 				SELECT count(*) FROM cu_dan c
 				JOIN nguoi_dung_he_thong n ON n.ma_nguoi_dung = c.ma_nguoi_dung AND n.so_dien_thoai LIKE '09000000%'
@@ -212,7 +229,8 @@ class SchemaMigrationTest {
 		Map<String, Integer> truoc = soDongMoiBang();
 		Connection connection = DataSourceUtils.getConnection(this.dataSource);
 		try {
-			for (String seed : List.of("R__seed_01_xac_thuc.sql", "R__seed_02_khong_gian.sql")) {
+			for (String seed : List.of("R__seed_01_xac_thuc.sql", "R__seed_02_khong_gian.sql", "R__seed_03_can_ho.sql",
+					"R__seed_04_cu_tru.sql", "R__seed_05_phuong_tien.sql")) {
 				ScriptUtils.executeSqlScript(connection,
 						new EncodedResource(new ClassPathResource("db/seed/" + seed), StandardCharsets.UTF_8));
 			}
@@ -221,6 +239,65 @@ class SchemaMigrationTest {
 			DataSourceUtils.releaseConnection(connection, this.dataSource);
 		}
 		assertThat(soDongMoiBang()).isEqualTo(truoc);
+	}
+
+	// Spec 0016, AC-1
+	@Test
+	void v20CoRangBuocVaIndexCuaPhuongTien() {
+		assertThat(this.jdbc.queryForList("SELECT conname FROM pg_constraint WHERE conrelid = 'phuong_tien'::regclass",
+				String.class))
+			.contains("chk_phuongtien_bien_so_bat_buoc", "chk_phuongtien_bien_so_dinh_dang", "chk_phuongtien_trangthai",
+					"fk_phuongtien_cudan_dangky", "fk_phuongtien_nvbql_capnhat")
+			.doesNotContain("phuong_tien_bien_so_key");
+		assertThat(this.jdbc.queryForList("SELECT indexname FROM pg_indexes WHERE tablename = 'phuong_tien'",
+				String.class))
+			.contains("uq_phuong_tien_bien_so_hieu_luc", "idx_phuong_tien_ma_cu_dan_dang_ky",
+					"idx_phuong_tien_ma_nvbql_cap_nhat");
+	}
+
+	// Spec 0016, AC-1: hai dòng đang giữ biển không được cùng biển
+	@Test
+	@Transactional
+	void haiXeCungGiuMotBienBiTuChoi() {
+		assertSqlState("23505", () -> this.jdbc.update(chenXe("'30A12345'", "Tạm dừng", "Ô tô")));
+	}
+
+	// Spec 0016, AC-1
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("xeSai")
+	@Transactional
+	void dbTuChoiPhuongTienSai(String truongHop, String sql) {
+		assertSqlState(CHECK_VIOLATION, () -> this.jdbc.update(sql));
+	}
+
+	static Stream<Arguments> xeSai() {
+		return Stream.of(Arguments.of("xe máy thiếu biển", chenXe("NULL", "Chờ duyệt", "Xe máy")),
+				Arguments.of("biển chưa chuẩn hóa", chenXe("'30a-123'", "Chờ duyệt", "Ô tô")),
+				Arguments.of("trạng thái lạ", chenXe("'30A99999'", "Khóa", "Ô tô")));
+	}
+
+	private static String chenXe(String bienSo, String trangThai, String loai) {
+		return """
+				INSERT INTO phuong_tien (ma_can_ho, ma_cu_dan_so_huu, loai_phuong_tien, bien_so, trang_thai_dang_ky)
+				SELECT 'A-0201', c.ma_cu_dan, '%s', %s, '%s' FROM cu_dan c LIMIT 1""".formatted(loai, bienSo,
+				trangThai);
+	}
+
+	// Spec 0016, AC-13
+	@Test
+	void seedPhuongTienPhuDuLoaiVaTrangThai() {
+		assertThat(count("SELECT count(*) FROM phuong_tien")).isEqualTo(7);
+		assertThat(count("SELECT count(DISTINCT loai_phuong_tien) FROM phuong_tien")).isEqualTo(4);
+		assertThat(count("SELECT count(DISTINCT trang_thai_dang_ky) FROM phuong_tien")).isEqualTo(5);
+		assertThat(count("SELECT count(*) FROM phuong_tien WHERE loai_phuong_tien = 'Xe đạp' AND bien_so IS NULL"))
+			.isEqualTo(1);
+		assertThat(count("""
+				SELECT count(*) FROM phuong_tien p WHERE NOT EXISTS (
+					SELECT 1 FROM ho_so_cu_tru h WHERE h.ma_can_ho = p.ma_can_ho AND h.ma_cu_dan = p.ma_cu_dan_so_huu
+					AND h.trang_thai_ho_so = 'Hợp lệ')""")).isZero();
+		assertThat(count("""
+				SELECT count(*) FROM phuong_tien
+				WHERE trang_thai_dang_ky IN ('Tạm dừng', 'Từ chối') AND ly_do_trang_thai IS NULL""")).isZero();
 	}
 
 	// Spec 0008, AC-18

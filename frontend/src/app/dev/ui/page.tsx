@@ -9,6 +9,7 @@ import { DisplayDemo } from "./_demo/display-demo";
 import { FeedbackDemo } from "./_demo/feedback-demo";
 import { OverviewDemo } from "./_demo/overview-demo";
 import { TableDemo } from "./_demo/table-demo";
+import { TabsComboboxDemo } from "./_demo/tabs-combobox-demo";
 import { DemoGroup, DemoSection } from "./_demo/demo-section";
 import { PaletteDemo } from "./_demo/palette-demo";
 import { TypographyDemo } from "./_demo/typography-demo";
@@ -80,6 +81,7 @@ export default function DevUiPage() {
           </DemoSection>
           <DemoSection id="hien-thi" title="Thẻ và chip">
             <DisplayDemo />
+            <TabsComboboxDemo />
           </DemoSection>
           <DemoSection id="phan-hoi" title="Phản hồi" description="Toast, trạng thái rỗng, trạng thái lỗi.">
             <FeedbackDemo />

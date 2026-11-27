@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 import vn.edu.hust.chungcu.canho.dto.CanHoResponse;
@@ -97,6 +100,21 @@ public class CanHoQuery {
 			.param("ma", maCanHo)
 			.query(String.class)
 			.optional();
+	}
+
+	/**
+	 * Mã các căn thuộc các tòa đã cho, lọc thêm số tầng khi có (spec 0015, AC-10).
+	 * @param maToaNha khác rỗng
+	 */
+	public Set<String> maCanHoTheoToa(Collection<String> maToaNha, Integer soTang) {
+		String sql = "SELECT c.ma_can_ho FROM can_ho c JOIN tang g ON g.ma_tang = c.ma_tang "
+				+ "WHERE g.ma_toa_nha IN (:toa)" + ((soTang != null) ? " AND g.so_tang = :soTang" : "");
+		Map<String, Object> thamSo = new LinkedHashMap<>();
+		thamSo.put("toa", maToaNha);
+		if (soTang != null) {
+			thamSo.put("soTang", soTang);
+		}
+		return new LinkedHashSet<>(this.jdbc.sql(sql).params(thamSo).query(String.class).list());
 	}
 
 	public boolean tonTai(String maCanHo) {

@@ -7,8 +7,12 @@ import {
   duocDoiTienIch,
   duocQuanLyCanHo,
   formatDienTich,
+  khoaChiTietCanHo,
   LY_DO_TOI_DA,
   maCanSeTao,
+  toneTrangThai,
+  TRANG_THAI_SU_DUNG,
+  TRANG_THAI_TAO_CAN_HO,
 } from "./can-ho";
 
 describe("diện tích (spec 0012, AC-17, AC-18)", () => {
@@ -80,5 +84,22 @@ describe("doDaiLyDo (spec 0013, AC-3, AC-15)", () => {
 
   it("500 emoji vừa đủ giới hạn", () => {
     expect(doDaiLyDo("😀".repeat(LY_DO_TOI_DA))).toBe(LY_DO_TOI_DA);
+  });
+});
+
+describe("trạng thái tạo căn hộ và khóa query (spec 0014, AC-10, AC-17)", () => {
+  // covers: AC-10, AC-17
+  it("loại bỏ Đang sử dụng khỏi lựa chọn khi tạo căn mới nhưng giữ đủ bốn trạng thái chung", () => {
+    expect(TRANG_THAI_TAO_CAN_HO).toEqual(["Trống", "Đang sửa chữa", "Đã bàn giao"]);
+    expect(TRANG_THAI_TAO_CAN_HO).not.toContain("Đang sử dụng");
+    expect(TRANG_THAI_SU_DUNG).toEqual(["Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao"]);
+  });
+
+  it("ánh xạ đúng tone trạng thái căn hộ và khóa chi tiết căn", () => {
+    expect(toneTrangThai("Trống")).toBe("neutral");
+    expect(toneTrangThai("Đang sử dụng")).toBe("success");
+    expect(toneTrangThai("Đang sửa chữa")).toBe("warning");
+    expect(toneTrangThai("Đã bàn giao")).toBe("info");
+    expect(khoaChiTietCanHo("A-0101")).toEqual(["can-ho", "chi-tiet", "A-0101"]);
   });
 });

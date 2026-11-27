@@ -90,11 +90,11 @@ class ThemSuaCanHoIntegrationTest {
 			.andExpect(jsonPath("$.data.dienTich").value(70.5))
 			.andExpect(jsonPath("$.data.trangThaiSuDung").value("Trống"))
 			.andExpect(jsonPath("$.data.biTamDungTienIch").value(false));
-		this.mockMvc.perform(CanHoApi.sua(this.bql, ma.toLowerCase(), 72, "Đang sử dụng"))
+		this.mockMvc.perform(CanHoApi.sua(this.bql, ma.toLowerCase(), 72, "Đã bàn giao"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.message").value("Cập nhật thông tin căn hộ thành công"))
 			.andExpect(jsonPath("$.data.dienTich").value(72.0))
-			.andExpect(jsonPath("$.data.trangThaiSuDung").value("Đang sử dụng"));
+			.andExpect(jsonPath("$.data.trangThaiSuDung").value("Đã bàn giao"));
 		this.mockMvc.perform(CanHoApi.chiTiet(this.bql, ma))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.dienTich").value(72.0))
@@ -110,7 +110,7 @@ class ThemSuaCanHoIntegrationTest {
 		assertThat(dong.get(1).get("chi_tiet").toString()).contains("\"cu\": 70.50").contains("\"moi\": 72.00");
 		JsonNode sua = NhatKyDb.chiTiet(dong.get(1));
 		assertThat(sua.get("trangThaiSuDung").get("cu").asString()).isEqualTo("Trống");
-		assertThat(sua.get("trangThaiSuDung").get("moi").asString()).isEqualTo("Đang sử dụng");
+		assertThat(sua.get("trangThaiSuDung").get("moi").asString()).isEqualTo("Đã bàn giao");
 	}
 
 	// AC-9: trùng mã thì 409 ở ô số căn; lỗi 400 thắng 409

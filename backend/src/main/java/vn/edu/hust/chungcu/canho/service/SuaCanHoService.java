@@ -1,6 +1,8 @@
 package vn.edu.hust.chungcu.canho.service;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import vn.edu.hust.chungcu.canho.repository.CanHoGhi;
 import vn.edu.hust.chungcu.canho.repository.CanHoQuery;
 import vn.edu.hust.chungcu.common.error.ApiException;
 import vn.edu.hust.chungcu.common.error.ErrorResponse.FieldError;
+import vn.edu.hust.chungcu.cutru.service.CuTruService;
 import vn.edu.hust.chungcu.nhatky.dto.DoiTuongTacDong;
 import vn.edu.hust.chungcu.nhatky.dto.LoaiThaoTac;
 import vn.edu.hust.chungcu.nhatky.dto.SuKienNhatKy;
@@ -32,15 +35,23 @@ public class SuaCanHoService {
 
 	private final NguoiDoiTienIch nguoiDoi;
 
-	public SuaCanHoService(CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy, NguoiDoiTienIch nguoiDoi) {
+	private final CuTruService cuTru;
+
+	private final Clock clock;
+
+	public SuaCanHoService(CanHoQuery query, CanHoGhi ghi, NhatKyService nhatKy, NguoiDoiTienIch nguoiDoi,
+			CuTruService cuTru, Clock clock) {
 		this.query = query;
 		this.ghi = ghi;
 		this.nhatKy = nhatKy;
 		this.nguoiDoi = nguoiDoi;
+		this.cuTru = cuTru;
+		this.clock = clock;
 	}
 
 	/**
-	 * Thứ tự kiểm: body (400), phạm vi (404), rồi đọc dưới khóa và cập nhật khi có đổi.
+	 * Thứ tự kiểm: body (400), phạm vi (404), đọc dưới khóa, trạng thái khớp hồ sơ cư trú
+	 * hôm nay (422, spec 0014 AC-10), rồi cập nhật khi có đổi.
 	 */
 	@Transactional
 	public CanHoResponse sua(PhamViTruyCap phamVi, String apartmentId, SuaCanHoRequest request) {
@@ -50,6 +61,7 @@ public class SuaCanHoService {
 			throw khongThay();
 		}
 		CanHoGhi.GiaTri cu = this.ghi.khoaDong(ma).orElseThrow(SuaCanHoService::khongThay);
+		kiemKhopCuTru(this.cuTru.coNguoiDangCuTru(ma, LocalDate.now(this.clock)), moi.trangThaiSuDung());
 		ChiTietCanHo.Sua thayDoi = thayDoi(cu, moi);
 		if (thayDoi != null) {
 			this.ghi.capNhat(ma, moi.dienTich(), moi.trangThaiSuDung());
@@ -86,6 +98,19 @@ public class SuaCanHoService {
 		ChiTietCanHo.ThayDoi<String> trangThai = !cu.trangThaiSuDung().equals(moi.trangThaiSuDung())
 				? new ChiTietCanHo.ThayDoi<>(cu.trangThaiSuDung(), moi.trangThaiSuDung()) : null;
 		return (dienTich == null && trangThai == null) ? null : new ChiTietCanHo.Sua(dienTich, trangThai);
+	}
+
+	/**
+	 * Đang có người thì không Trống hay Đã bàn giao; không có ai thì không Đang sử dụng.
+	 */
+	static void kiemKhopCuTru(boolean coNguoiDangCuTru, String trangThaiMoi) {
+		if (coNguoiDangCuTru
+				&& (TrangThaiSuDung.TRONG.equals(trangThaiMoi) || TrangThaiSuDung.DA_BAN_GIAO.equals(trangThaiMoi))) {
+			throw CanHoLoi.trangThaiMauThuanCuTru(CanHoLoi.DANG_CO_NGUOI_CU_TRU);
+		}
+		if (!coNguoiDangCuTru && TrangThaiSuDung.DANG_SU_DUNG.equals(trangThaiMoi)) {
+			throw CanHoLoi.trangThaiMauThuanCuTru(CanHoLoi.CHUA_CO_NGUOI_CU_TRU);
+		}
 	}
 
 	private static ApiException khongThay() {

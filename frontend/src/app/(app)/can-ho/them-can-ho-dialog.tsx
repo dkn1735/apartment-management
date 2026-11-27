@@ -31,7 +31,7 @@ import {
   CAN_HO_QUERY_KEY,
   dienTichGuiDi,
   maCanSeTao,
-  TRANG_THAI_SU_DUNG,
+  TRANG_THAI_TAO_CAN_HO,
   type CanHo,
   type TrangThaiSuDung,
 } from "@/lib/can-ho";
@@ -185,7 +185,7 @@ export function ThemCanHoDialog({ toaNha }: { toaNha: readonly ToaNha[] }) {
               label="Trạng thái sử dụng"
               render={(field) => (
                 <SelectControl field={field}>
-                  {TRANG_THAI_SU_DUNG.map((tt) => (
+                  {TRANG_THAI_TAO_CAN_HO.map((tt) => (
                     <SelectItem key={tt} value={tt}>
                       {tt}
                     </SelectItem>

@@ -102,6 +102,7 @@ export function DataTable<T extends RowData>(props: DataTableProps<T>) {
                     key={header.id}
                     label={<table.FlexRender header={header} />}
                     sortField={header.column.columnDef.meta?.sortField}
+                    sortOptions={header.column.columnDef.meta?.sortOptions}
                     align={header.column.columnDef.meta?.align}
                     sort={sort}
                     onSortChange={(next) => {

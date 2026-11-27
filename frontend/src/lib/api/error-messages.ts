@@ -39,11 +39,35 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   AUTH_TOO_MANY_ATTEMPTS: "Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút hoặc liên hệ ban quản lý.",
   // Spec 0010: mọi lý do link đặt lại mật khẩu không dùng được dùng chung câu này
   AUTH_RESET_TOKEN_INVALID: "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.",
-  // Spec 0011: tòa nhà và tầng
+  // Spec 0011, 0012, 0013, 0014: tòa nhà, tầng và căn hộ
   CANHO_TOA_NHA_DA_TON_TAI: "Tòa nhà đã tồn tại.",
   CANHO_TANG_SAI_THU_TU: "Tầng mới phải nối tiếp tầng cao nhất của tòa.",
-  // Spec 0013: tạm dừng tiện ích; hộp thoại tự chọn câu theo chiều đã yêu cầu
+  CANHO_CAN_HO_DA_TON_TAI: "Căn hộ đã tồn tại.",
   CANHO_TIEN_ICH_KHONG_DOI: "Trạng thái tiện ích của căn hộ đã thay đổi, vui lòng tải lại.",
+  CANHO_TRANG_THAI_MAU_THUAN_CU_TRU: "Trạng thái sử dụng không khớp với hồ sơ cư trú hiện tại.",
+  // Spec 0014, 0015: hồ sơ cư trú căn hộ và đề nghị cư trú
+  CUTRU_TAI_KHOAN_NGUNG_HOAT_DONG: "Tài khoản cư dân đã ngừng hoạt động, không thể ghi nhận hoặc duyệt hồ sơ cư trú.",
+  CUTRU_TRUNG_KHOANG_NGAY_CU_DAN: "Cư dân đã có hồ sơ cư trú hợp lệ giao khoảng ngày tại căn hộ này.",
+  CUTRU_DA_CO_CHU_CAN_HO: "Căn hộ đã có chủ căn hộ hợp lệ trong khoảng ngày này.",
+  CUTRU_HO_SO_DA_HET_HIEU_LUC: "Hồ sơ cư trú đã hết hiệu lực, không thể chỉnh sửa.",
+  CUTRU_HO_SO_DANG_CHO_XAC_MINH: "Hồ sơ đang chờ xác minh, chưa thể chỉnh sửa tại đây.",
+  CUTRU_DE_NGHI_DA_KET_THUC: "Đề nghị cư trú đã kết thúc xử lý, không thể chỉnh sửa.",
+  CUTRU_KHONG_KHOP_CU_DAN: "Không tìm thấy tài khoản cư dân khớp đồng thời số CCCD và số điện thoại đã nhập.",
+  CUTRU_DA_CO_DE_NGHI_CHO_XAC_MINH: "Cư dân này đã có đề nghị cư trú đang chờ xác minh tại căn hộ.",
+  CUTRU_VUOT_SO_DE_NGHI_CHO_XAC_MINH:
+    "Căn hộ đang có tối đa 10 đề nghị chờ xác minh, vui lòng chờ Ban quản lý xử lý hoặc hủy đề nghị cũ.",
+  CUTRU_DE_NGHI_KHONG_CON_CHO_XAC_MINH: "Đề nghị cư trú không còn ở trạng thái chờ xác minh.",
+  CUTRU_DE_NGHI_DA_QUA_NGAY_KET_THUC: "Đề nghị cư trú đã qua ngày kết thúc, vui lòng từ chối để cư dân gửi lại.",
+  // Spec 0016: phương tiện gửi xe căn hộ
+  PHUONGTIEN_CHU_XE_KHONG_CU_TRU: "Chủ xe không đang cư trú hợp lệ tại căn hộ này.",
+  PHUONGTIEN_TAI_KHOAN_NGUNG_HOAT_DONG:
+    "Tài khoản của chủ xe đã ngừng hoạt động, không thể đăng ký hoặc kích hoạt phương tiện.",
+  PHUONGTIEN_VUOT_SO_DON_CHO_DUYET:
+    "Căn hộ đang có tối đa 10 đơn đăng ký xe chờ duyệt, vui lòng chờ Ban quản lý xử lý hoặc rút đơn cũ.",
+  PHUONGTIEN_TRUNG_BIEN_SO: "Biển số này đang được đăng ký cho một phương tiện khác.",
+  PHUONGTIEN_CHUYEN_TRANG_THAI_KHONG_HOP_LE:
+    "Không thể chuyển phương tiện từ trạng thái hiện tại sang trạng thái đã chọn.",
+  PHUONGTIEN_DON_KHONG_CON_CHO_DUYET: "Đơn đăng ký phương tiện không còn ở trạng thái chờ duyệt.",
 };
 
 /** Câu khi bị khóa tạm, có số phút làm tròn lên từ `Retry-After` (spec 0009, AC-13); thiếu thì câu mặc định. */

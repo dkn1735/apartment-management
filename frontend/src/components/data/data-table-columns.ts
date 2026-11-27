@@ -8,10 +8,17 @@ import {
   type RowData,
 } from "@tanstack/react-table";
 
+export type DataTableSortOption = {
+  field: string;
+  label: string;
+};
+
 /** Thông tin thêm của một cột DataTable. */
 export type DataTableColumnMeta = {
   /** Tên trường gửi lên `sort=`; phải nằm trong danh sách trắng của endpoint. Không có thì cột không sắp xếp được. */
   sortField?: string;
+  /** Nhiều trường sắp xếp trong cùng một cột gộp (ví dụ Thời gian cư trú gồm Ngày bắt đầu và Ngày kết thúc). */
+  sortOptions?: readonly DataTableSortOption[];
   /** Cột mô tả dài: cắt ở 2 dòng. */
   description?: boolean;
   /** Cột số, tiền: căn phải (Be Vietnam Pro không có chữ số đều cột). */

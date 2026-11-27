@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { formatGioNgay, formatNgay, formatNgayGio, formatSo, formatTien } from "./format";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatGioNgay, formatNgay, formatNgayGio, formatSo, formatTien, ngayHomNay } from "./format";
 
 describe("định dạng (AC-11), chạy ở múi giờ America/New_York", () => {
   it("múi giờ của bộ test khác Việt Nam", () => {
@@ -42,5 +42,25 @@ describe("formatGioNgay (spec 0009, AC-14)", () => {
     expect(formatGioNgay("2026-11-16T23:30:00Z")).toBe("06:30 17/11/2026");
     expect(formatGioNgay(null)).toBe("—");
     expect(formatGioNgay("khong-hop-le")).toBe("—");
+  });
+});
+
+describe("ngayHomNay (spec 0014, AC-17)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // covers: AC-17
+  it("tính ngày theo Asia/Ho_Chi_Minh kể cả khi múi giờ trình duyệt đang ở ngày hôm trước", () => {
+    expect(ngayHomNay(new Date("2026-11-16T16:59:59Z"))).toBe("2026-11-16");
+    expect(ngayHomNay(new Date("2026-11-16T17:00:00Z"))).toBe("2026-11-17");
+    expect(ngayHomNay(new Date("2026-12-31T17:30:00Z"))).toBe("2027-01-01");
+  });
+
+  // covers: AC-17
+  it("dùng thời điểm hiện tại mặc định khi không truyền tham số", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-02-28T20:30:00-05:00"));
+    expect(ngayHomNay()).toBe("2026-03-01");
   });
 });

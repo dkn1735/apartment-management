@@ -101,3 +101,7 @@ app:
     session-cleanup-cron: "0 0 3 * * *"
     # Link đặt lại mật khẩu qua email (spec 0010); trang quên mật khẩu ghi cùng số phút
     password-reset-ttl: PT30M
+  cutru:
+    # Job chuyển hồ sơ cư trú quá ngày kết thúc sang Hết hiệu lực (spec 0014), theo
+    # app.timezone; còn chạy bù một lần khi khởi động
+    residency-expiry-cron: "0 5 0 * * *"

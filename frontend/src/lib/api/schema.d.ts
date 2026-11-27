@@ -4,6 +4,50 @@
  */
 
 export interface paths {
+    "/api/v1/vehicles/{vehicleId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Đổi trạng thái thẻ xe (API-UC02-07)
+         * @description Duyệt, từ chối, tạm dừng, kích hoạt lại hoặc hủy. Từ chối và Đã hủy là trạng thái cuối. Duyệt và kích hoạt lại kiểm lại chủ xe còn cư trú và tài khoản chưa ngừng hoạt động.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        put: operations["doiTrangThai"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records/{recordId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Cập nhật hoặc kết thúc hồ sơ cư trú (API-UC02-03)
+         * @description Không đổi căn hộ hay cư dân. Đặt Hết hiệu lực để kết thúc; hồ sơ đã hết hiệu lực không sửa được.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        put: operations["capNhat"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/change-password": {
         parameters: {
             query?: never;
@@ -130,6 +174,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Đăng ký phương tiện gửi xe (API-UC02-06)
+         * @description BQL đăng ký thì thẻ xe hoạt động ngay; cư dân gửi thì thành đơn chờ duyệt, tối đa 10 đơn mỗi căn. Chủ xe phải đang cư trú hợp lệ tại căn. Biển số được chuẩn hóa, chỉ xe đạp được để trống.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, CU_DAN
+         */
+        post: operations["dangKy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vehicles/{vehicleId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rút đơn đăng ký phương tiện của chính mình
+         * @description Người gửi rút đơn còn chờ duyệt. Đơn không phải của mình trả 404.
+         *
+         *     Vai trò được phép: CU_DAN
+         */
+        post: operations["rut"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tra cứu hồ sơ cư trú toàn tòa
+         * @description Chỉ hồ sơ của căn thuộc tòa trong phạm vi người gọi, gồm cả đề nghị. Mọi bộ lọc tùy chọn và kết hợp bằng AND; soTang cần maToaNha. q khớp họ tên không dấu, số điện thoại, CCCD, email, mã cư dân, một phần mã căn hoặc mã hồ sơ.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        get: operations["danhSach"];
+        put?: never;
+        /**
+         * Thêm mới hồ sơ cư trú (API-UC02-02)
+         * @description Hồ sơ tạo ở trạng thái Hợp lệ; căn tự chuyển sang Đang sử dụng khi có người đang cư trú.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["them"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records/{recordId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Từ chối đề nghị cư trú
+         * @description Đề nghị đang chờ xác minh sang Từ chối kèm lý do; không đổi trạng thái căn.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["tuChoi"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records/{recordId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hủy đề nghị cư trú của chính mình
+         * @description Người gửi rút đề nghị còn chờ xác minh. Đề nghị không phải của mình trả 404.
+         *
+         *     Vai trò được phép: CU_DAN
+         */
+        post: operations["huy"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records/{recordId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Duyệt đề nghị cư trú
+         * @description Duyệt nguyên trạng đề nghị đang chờ xác minh; hồ sơ sang Hợp lệ và căn tự đồng bộ trạng thái sử dụng. Đề nghị đã qua ngày kết thúc phải từ chối.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        post: operations["duyet"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/residency-records/resident-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cư dân gửi đề nghị cư trú (API-UC02-04)
+         * @description Chỉ cho căn người gửi đang cư trú hợp lệ hôm nay. Đề nghị cho người khác phải nhập khớp cả số CCCD và số điện thoại của một tài khoản cư dân. Đề nghị ở trạng thái Chờ xác minh, không đổi trạng thái căn; phản hồi không kèm dữ liệu cá nhân.
+         *
+         *     Vai trò được phép: CU_DAN
+         */
+        post: operations["gui"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/buildings": {
         parameters: {
             query?: never;
@@ -143,7 +347,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, KY_THUAT
          */
-        get: operations["danhSach"];
+        get: operations["danhSach_1"];
         put?: never;
         /**
          * Thêm tòa nhà (API-UC01-02)
@@ -151,7 +355,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY
          */
-        post: operations["them"];
+        post: operations["them_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -171,7 +375,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY, KY_THUAT
          */
-        get: operations["danhSach_1"];
+        get: operations["danhSach_2"];
         put?: never;
         /**
          * Thêm tầng mới vào tòa nhà (API-UC01-04)
@@ -179,7 +383,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY
          */
-        post: operations["them_1"];
+        post: operations["them_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -339,7 +543,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY
          */
-        post: operations["them_2"];
+        post: operations["them_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -460,6 +664,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/residency-records/resident-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tìm cư dân để tạo hồ sơ cư trú
+         * @description Tối đa 20 cư dân có tài khoản Hoạt động hoặc Tạm khóa, theo họ tên. q khớp họ tên không dấu, số điện thoại, số CCCD, email hoặc mã cư dân.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY
+         */
+        get: operations["timCuDan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/common-areas": {
         parameters: {
             query?: never;
@@ -473,7 +699,7 @@ export interface paths {
          *
          *     Vai trò được phép: BAN_QUAN_LY, KY_THUAT
          */
-        get: operations["danhSach_2"];
+        get: operations["danhSach_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -524,6 +750,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/apartments/{apartmentId}/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Danh sách phương tiện của căn hộ (API-UC02-05)
+         * @description BQL, BQT và kế toán của tòa thấy đủ. Cư dân đang ở căn thấy mọi xe đang gửi nhưng đơn và lịch sử chỉ của xe liên quan tới mình, không kèm người cập nhật. Ngoài phạm vi trả 404.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, BAN_QUAN_TRI, KE_TOAN, CU_DAN
+         */
+        get: operations["xem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/apartments/{apartmentId}/residents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tra cứu hồ sơ cư trú của căn hộ (API-UC02-01)
+         * @description BQL của tòa thấy đủ. Cư dân đang ở căn thấy người đang cư trú, hồ sơ sắp bắt đầu và lịch sử của riêng mình, không kèm số CCCD, điện thoại, email hay người xác minh. Ngoài phạm vi trả 404.
+         *
+         *     Vai trò được phép: BAN_QUAN_LY, CU_DAN
+         */
+        get: operations["xem_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/accounts/{maNguoiDung}/login-lock": {
         parameters: {
             query?: never;
@@ -550,6 +820,125 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DoiTrangThaiPhuongTienRequest: {
+            /** @enum {string} */
+            trangThaiDangKy: "Đang hoạt động" | "Tạm dừng" | "Từ chối" | "Đã hủy";
+            /** @description Bắt buộc khi tạm dừng, từ chối hoặc hủy */
+            lyDo?: string | null;
+        };
+        ApiResponsePhuongTienResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PhuongTienResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PhuongTienResponse: {
+            /** @example PT00000001 */
+            maPhuongTien: string;
+            /** @example A-0101 */
+            maCanHo: string;
+            /** @enum {string} */
+            loaiPhuongTien: "Ô tô" | "Xe máy" | "Xe máy điện" | "Xe đạp";
+            /** @example 30A12345 */
+            bienSo: string | null;
+            /** @example Toyota trắng */
+            nhanHieuMauSac: string | null;
+            /** @enum {string} */
+            trangThaiDangKy: "Chờ duyệt" | "Đang hoạt động" | "Tạm dừng" | "Từ chối" | "Đã hủy";
+            /** @example CD00000001 */
+            maCuDanSoHuu: string;
+            /** @example Vũ Cư Dân */
+            hoTenChuXe: string;
+            /** @description Chủ xe đang cư trú hợp lệ hôm nay tại căn của xe */
+            chuXeConCuTru: boolean;
+            /** @example CD00000002 */
+            maCuDanDangKy: string | null;
+            hoTenNguoiDangKy: string | null;
+            lyDoTrangThai: string | null;
+            /** @example BQL00000001 */
+            maNvbqlCapNhat: string | null;
+            hoTenNguoiCapNhat: string | null;
+            /** Format: date-time */
+            taoLuc: string;
+            /** Format: date-time */
+            capNhatLuc: string;
+            /** @description Người xem là người gửi đơn đang chờ duyệt */
+            coTheRutDon: boolean;
+        };
+        CapNhatHoSoCuTruRequest: {
+            /** @enum {string} */
+            vaiTroCuTru: "Chủ căn hộ" | "Khách thuê" | "Thành viên gia đình";
+            /** @enum {string} */
+            tinhTrangCuTru: "Thường trú" | "Tạm trú";
+            /**
+             * Format: date
+             * @example 2026-11-16
+             */
+            ngayBatDau: string;
+            /**
+             * Format: date
+             * @description Bắt buộc khi Tạm trú hoặc khi kết thúc hồ sơ
+             */
+            ngayKetThuc?: string | null;
+            /** @enum {string} */
+            trangThaiHoSo: "Hợp lệ" | "Hết hiệu lực";
+        };
+        ApiResponseHoSoCuTruResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["HoSoCuTruResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        HoSoCuTruResponse: {
+            /** @example HS00000001 */
+            maHoSo: string;
+            /** @example A-0101 */
+            maCanHo: string;
+            /** @example CD00000001 */
+            maCuDan: string;
+            /** @example ND00000007 */
+            maNguoiDung: string | null;
+            /** @example Vũ Cư Dân */
+            hoTen: string | null;
+            /** @example 0900000007 */
+            soDienThoai: string | null;
+            /** @example cudan@chungcu.test */
+            email: string | null;
+            /** @example 001026000007 */
+            soCccd: string | null;
+            /** @enum {string} */
+            vaiTroCuTru: "Chủ căn hộ" | "Khách thuê" | "Thành viên gia đình";
+            /** @enum {string} */
+            tinhTrangCuTru: "Thường trú" | "Tạm trú";
+            /** Format: date */
+            ngayBatDau: string;
+            /** Format: date */
+            ngayKetThuc: string | null;
+            /** @enum {string} */
+            trangThaiHoSo: "Chờ xác minh" | "Hợp lệ" | "Hết hiệu lực" | "Từ chối" | "Đã hủy";
+            /** @example BQL00000001 */
+            maNvbqlXacMinh: string | null;
+            /** @example Trần Ban Quản Lý */
+            hoTenNguoiXacMinh: string | null;
+            /** Format: date-time */
+            taoLuc: string;
+            /** Format: date-time */
+            capNhatLuc: string;
+            /** @example CD00000002 */
+            maCuDanDeNghi: string | null;
+            /** @example Trần Thị Mai */
+            hoTenNguoiDeNghi: string | null;
+            ghiChuDeNghi: string | null;
+            lyDoTuChoi: string | null;
+            /** @description Người xem là người gửi đề nghị đang chờ xác minh */
+            coTheHuy: boolean;
+        };
         DoiMatKhauRequest: {
             matKhauCu: string;
             /** @description Ít nhất 8 ký tự, có cả chữ và số, khác mật khẩu hiện tại */
@@ -702,6 +1091,74 @@ export interface components {
             viTriTruc?: string;
             /** @description CU_DAN, 12 chữ số */
             soCccd?: string;
+        };
+        DangKyPhuongTienRequest: {
+            /** @example A-0101 */
+            maCanHo: string;
+            /** @example CD00000001 */
+            maCuDanSoHuu: string;
+            /** @enum {string} */
+            loaiPhuongTien: "Ô tô" | "Xe máy" | "Xe máy điện" | "Xe đạp";
+            /**
+             * @description Bắt buộc trừ khi loại là Xe đạp
+             * @example 30A-123.45
+             */
+            bienSo?: string | null;
+            nhanHieuMauSac?: string | null;
+        };
+        ThemHoSoCuTruRequest: {
+            /** @example A-0102 */
+            maCanHo: string;
+            /** @example CD00000001 */
+            maCuDan: string;
+            /** @enum {string} */
+            vaiTroCuTru: "Chủ căn hộ" | "Khách thuê" | "Thành viên gia đình";
+            /** @enum {string} */
+            tinhTrangCuTru: "Thường trú" | "Tạm trú";
+            /**
+             * Format: date
+             * @example 2026-11-16
+             */
+            ngayBatDau: string;
+            /**
+             * Format: date
+             * @description Bắt buộc khi tình trạng là Tạm trú
+             */
+            ngayKetThuc?: string | null;
+        };
+        TuChoiDeNghiCuTruRequest: {
+            lyDoTuChoi: string;
+        };
+        GuiDeNghiCuTruRequest: {
+            /** @example A-0101 */
+            maCanHo: string;
+            /** @description true khi đăng ký cho chính người gửi */
+            laChinhToi: string;
+            /**
+             * @description Bắt buộc khi laChinhToi = false
+             * @example 001026000010
+             */
+            soCccd?: string;
+            /**
+             * @description Bắt buộc khi laChinhToi = false
+             * @example 0900000010
+             */
+            soDienThoai?: string;
+            /** @enum {string} */
+            vaiTroCuTru: "Thành viên gia đình" | "Khách thuê";
+            /** @enum {string} */
+            tinhTrangCuTru: "Thường trú" | "Tạm trú";
+            /**
+             * Format: date
+             * @example 2026-12-01
+             */
+            ngayBatDau: string;
+            /**
+             * Format: date
+             * @description Bắt buộc khi tình trạng là Tạm trú
+             */
+            ngayKetThuc?: string | null;
+            ghiChuDeNghi?: string | null;
         };
         ThemToaNhaRequest: {
             /** @example B */
@@ -968,6 +1425,51 @@ export interface components {
             ma: string;
             nhan: string;
         };
+        ApiResponsePageResponseHoSoCuTruResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PageResponseHoSoCuTruResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PageResponseHoSoCuTruResponse: {
+            items: components["schemas"]["HoSoCuTruResponse"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            size: number;
+            /** Format: int64 */
+            totalItems: number;
+            /** Format: int32 */
+            totalPages: number;
+        };
+        ApiResponseListCuDanLuaChonResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["CuDanLuaChonResponse"][];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        CuDanLuaChonResponse: {
+            /** @example CD00000001 */
+            maCuDan: string;
+            /** @example ND00000007 */
+            maNguoiDung: string;
+            /** @example Vũ Cư Dân */
+            hoTen: string;
+            /** @example 0900000007 */
+            soDienThoai: string;
+            /** @example cudan@chungcu.test */
+            email: string;
+            /** @example 001026000007 */
+            soCccd: string;
+            /** @enum {string} */
+            trangThaiTaiKhoan: "Hoạt động" | "Tạm khóa";
+        };
         ApiResponsePageResponseKhuVucDungChungResponse: {
             success?: boolean;
             /** Format: int32 */
@@ -1118,6 +1620,34 @@ export interface components {
             /** Format: int32 */
             totalPages: number;
         };
+        ApiResponsePhuongTienCanHoResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["PhuongTienCanHoResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        PhuongTienCanHoResponse: {
+            dangGui: components["schemas"]["PhuongTienResponse"][];
+            donVaLichSu: components["schemas"]["PhuongTienResponse"][];
+        };
+        ApiResponseHoSoCuTruCanHoResponse: {
+            success?: boolean;
+            /** Format: int32 */
+            code?: number;
+            message?: string;
+            data?: components["schemas"]["HoSoCuTruCanHoResponse"];
+            /** Format: date-time */
+            timestamp?: string;
+        };
+        HoSoCuTruCanHoResponse: {
+            dangCuTru: components["schemas"]["HoSoCuTruResponse"][];
+            sapBatDau: components["schemas"]["HoSoCuTruResponse"][];
+            lichSuCuTru: components["schemas"]["HoSoCuTruResponse"][];
+            deNghiCuTru: components["schemas"]["HoSoCuTruResponse"][];
+        };
         ApiResponsePageResponseTaiKhoanTomTat: {
             success?: boolean;
             /** Format: int32 */
@@ -1176,6 +1706,94 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    doiTrangThai: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoiTrangThaiPhuongTienRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePhuongTienResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    capNhat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CapNhatHoSoCuTruRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     doiMatKhau: {
         parameters: {
             query?: never;
@@ -1512,7 +2130,354 @@ export interface operations {
             };
         };
     };
+    dangKy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DangKyPhuongTienRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePhuongTienResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rut: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePhuongTienResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     danhSach: {
+        parameters: {
+            query?: {
+                /** @description Mã tòa nhà */
+                maToaNha?: string;
+                /** @description Số tầng 1 đến 99, cần maToaNha */
+                soTang?: number;
+                /** @description Trạng thái hồ sơ, lặp lại được */
+                trangThaiHoSo?: ("Chờ xác minh" | "Hợp lệ" | "Hết hiệu lực" | "Từ chối" | "Đã hủy")[];
+                /** @description Vai trò cư trú */
+                vaiTroCuTru?: "Chủ căn hộ" | "Khách thuê" | "Thành viên gia đình";
+                /** @description Tình trạng cư trú */
+                tinhTrangCuTru?: "Thường trú" | "Tạm trú";
+                /** @description Từ khóa, tối đa 100 ký tự */
+                q?: string;
+                /** @description Trang, bắt đầu từ 1 */
+                page?: number;
+                /** @description Số dòng mỗi trang, tối đa 100 */
+                size?: number;
+                /** @description Trường,chiều; trường là taoLuc, capNhatLuc, ngayBatDau, ngayKetThuc hoặc maCanHo */
+                sort?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePageResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    them: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThemHoSoCuTruRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    tuChoi: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TuChoiDeNghiCuTruRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    huy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    duyet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    gui: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuiDeNghiCuTruRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    danhSach_1: {
         parameters: {
             query?: {
                 /** @description Trang, bắt đầu từ 1 */
@@ -1557,7 +2522,7 @@ export interface operations {
             };
         };
     };
-    them: {
+    them_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -1599,7 +2564,7 @@ export interface operations {
             };
         };
     };
-    danhSach_1: {
+    danhSach_2: {
         parameters: {
             query?: {
                 /** @description Trang, bắt đầu từ 1 */
@@ -1646,7 +2611,7 @@ export interface operations {
             };
         };
     };
-    them_1: {
+    them_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -1954,7 +2919,7 @@ export interface operations {
             };
         };
     };
-    them_2: {
+    them_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -2264,7 +3229,48 @@ export interface operations {
             };
         };
     };
-    danhSach_2: {
+    timCuDan: {
+        parameters: {
+            query?: {
+                /** @description Từ khóa, tối đa 100 ký tự */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListCuDanLuaChonResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    danhSach_3: {
         parameters: {
             query?: {
                 /** @description Mã tòa nhà; bỏ trống là mọi tòa trong phạm vi */
@@ -2369,6 +3375,86 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseHoSoResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    xem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponsePhuongTienCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Lỗi theo vỏ bọc chung */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    xem_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                apartmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseHoSoCuTruCanHoResponse"];
+                };
+            };
+            /** @description Không đủ quyền (FORBIDDEN) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Lỗi theo vỏ bọc chung */

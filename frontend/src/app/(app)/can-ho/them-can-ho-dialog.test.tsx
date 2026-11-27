@@ -101,4 +101,15 @@ describe("Hộp thoại Thêm căn hộ (spec 0012, AC-18)", () => {
     await waitFor(() => expect(soCan).toHaveAccessibleDescription(/Tầng này đã có căn số 5 \(A-0105\)/));
     expect(soCan).toHaveFocus();
   });
+
+  it("ẩn lựa chọn Đang sử dụng khi tạo căn hộ mới (spec 0014, AC-17)", async () => {
+    const user = userEvent.setup();
+    hienThi();
+    await user.click(screen.getByRole("button", { name: "Thêm căn hộ" }));
+    await user.click(screen.getByRole("combobox", { name: /Trạng thái sử dụng/ }));
+    expect(await screen.findByRole("option", { name: "Trống" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Đang sửa chữa" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Đã bàn giao" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Đang sử dụng" })).not.toBeInTheDocument();
+  });
 });
