@@ -17,7 +17,16 @@ const col = dataTableColumns<Row>();
 const columns = col.columns([
   col.accessor("ma", { header: "Mã", meta: { sortField: "ma" } }),
   col.accessor("ten", { header: "Tên" }),
-  col.accessor("moTa", { header: "Mô tả", meta: { description: true } }),
+  col.accessor("moTa", {
+    header: "Mô tả",
+    meta: {
+      description: true,
+      sortOptions: [
+        { field: "batDau", label: "Bắt đầu" },
+        { field: "ketThuc", label: "Kết thúc" },
+      ],
+    },
+  }),
 ]);
 
 function pageOf(params: Params, total: number): PageResponse<Row> {
@@ -135,6 +144,14 @@ describe("DataTable (AC-9, AC-10)", () => {
     await waitFor(() => expect(header()).toHaveAttribute("aria-sort", "descending"));
     await user.click(within(header()).getByRole("button"));
     await waitFor(() => expect(header()).not.toHaveAttribute("aria-sort"));
+
+    const multiHeader = () => screen.getByRole("columnheader", { name: /Mô tả/ });
+    await user.click(within(multiHeader()).getByRole("button", { name: "Bắt đầu" }));
+    await waitFor(() => expect(multiHeader()).toHaveAttribute("aria-sort", "ascending"));
+    expect(fetcher).toHaveBeenLastCalledWith({ page: 1, size: 10, sort: { field: "batDau", dir: "asc" } });
+    await user.click(within(multiHeader()).getByRole("button", { name: "Kết thúc" }));
+    await waitFor(() => expect(multiHeader()).toHaveAttribute("aria-sort", "ascending"));
+    expect(fetcher).toHaveBeenLastCalledWith({ page: 1, size: 10, sort: { field: "ketThuc", dir: "asc" } });
   });
 
   it("rỗng thì hiện EmptyState và ẩn thanh phân trang", async () => {

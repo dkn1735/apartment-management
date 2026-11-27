@@ -11,25 +11,25 @@ Tài liệu nguồn: `sql/database_schema_quan_ly_chung_cu.sql` (38 bảng) và 
 
 ## At a glance
 
-| #   | Feature                              | Phase      | Status  |
-| --- | ------------------------------------ | ---------- | ------- |
-| 1   | Stack & kiến trúc                    | Foundation | done    |
-| 2   | Quy chuẩn code & công cụ             | Foundation | done    |
-| 3   | Mô hình dữ liệu                      | Foundation | done    |
-| 4   | Design system & nền tảng giao diện   | Foundation | done    |
-| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done    |
-| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done    |
-| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done    |
-| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done    |
-| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done    |
-| 10  | Đổi mật khẩu                         | Slice 6    | done    |
-| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done    |
-| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done    |
-| 13  | Quên mật khẩu qua email              | Slice 9    | done    |
-| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done    |
-| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done    |
-| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done    |
-| 17  | Hồ sơ cư trú căn hộ                  | Slice 13   | in-progress |
+| #   | Feature                              | Phase      | Status      |
+| --- | ------------------------------------ | ---------- | ----------- |
+| 1   | Stack & kiến trúc                    | Foundation | done        |
+| 2   | Quy chuẩn code & công cụ             | Foundation | done        |
+| 3   | Mô hình dữ liệu                      | Foundation | done        |
+| 4   | Design system & nền tảng giao diện   | Foundation | done        |
+| 5   | Đăng nhập & trang hồ sơ              | Slice 1    | done        |
+| 6   | Làm mới phiên & đăng xuất            | Slice 2    | done        |
+| 7   | Phân quyền theo vai trò & bố cục app | Slice 3    | done        |
+| 8   | Ghi nhật ký kiểm toán dùng chung     | Slice 4    | done        |
+| 9   | Màn hình tra cứu nhật ký kiểm toán   | Slice 5    | done        |
+| 10  | Đổi mật khẩu                         | Slice 6    | done        |
+| 11  | Quản lý tài khoản (Admin)            | Slice 7    | done        |
+| 12  | Khóa tạm khi đăng nhập sai nhiều lần | Slice 8    | done        |
+| 13  | Quên mật khẩu qua email              | Slice 9    | done        |
+| 14  | Tòa nhà, tầng & khu vực dùng chung   | Slice 10   | done        |
+| 15  | Tìm kiếm & quản lý căn hộ            | Slice 11   | done        |
+| 16  | Tạm dừng quyền tiện ích căn hộ       | Slice 12   | done        |
+| 17  | Hồ sơ cư trú căn hộ                  | Slice 13   | done        |
 | 18  | Đề nghị cư trú & tra cứu hồ sơ       | Slice 14   | done        |
 | 19  | Phương tiện gửi xe căn hộ            | Slice 15   | planned |
 
@@ -289,7 +289,7 @@ spec [0013](../specs/0013-tam-dung-tien-ich-can-ho/index.md) · code in `backend
 
 ## Slice 13: Hồ sơ cư trú căn hộ
 
-### 17. Hồ sơ cư trú căn hộ · in-progress
+### 17. Hồ sơ cư trú căn hộ · done
 
 Phần đầu của UC02, nối tiếp `CuTruService` đang cấp phạm vi căn hộ cho cư dân. BQL ghi nhận và cập nhật hồ sơ cư trú cho cư dân đã có tài khoản (`cu_dan`), BQL và cư dân xem nhân khẩu đang ở cùng lịch sử cư trú ngay trên trang chi tiết căn hộ (`API-UC02-01` đến `03`), đồng thời chốt luôn luật đồng bộ với `trang_thai_su_dung` của căn hộ.
 **Done when:** BQL thêm, sửa và kết thúc được hồ sơ cư trú kèm nhật ký kiểm toán; nhân khẩu và lịch sử hiện đúng trên `/can-ho/[maCanHo]` và `/can-ho-cua-toi` mà không lộ dữ liệu cá nhân ngoài phạm vi; trạng thái sử dụng của căn hộ và quyền xem căn của cư dân phản ánh đúng hồ sơ hợp lệ.
@@ -301,11 +301,11 @@ spec [0014](../specs/0014-ho-so-cu-tru-can-ho/index.md) · code in `backend/src/
   - [x] Đường mỏng đọc và thêm hồ sơ: `V18`, `CuTruDinhDanhService`, `CanHoCuTruService`, `GET .../residents`, `resident-options`, `POST /residency-records`, nhật ký và đồng bộ căn (AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-9, AC-10, AC-12, AC-13)
   - [x] Làm dày sửa, kết thúc và chặn sửa tay căn hộ: `PUT /residency-records/{id}`, hủy sớm `sapBatDau`, kiểm 422 ở `SuaCanHoService` và `ThemCanHoService` (AC-7, AC-8, AC-10, AC-12, AC-13)
   - [x] Job hết hạn đầu ngày, seed và OpenAPI: `HoSoCuTruHetHanJob` kèm chạy bù lúc khởi động, `R__seed_04_cu_tru.sql`, `mvnw verify` (AC-11, AC-12, AC-13, AC-14)
-- [ ] Verify backend: `/check verify hồ sơ cư trú căn hộ backend`
+- [x] Verify backend: `/check verify hồ sơ cư trú căn hộ backend`
 - [x] Build frontend: `/develop hồ sơ cư trú căn hộ frontend`
   - [x] Khối Hồ sơ cư trú trên `ChiTietCanHo`: hai tab Hiện tại và Lịch sử, phân quyền hiển thị, ẩn PII và trạng thái tải, rỗng, lỗi độc lập (AC-15, AC-16, AC-18)
   - [x] Hộp thoại thao tác BQL và hoàn tất: Thêm, Sửa, Kết thúc hoặc Hủy cư trú, sửa `ThemCanHoDialog`, làm mới cache và kiểm tra WCAG AA (AC-17, AC-18)
-- [ ] Verify it: `/check verify hồ sơ cư trú căn hộ`
+- [x] Verify it: `/check verify hồ sơ cư trú căn hộ`
 - [x] Test it: `/test hồ sơ cư trú căn hộ`
 
 ## Slice 14: Đề nghị cư trú & tra cứu hồ sơ

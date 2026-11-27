@@ -73,6 +73,17 @@ public class CanHoGhi {
 			.update();
 	}
 
+	/**
+	 * Chỉ đổi trạng thái sử dụng, khi đồng bộ theo hồ sơ cư trú (spec 0014, AC-10). Gọi
+	 * sau {@link #khoaDong} trong cùng transaction.
+	 */
+	public void capNhatTrangThai(String maCanHo, String trangThaiSuDung) {
+		this.jdbc.sql("UPDATE can_ho SET trang_thai_su_dung = :trangThai WHERE ma_can_ho = :ma")
+			.param("trangThai", trangThaiSuDung)
+			.param("ma", maCanHo)
+			.update();
+	}
+
 	/** Gọi sau {@link #khoaDong} trong cùng transaction. */
 	public void capNhat(String maCanHo, BigDecimal dienTich, String trangThaiSuDung) {
 		this.jdbc.sql("UPDATE can_ho SET dien_tich = :dienTich, trang_thai_su_dung = :trangThai WHERE ma_can_ho = :ma")

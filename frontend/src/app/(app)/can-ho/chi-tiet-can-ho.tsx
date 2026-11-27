@@ -22,7 +22,9 @@ import {
   type CanHo,
 } from "@/lib/can-ho";
 import { formatNgayGio, formatSo } from "@/lib/format";
+import { hienKhoiHoSoCuTru } from "@/lib/cu-tru";
 import { DoiTienIchDialog } from "./doi-tien-ich-dialog";
+import { KhoiHoSoCuTru } from "./khoi-ho-so-cu-tru";
 import { SuaCanHoDialog } from "./sua-can-ho-dialog";
 
 export type DichQuayLai = { href: string; label: string };
@@ -90,6 +92,8 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
   }
 
   const canHo = query.data;
+  const laBql = choPhepSua && duocQuanLyCanHo(vaiTro);
+  const hienCuTru = hienKhoiHoSoCuTru(vaiTro, choPhepSua);
   return (
     <>
       <PageHeader
@@ -99,7 +103,7 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
           <div className="flex flex-wrap items-start gap-3">
             {nutQuayLai}
             {choPhepSua && duocDoiTienIch(vaiTro) && <DoiTienIchDialog canHo={canHo} />}
-            {choPhepSua && duocQuanLyCanHo(vaiTro) && <SuaCanHoDialog canHo={canHo} />}
+            {laBql && <SuaCanHoDialog canHo={canHo} />}
           </div>
         }
       />
@@ -108,6 +112,7 @@ export function ChiTietCanHo({ maCanHo, quayLai, choPhepSua = false }: ChiTietCa
           <KeyValueList variant="divided" items={thongTin(canHo)} />
         </CardContent>
       </Card>
+      {hienCuTru && <KhoiHoSoCuTru maCanHo={canHo.maCanHo} laBql={laBql} />}
     </>
   );
 }

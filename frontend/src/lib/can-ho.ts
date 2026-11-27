@@ -14,6 +14,9 @@ export const khoaChiTietCanHo = (ma: string) => [...CAN_HO_QUERY_KEY, "chi-tiet"
 /** Bốn trạng thái theo đúng chuỗi DB và thứ tự nghiệp vụ (spec 0012, Thuật ngữ). */
 export const TRANG_THAI_SU_DUNG: readonly TrangThaiSuDung[] = ["Trống", "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao"];
 
+/** Căn hộ vừa tạo chưa có hồ sơ cư trú nên không được chọn Đang sử dụng ban đầu (spec 0014, AC-10, AC-17). */
+export const TRANG_THAI_TAO_CAN_HO: readonly TrangThaiSuDung[] = ["Trống", "Đang sửa chữa", "Đã bàn giao"];
+
 const TONE_TRANG_THAI: Record<TrangThaiSuDung, StatusTone> = {
   Trống: "neutral",
   "Đang sử dụng": "success",

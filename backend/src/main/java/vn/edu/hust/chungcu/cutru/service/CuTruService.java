@@ -26,4 +26,13 @@ public class CuTruService {
 		return this.hoSoCuTru.findMaCanHoConHieuLuc(maCuDan, HoSoCuTru.HOP_LE, ngay);
 	}
 
+	/**
+	 * Căn có người đang cư trú vào {@code ngay} (spec 0014, AC-10). Gọi dưới khóa dòng
+	 * căn để kết quả không đổi tới hết transaction.
+	 */
+	@Transactional(readOnly = true)
+	public boolean coNguoiDangCuTru(String maCanHo, LocalDate ngay) {
+		return this.hoSoCuTru.coHoSoConHieuLuc(maCanHo, HoSoCuTru.HOP_LE, ngay);
+	}
+
 }

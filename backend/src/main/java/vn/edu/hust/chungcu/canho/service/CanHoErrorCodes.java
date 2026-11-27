@@ -17,6 +17,11 @@ public final class CanHoErrorCodes {
 	 */
 	public static final String CANHO_TIEN_ICH_KHONG_DOI = "CANHO_TIEN_ICH_KHONG_DOI";
 
+	/**
+	 * Trạng thái sử dụng gửi lên mâu thuẫn với hồ sơ cư trú hôm nay (spec 0014, AC-10).
+	 */
+	public static final String CANHO_TRANG_THAI_MAU_THUAN_CU_TRU = "CANHO_TRANG_THAI_MAU_THUAN_CU_TRU";
+
 	private CanHoErrorCodes() {
 	}
 

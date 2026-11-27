@@ -10,7 +10,13 @@ public final class TrangThaiSuDung {
 
 	public static final String TRONG = "Trống";
 
-	public static final List<String> TAT_CA = List.of(TRONG, "Đang sử dụng", "Đang sửa chữa", "Đã bàn giao");
+	public static final String DANG_SU_DUNG = "Đang sử dụng";
+
+	public static final String DANG_SUA_CHUA = "Đang sửa chữa";
+
+	public static final String DA_BAN_GIAO = "Đã bàn giao";
+
+	public static final List<String> TAT_CA = List.of(TRONG, DANG_SU_DUNG, DANG_SUA_CHUA, DA_BAN_GIAO);
 
 	private TrangThaiSuDung() {
 	}

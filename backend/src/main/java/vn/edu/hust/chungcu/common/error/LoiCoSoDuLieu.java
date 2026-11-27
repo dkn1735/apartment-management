@@ -20,6 +20,9 @@ public final class LoiCoSoDuLieu {
 	/** Vi phạm UNIQUE. */
 	public static final String TRUNG_KHOA = "23505";
 
+	/** Vi phạm ràng buộc loại trừ {@code EXCLUDE USING gist} (spec 0014, AC-9). */
+	public static final String LOAI_TRU_GIST = "23P01";
+
 	private LoiCoSoDuLieu() {
 	}
 

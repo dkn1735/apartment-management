@@ -22,8 +22,9 @@ import vn.edu.hust.chungcu.nhatky.service.NhatKyService;
 
 /**
  * Thêm một căn vào một tầng có sẵn, mã căn do server ghép (spec 0012, AC-7 đến AC-9,
- * AC-14). Kiểm trùng trước để trường hợp thường gặp trả 409 ngay; hai request chạy đua
- * thì khóa chính chặn và được dịch về cùng 409.
+ * AC-14). Căn mới không được ở {@code Đang sử dụng} (spec 0014, AC-10). Kiểm trùng trước
+ * để trường hợp thường gặp trả 409 ngay; hai request chạy đua thì khóa chính chặn và được
+ * dịch về cùng 409.
  */
 @Service
 public class ThemCanHoService {
@@ -54,6 +55,10 @@ public class ThemCanHoService {
 	@Transactional
 	public CanHoResponse them(PhamViTruyCap phamVi, ThemCanHoRequest request) {
 		CanHoMoi moi = kiem(phamVi, request);
+		// Căn mới chưa có hồ sơ cư trú nào (spec 0014, AC-10)
+		if (TrangThaiSuDung.DANG_SU_DUNG.equals(moi.trangThai())) {
+			throw CanHoLoi.trangThaiMauThuanCuTru(CanHoLoi.CHUA_CO_NGUOI_CU_TRU);
+		}
 		String ma = MaCanHo.cua(moi.maTang(), moi.soCan());
 		if (this.query.tonTai(ma)) {
 			throw CanHoLoi.trungCanHo(moi.soCan(), ma);

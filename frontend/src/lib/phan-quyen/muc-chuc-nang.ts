@@ -1,5 +1,6 @@
 import {
   Building2,
+  ClipboardCheck,
   DoorOpen,
   House,
   LayoutDashboard,
@@ -58,7 +59,14 @@ export const MUC_CHUC_NANG: readonly MucChucNang[] = [
     moTa: "Sảnh, hành lang, phòng kỹ thuật của từng tòa",
     icon: MapPinned,
   },
-  { href: "/ho-so-cu-tru", label: "Hồ sơ cư trú", vaiTro: ["BAN_QUAN_LY"], sanSang: false },
+  {
+    href: "/ho-so-cu-tru",
+    label: "Hồ sơ cư trú",
+    vaiTro: ["BAN_QUAN_LY"],
+    sanSang: true,
+    moTa: "Tra cứu hồ sơ cư trú toàn tòa và xử lý đề nghị chờ xác minh",
+    icon: ClipboardCheck,
+  },
   {
     href: "/can-ho-cua-toi",
     label: "Căn hộ của tôi",

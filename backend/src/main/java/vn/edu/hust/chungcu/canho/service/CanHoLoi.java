@@ -53,6 +53,20 @@ final class CanHoLoi {
 				dangTamDung ? "Căn hộ đang bị tạm dừng tiện ích" : "Căn hộ đang dùng tiện ích bình thường");
 	}
 
+	static final String CHUA_CO_NGUOI_CU_TRU = "Căn hộ chưa có người đang cư trú, không thể đặt trạng thái Đang sử dụng";
+
+	static final String DANG_CO_NGUOI_CU_TRU = "Căn hộ đang có người cư trú, không thể đặt trạng thái Trống hoặc Đã bàn giao";
+
+	/**
+	 * 422 {@code CANHO_TRANG_THAI_MAU_THUAN_CU_TRU}, một mục ở ô trạng thái sử dụng (spec
+	 * 0014, AC-10).
+	 */
+	static ApiException trangThaiMauThuanCuTru(String cauTrangThai) {
+		return new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, CanHoErrorCodes.CANHO_TRANG_THAI_MAU_THUAN_CU_TRU,
+				"Trạng thái sử dụng không khớp với hồ sơ cư trú hiện tại",
+				List.of(new FieldError("trangThaiSuDung", cauTrangThai)));
+	}
+
 	/** 422 {@code CANHO_TANG_SAI_THU_TU} với câu của mục {@code soTang}. */
 	static ApiException saiThuTu(String cauSoTang) {
 		return new ApiException(HttpStatus.UNPROCESSABLE_CONTENT, CanHoErrorCodes.CANHO_TANG_SAI_THU_TU,

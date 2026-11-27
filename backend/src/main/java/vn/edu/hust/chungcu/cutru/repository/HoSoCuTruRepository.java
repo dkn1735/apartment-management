@@ -18,4 +18,14 @@ public interface HoSoCuTruRepository extends JpaRepository<HoSoCuTru, String> {
 			order by h.maCanHo""")
 	List<String> findMaCanHoConHieuLuc(String maCuDan, String trangThai, LocalDate ngay);
 
+	/**
+	 * Căn có ít nhất một hồ sơ ở trạng thái {@code trangThai} còn hiệu lực vào
+	 * {@code ngay}.
+	 */
+	@Query("""
+			select count(h) > 0 from HoSoCuTru h
+			where h.maCanHo = :maCanHo and h.trangThaiHoSo = :trangThai and h.ngayBatDau <= :ngay
+			and (h.ngayKetThuc is null or h.ngayKetThuc >= :ngay)""")
+	boolean coHoSoConHieuLuc(String maCanHo, String trangThai, LocalDate ngay);
+
 }

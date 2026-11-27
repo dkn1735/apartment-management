@@ -116,10 +116,11 @@ class HoSoIntegrationTest {
 	void chiTinhHoSoCuTruConHieuLucHomNayTheoGioVietNam() throws Exception {
 		TaiKhoanThu.TaiKhoan tk = this.taiKhoanThu.tao(this.passwordEncoder.encode(AuthApi.MAT_KHAU_SEED));
 		String maCuDan = taoCuDan(tk.maNguoiDung());
-		hoSoCuTru(maCuDan, "A-0101", "2026-01-01", null, "Hết hiệu lực");
+		// Tạm trú luôn có ngày kết thúc (spec 0014, chk_hsct_ngay_ket_thuc_bat_buoc)
+		hoSoCuTru(maCuDan, "A-0101", "2026-01-01", "2026-06-30", "Hết hiệu lực");
 		hoSoCuTru(maCuDan, "A-0201", "2026-01-01", "2026-11-15", "Hợp lệ");
 		hoSoCuTru(maCuDan, "A-0301", "2026-11-16", "2026-11-16", "Hợp lệ");
-		hoSoCuTru(maCuDan, "A-0101", "2026-11-17", null, "Hợp lệ");
+		hoSoCuTru(maCuDan, "A-0101", "2026-11-17", "2027-11-16", "Hợp lệ");
 
 		// 00:30 ngày 16/11 giờ Việt Nam; theo UTC vẫn là 15/11 nên A-0201 sẽ bị tính nhầm
 		this.clock.set(Instant.parse("2026-11-15T17:30:00Z"));

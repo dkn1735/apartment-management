@@ -48,6 +48,11 @@ public record DoiTuongTacDong(String loai, String ma) {
 		return new DoiTuongTacDong("CanHo", maCanHo);
 	}
 
+	/** Hồ sơ cư trú {@code HoSoCuTru:<maHoSo>} (spec 0014, AC-12). */
+	public static DoiTuongTacDong hoSoCuTru(String maHoSo) {
+		return new DoiTuongTacDong("HoSoCuTru", maHoSo);
+	}
+
 	@Override
 	public String toString() {
 		return dang(this.loai, this.ma);

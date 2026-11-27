@@ -136,6 +136,7 @@ function moTrang(
   get.mockImplementation((path: string, opts?: { params?: { query?: { q?: string } } }) => {
     if (path === "/api/v1/apartments/{apartmentId}") return Promise.resolve(canHoData);
     if (path === "/api/v1/apartments/{apartmentId}/residents") return cuTruImpl();
+    if (path === "/api/v1/apartments/{apartmentId}/vehicles") return Promise.resolve({ dangGui: [], donVaLichSu: [] });
     if (path === "/api/v1/residency-records/resident-options") {
       const q = opts?.params?.query?.q?.toLowerCase() ?? "";
       return Promise.resolve(LUA_CHON_CU_DAN.filter((c) => !q || c.hoTen.toLowerCase().includes(q)));
